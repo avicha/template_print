@@ -1,0 +1,7 @@
+$base_font_size: 16;
+body {
+    font-size: $base_font_size * 1px;
+}
+@mixin F($i) {
+    font-size: ($i/$base_font_size) * 1rem;
+}

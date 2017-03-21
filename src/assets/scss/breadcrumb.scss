@@ -1,0 +1,22 @@
+.breadcrumb {
+    padding: 20px 0;
+    font-size: 0;
+    .breadcrumb-item {
+        @include F(14);
+        @include TC4;
+        padding-left: 10px;
+        &:first-child {
+            padding-left: 0;
+            padding-right: 10px;
+            border-right: 1px solid $C1;    
+        }
+        &:last-child {
+            @include TC7;
+        }
+        &:not(:first-child):not(:last-child):after {
+            content: '>';
+            margin-left: 10px;
+            @include TC7;
+        }
+    }
+}

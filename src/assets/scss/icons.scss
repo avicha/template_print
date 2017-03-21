@@ -1,0 +1,59 @@
+@each $icon in back, save, undo, redo, align-left, align-center, align-right, align-top, align-middle, align-bottom, align-v-center, align-h-center, combine, split, rotate-left, rotate-right, rotate-canvas-left, preview, print {
+    .#{$icon}-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: url(~assets/images/#{$icon}.png) center center no-repeat;
+        vertical-align: middle;
+    }
+}
+@each $icon in plus, minus {
+    .#{$icon}-icon {
+        display: inline-block;
+        width: 22px;
+        height: 26px;
+        background: url(~assets/images/#{$icon}.png) center center no-repeat;
+        vertical-align: middle;
+    }
+}
+@each $icon in bold, italic, underline {
+    .#{$icon}-icon {
+        display: inline-block;
+        width: 62px;
+        height: 32px;
+        background: url(~assets/images/#{$icon}.png) center center no-repeat;
+        vertical-align: middle;
+        &.active {
+            background: url(~assets/images/#{$icon}-active.png) center center no-repeat;
+        }
+    }
+}
+@each $icon in text-align-left, text-align-center, text-align-right {
+    .#{$icon}-icon {
+        display: inline-block;
+        width: 62px;
+        height: 32px;
+        background: url(~assets/images/#{$icon}.png) center center no-repeat;
+        vertical-align: middle;
+    }
+}
+.font-style-icon {
+    display: inline-block;
+    width: 22px;
+    height: 28px;
+    background: url(~assets/images/font-style.png) center center no-repeat;
+    vertical-align: middle;
+}
+.default-icon {
+    display: inline-block;
+    width: 54px;
+    height: 54px;
+    background: url(~assets/images/default-icon.png) center center no-repeat;
+    vertical-align: middle;
+}
+.el-icon-empty {
+    width: 20px;
+    height: 20px;
+    background: url(~assets/images/empty.png) center center no-repeat;
+    vertical-align: middle;
+}

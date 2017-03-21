@@ -4,7 +4,7 @@ import state from './state'
 import mutations from './mutations'
 import * as actions from './actions'
 import * as getters from './getters'
-import templateList from './modules/template_list'
+import template from './modules/template'
 Vue.use(Vuex)
 
 const debug = process.env.NODE_ENV !== 'production'
@@ -15,7 +15,7 @@ export default new Vuex.Store({
     actions,
     getters,
     modules: {
-        templateList
+        template,
     },
     strict: debug,
     plugins: []

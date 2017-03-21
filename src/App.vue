@@ -10,10 +10,15 @@ export default {
 }
 </script>
 
+<style lang="scss">
+@import "assets/scss/reset";
+@import "assets/scss/icons";
+</style>
 <style>
+body {
+    background-color: #f1f4f8;
+}
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-family: Microsoft Yahei, 'Avenir', Helvetica, Arial, sans-serif;
 }
 </style>

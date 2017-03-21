@@ -1,0 +1,342 @@
+<template>
+    <div class="property-setting">
+        <div class="property-setting-title">
+            <span class="property-setting-span1">动态数据项：</span><span class="property-setting-span2">{{ data.propertyName }}</span>
+        </div>
+        <div class="property-setting-body" v-if="data.propertyType != 4">
+            <el-form label-width="40px" label-position="left">
+                <div class="el-form-item" v-show="data.propertyType == 1 || data.propertyType == 3">
+                    <label class="el-label">保留小数点位数</label><el-select class="to-fixed" v-model.number="data.toFixed" placeholder="请选择" size="small">
+                        <el-option label="0位" value="0"></el-option>
+                        <el-option label="1位" value="1"></el-option>
+                        <el-option label="2位" value="2"></el-option>
+                        <el-option label="3位" value="3" v-show="data.propertyType == 3"></el-option>
+                    </el-select>
+                </div>
+                <div class="el-form-item" v-show="data.propertyType == 2">
+                    <label class="el-label">格式</label><el-select class="date-format" v-model="data.dateFormat" placeholder="请选择" size="small">
+                        <el-option label="年-月-日 时:分:秒" value="YYYY-MM-DD HH:mm:ss"></el-option>
+                        <el-option label="年-月-日 时:分" value="YYYY-MM-DD HH:mm"></el-option>
+                        <el-option label="年-月-日" value="YYYY-MM-DD"></el-option>
+                        <el-option label="时:分:秒" value="HH:mm:ss"></el-option>
+                        <el-option label="时:分" value="HH:mm"></el-option>
+                    </el-select>
+                </div>
+                <el-form-item label="前缀">
+                    <el-input class="prefix-input" v-model="data.prefix" placeholder="" size="small">
+                        <i class="icon font-style-icon" slot="append" :class="{active: styleType == 'prefix'}" @click="toggleStyle('prefix')"></i>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="样本">
+                    <el-input class="sample-input" v-model.number="data.sample" placeholder="" size="small">
+                        <i class="icon font-style-icon" slot="append"  :class="{active: styleType == 'value'}" @click="toggleStyle('value')"></i>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="后缀">
+                    <el-input class="suffix-input" v-model.number="data.suffix" placeholder="" size="small">
+                        <i class="icon font-style-icon" slot="append" :class="{active: styleType == 'suffix'}" @click="toggleStyle('suffix')"></i>
+                    </el-input>
+                </el-form-item>
+            </el-form>
+        </div>
+        <div class="property-setting-body" v-if="data.propertyType != 4">
+            <p class="property-setting-text">{{ propertySettingText }}</p>
+            <div class="font-style">
+                <i class="icon bold-icon" :class="{active: style.isBold}" @click="style.isBold = !style.isBold" title="加粗"></i>
+                <i class="icon italic-icon" :class="{active: style.isItalic}" @click="style.isItalic = !style.isItalic" title="斜体"></i>
+                <i class="icon underline-icon" :class="{active: style.isUnderline}" @click="style.isUnderline = !style.isUnderline" title="下划线"></i>
+            </div>
+            <el-form label-width="68px" label-position="left">
+                <el-form-item label="字体">
+                    <el-select v-model="style.fontFamily" placeholder="请选择字体" size="small">
+                        <el-option label="宋体" value="SimSun"></el-option>
+                        <el-option label="微软雅黑" value="Microsoft Yahei"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="字体大小">
+                    <el-input-number class="fontSize" v-model="style.fontSize" :min="12" :max="32" size="small"></el-input-number>
+                </el-form-item>
+                <div class="el-form-item">
+                    <label class="el-label">文本颜色</label><el-color-picker v-model="style.color"></el-color-picker>
+                </div>
+            </el-form>
+        </div>
+        <div class="property-setting-body" v-if="data.propertyType != 4">
+            <el-form label-width="68px" label-position="left">
+                <el-form-item label="横轴">
+                    <el-input v-model.number="data.left" placeholder="" size="small">
+                        <template slot="append">mm</template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="竖轴">
+                    <el-input v-model.number="data.top" placeholder="" size="small">
+                        <template slot="append">mm</template>
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <div class="text-align">
+                <i class="icon text-align-left-icon" :class="{active: data.textAlign == 'left'}" @click="data.textAlign = 'left'"></i>
+                <i class="icon text-align-center-icon" :class="{active: data.textAlign == 'center'}" @click="data.textAlign = 'center'"></i>
+                <i class="icon text-align-right-icon" :class="{active: data.textAlign == 'right'}" @click="data.textAlign = 'right'"></i>
+            </div>
+        </div>
+        <div  class="property-setting-body" v-if="data.propertyType == 4">
+            <el-form label-width="68px" label-position="left">
+                <el-form-item label="样本">
+                    <el-input class="sample-input" v-model="data.sample" placeholder="" size="small">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="宽">
+                    <el-input v-model.number="data.width" placeholder="" size="small">
+                        <template slot="append">mm</template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="高">
+                    <el-input v-model.number="data.height" placeholder="" size="small">
+                        <template slot="append">mm</template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="横轴">
+                    <el-input v-model.number="data.left" placeholder="" size="small">
+                        <template slot="append">mm</template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="竖轴">
+                    <el-input v-model.number="data.top" placeholder="" size="small">
+                        <template slot="append">mm</template>
+                    </el-input>
+                </el-form-item>
+            </el-form>
+        </div>
+    </div>
+</template>
+<script>
+import Vue from 'vue'
+import {Input, Form, FormItem, Select, Option, InputNumber, ColorPicker} from 'element-ui'
+Vue.use(Input)
+Vue.use(Form)
+Vue.use(FormItem)
+Vue.use(Select)
+Vue.use(Option)
+Vue.use(InputNumber)
+Vue.use(ColorPicker)
+
+import extend from 'lodash/extend'
+
+export default {
+    data(){
+        return {
+            styleType: '',
+            defaultStyle: {
+                isBold: false,
+                isItalic: false,
+                isUnderline: false,
+                fontFamily: 'SimSun',
+                fontSize: 14,
+                color: '#333',
+            },
+            ready: false,
+            data: {
+                propertyCode: '',
+                propertyName: '',
+                propertyType: 0,
+                toFixed: 0,
+                dateFormat: 'YYYY-MM-DD H:m:s',
+                prefix: '',
+                prefixStyle: {
+                    isBold: false,
+                    isItalic: false,
+                    isUnderline: false,
+                    fontFamily: 'SimSun',
+                    fontSize: 14,
+                    color: '#333',
+                },
+                sample: '',
+                valueStyle: {
+                    isBold: false,
+                    isItalic: false,
+                    isUnderline: false,
+                    fontFamily: 'SimSun',
+                    fontSize: 14,
+                    color: '#333',
+                },
+                suffix: '',
+                suffixStyle: {
+                    isBold: false,
+                    isItalic: false,
+                    isUnderline: false,
+                    fontFamily: 'SimSun',
+                    fontSize: 14,
+                    color: '#333',
+                },
+                left: 0,
+                top: 0,
+                width: 0,
+                height: 0,
+                textAlign: '',
+                alignNumber: 0,
+            }
+        }
+    },
+    computed:{
+        propertySettingText(){
+            switch(this.styleType){
+                case 'prefix':
+                    return '前缀属性'
+                case 'value':
+                    return '样本属性'
+                case 'suffix':
+                    return '后缀属性'
+                default:
+                    return '动态数据项属性'
+            }
+        },
+        style(){
+            return this.data[this.styleType + 'Style'] || this.defaultStyle
+        }
+    },
+    methods: {
+        toggleStyle(type){
+            this.styleType = type
+        }
+    },
+    watch:{
+        defaultStyle:{
+            handler(style){
+                ['prefix', 'value', 'suffix'].forEach((type) => {
+                    extend(this.data[type + 'Style'], style)
+                })
+            },
+            deep: true
+        },
+        data:{
+            handler(data){
+                if(this.ready){
+                    let textAlign = this.data.textAlign
+                    switch(textAlign){
+                        case 'left':
+                            this.data.alignNumber = this.data.left
+                            break
+                        case 'center':
+                            this.data.alignNumber = this.data.left + 0.5 * this.data.width
+                            break;
+                        case 'right':
+                            this.data.alignNumber = this.data.left + this.data.width
+                            break;
+                    }
+                    this.$emit('changeComponentData', data)
+                    this.$emit('record')    
+                }
+            },
+            deep: true
+        },
+    },
+    mounted(){
+        this.$on('set_data', data => {
+            let dataClone = JSON.parse(JSON.stringify(data))
+            for(let key in dataClone){
+                if(this.data[key] !== undefined){
+                    this.data[key] = dataClone[key]
+                }
+            }
+            this.ready = false
+            Vue.nextTick(() => {
+                this.ready = true
+            })
+        })
+    }
+}
+</script>
+
+<style lang="scss">
+.property-setting {
+    .property-setting-title {
+        padding: 0 20px;
+        line-height: 44px;
+        .property-setting-span1 {
+            margin-right: 10px;
+        }
+        .property-setting-span2 {
+            color: #0abfab;
+        }
+    }
+    .property-setting-body {
+        padding: 16px 20px 10px;
+        border-top: 1px solid #d6d6d6;
+        .property-setting-text {
+            margin-bottom: 10px;
+        }
+        .prefix-input, .sample-input, .suffix-input {
+            .el-input-group__append {
+                padding: 0;
+            }
+            .icon {
+                opacity: .3;
+                &.active {
+                    opacity: 1;
+                }
+            }
+        }
+        .font-style {
+            width: 100%;
+            height: 34px;
+            margin-bottom: 14px;
+            box-sizing: border-box;
+            border: 1px solid #d6d6d6;
+            border-radius: 4px;
+            overflow: hidden;
+            .icon {
+                float: left;
+                border-right: 1px solid #d6d6d6;
+                &:last-child {
+                    border-right: none;
+                }
+            }
+        }
+        .text-align {
+            width: 100%;
+            height: 34px;
+            margin-bottom: 14px;
+            box-sizing: border-box;
+            border: 1px solid #d6d6d6;
+            border-radius: 4px;
+            overflow: hidden;
+            .icon {
+                float: left;
+                opacity: .3;
+                border-right: 1px solid #d6d6d6;
+                &:last-child {
+                    border-right: none;
+                }
+                &.active {
+                    opacity: 1;
+                }
+            }
+        }
+        .to-fixed {
+            width: 80px;
+        }
+        .date-format {
+            width: 150px;
+        }
+        .fontSize {
+            width: 122px;
+        }
+        .el-form-item {
+            height: 36px;
+            margin-bottom: 14px;
+            &:last-child {
+                margin-bottom: 0;
+            }
+            .el-label {
+                line-height: 36px;
+                margin-right: 12px;
+                float: left;
+            }
+            label {
+                text-align-last: justify;
+            }
+        }
+    }
+}
+</style>

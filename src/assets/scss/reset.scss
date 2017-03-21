@@ -1,0 +1,29 @@
+@import "colors.scss";
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    -webkit: {
+        appearance: none;
+        tap-highlight-color: transparent;
+    }
+}
+input, button, textarea {
+    outline: none;
+}
+textarea {
+    resize: none;
+}
+a {
+    text-decoration: none;
+}
+.el-input__inner {
+    &:focus {
+        outline: none;
+        border-color: $C3 !important;
+    }
+    &:hover {
+        outline: none;
+        border-color: $C3 !important;
+    }
+}

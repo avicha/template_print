@@ -1,0 +1,46 @@
+@import "../assets/scss/fonts.scss";
+@import "../assets/scss/colors.scss";
+.el-dialog {
+    width: 380px;
+    .el-dialog__header {
+        text-align: center;
+        padding: 0 30px;
+        height: 44px;
+        line-height: 44px;
+        border-bottom: 1px solid $C3;
+        .el-dialog__title {
+            font-weight: normal;
+            @include F(16);
+            @include TC1;
+        }
+        .el-dialog__headerbtn {
+            .el-icon-close {
+                @include F(14);
+            }
+        }
+    }
+    .el-dialog__body {
+        .el-form {
+            padding: 0 20px;
+        }    
+    }
+    .dialog-footer {
+        text-align: center;
+        .el-button {
+            width: 120px;
+            padding: 7px 10px;
+            &.cancel {
+                @include BD1;
+                @include TC7;
+                margin-right: 40px;
+            }
+            &.confirm {
+                margin-left: 0;
+                background-color: $C4;
+                border-color: $C1;
+                @include TC6;
+                box-shadow: 0 0 6px $C3;
+            }
+        }
+    }
+}

@@ -1,0 +1,36 @@
+$C1: #0abfab;
+$C2: #fff;
+$C3: #d6d6d6;
+$C4: #22beab;
+$C5: #333;
+$C6: #666;
+$C7: #999;
+$C8: #f44d3a;
+
+@mixin TC1 {
+    color: $C5;
+}
+@mixin TC2 {
+    color: $C6;
+}
+@mixin TC3 {
+    color: $C4;
+}
+@mixin TC4 {
+    color: $C1;
+}
+@mixin TC5 {
+    color: $C8;
+}
+@mixin TC6 {
+    color: $C2;
+}
+@mixin TC7 {
+    color: $C7;
+}
+@mixin BD1 {
+    border: 1px solid $C3;
+}
+@mixin BD2 {
+    border: 1px solid #d0d0d0;
+}
