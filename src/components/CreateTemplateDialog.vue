@@ -1,12 +1,12 @@
 <template>
-    <el-dialog class="create-template-dialog" :title="title" v-model="isShown" size="tiny">
-        <el-form>
+    <el-dialog class="create-template-dialog" :title="title" v-model="isShown" :close-on-click-modal="false" size="tiny">
+        <el-form :model="form" @submit.native.prevent>
             <el-form-item label="名称">
-                <el-input v-model="templateName" ref="templateName" :autofocus="true" :icon="templateName? 'empty':''" :on-icon-click="()=>{templateName=''}">
+                <el-input v-model="form.templateName" ref="templateName" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}">
                 </el-input>
             </el-form-item>
             <el-form-item label="店铺" v-show="type==1">
-                <el-select v-model="shopId" placeholder="请选择">
+                <el-select v-model="form.shopId" placeholder="请选择">
                     <el-option
                         v-for="shop in shopList"
                         :label="shop.shopName"
@@ -29,7 +29,7 @@
                     尺寸（单位：毫米）
                 </p>
                 <div class="size">
-                    <span class="height-text">高度</span><el-input ref="height" class="height" v-model="height" @change="customTemplateSize"></el-input><span class="multiple-text">x</span><span class="width-text">宽度</span><el-input ref="width" class="width" v-model="width" @change="customTemplateSize"></el-input>
+                    <span class="height-text">高度</span><el-input ref="height" class="height" v-model="form.height" @change="customTemplateSize"></el-input><span class="multiple-text">x</span><span class="width-text">宽度</span><el-input ref="width" class="width" v-model="form.width" @change="customTemplateSize"></el-input>
                 </div>
             </el-form-item>
         </el-form>    
@@ -62,11 +62,14 @@ export default {
         return {
             isShown: false,
             type: null,
-            templateName: '',
-            shopId: '',
+            form:{
+                type: null,
+                templateName: '',
+                shopId: '',
+                width: null,
+                height: null,
+            },
             currentTemplateSize: '',
-            width: null,
-            height: null,
         }
     },
     props: ['shopList', 'templateSizeList'],
@@ -75,8 +78,8 @@ export default {
             return this.type == 1 ? '新建质保单':'新建标签'
         },
         shopName(){
-            if(this.shopId){
-                let shop = find(this.shopList, {shopId: this.shopId})
+            if(this.form.shopId){
+                let shop = find(this.shopList, {shopId: this.form.shopId})
                 if(shop){
                     return shop.shopName
                 }
@@ -87,31 +90,34 @@ export default {
         close(){
             this.isShown = false
         },
+        show(){
+            this.isShown = true
+        },
         createTemplate(){
             let templateType = this.type == 1 ? '质保单':'标签'
-            if(!this.templateName){
+            if(!this.form.templateName){
                 alert('请输入' + templateType +'名称');
                 this.$refs.templateName.$el.querySelector('input').focus()
                 return
             }
-            if(!this.height){
+            if(!this.form.height){
                 alert('请输入模板高度');
                 this.$refs.height.$el.querySelector('input').focus()
                 return
             }
-            if(!this.width){
+            if(!this.form.width){
                 alert('请输入模板宽度');
                 this.$refs.width.$el.querySelector('input').focus()
                 return
             }
-            if(this.type ==1 && !this.shopId){
+            if(this.type ==1 && !this.form.shopId){
                 alert('请选择店铺');
                 return
             }
             let content = JSON.stringify({
                 percentage: 100,
-                width: this.width,
-                height: this.height,
+                width: this.form.width,
+                height: this.form.height,
                 backgroundImage: '',
                 rotateDeg: 0,
                 components: [
@@ -121,12 +127,12 @@ export default {
 
                 ]
             })
-            this.$emit('create_template', this.type, {type: this.type, templateName: this.templateName, width: this.width, height: this.height, shopId: this.shopId, shopName: this.shopName, content: content})
+            this.$emit('create_template', this.type, {shopName: this.shopName, content: content, ...this.form})
         },
         changeTemplateSize(value){
             if(value){
-                this.width = this.currentTemplateSize.split('x')[0] || ''
-                this.height = this.currentTemplateSize.split('x')[1] || ''
+                this.form.width = this.currentTemplateSize.split('x')[0] || ''
+                this.form.height = this.currentTemplateSize.split('x')[1] || ''
             }
         },
         customTemplateSize(){

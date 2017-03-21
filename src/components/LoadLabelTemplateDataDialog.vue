@@ -1,5 +1,5 @@
 <template>
-    <el-dialog class="load-label-template-data-dialog" title="数据载入" v-model="isShown" size="tiny">
+    <el-dialog class="load-label-template-data-dialog" title="数据载入" v-model="isShown" :close-on-click-modal="false" size="tiny">
         <el-form>
             <el-form-item label="选择数据">
                 <el-select v-model="type" placeholder="请选择">

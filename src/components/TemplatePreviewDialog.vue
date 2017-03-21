@@ -1,11 +1,11 @@
 <template>
-<el-dialog class="template-preview-dialog" v-model="isShown" size="small">
+<el-dialog class="template-preview-dialog" v-model="isShown" :close-on-click-modal="false" size="small">
     <el-carousel :autoplay="false" arrow="always" :height="carouselHeight" trigger="click">
         <el-carousel-item v-for="i in pageNumber">
             <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="i" :pageNumber="pageNumber"></TemplatePreviewCanvasComponent>
         </el-carousel-item>
     </el-carousel>
-    <i class="icon icon-close"></i>
+    <i class="icon icon-close" @click="close"></i>
     <div slot="footer" class="dialog-footer">
         <el-button class="cancel" @click="close">取 消</el-button>
         <el-button class="confirm" @click="printTemplate">打 印</el-button>

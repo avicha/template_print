@@ -186,7 +186,7 @@ export default {
             }),
             menuItems:{
                 isBackAvailable: true,
-                isSaveAvailable: true,
+                isSaveAvailable: false,
                 isUndoAvailable: false,
                 isRedoAvailable: false,
                 isAlignLeftAvailable: false,
@@ -292,6 +292,9 @@ export default {
         },
         //根据操作记录显示撤回和重做菜单
         stackIndex(i){
+            if(i){
+                this.menuItems.isSaveAvailable = true
+            }
             if(this.stack[i - 1]){
                 this.menuItems.isUndoAvailable = true
             } else {

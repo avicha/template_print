@@ -1,8 +1,8 @@
 <template>
-    <el-dialog class="rename-template-dialog" title="重命名" v-model="isShown" size="tiny">
-        <el-form>
+    <el-dialog class="rename-template-dialog" title="重命名" v-model="isShown" :close-on-click-modal="false" size="tiny">
+        <el-form :model="form" @submit.native.prevent>
             <el-form-item label="名称">
-                <el-input ref="templateName" v-model="templateName" :autofocus="true" :icon="templateName? 'empty':''" :on-icon-click="()=>{templateName=''}"></el-input>
+                <el-input ref="templateName" v-model="form.templateName" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -29,20 +29,25 @@ export default {
         return {
             isShown: false,
             type: null,
-            templateName: '',
-            templateId: null
+            form:{
+                templateId: null,
+                templateName: '',
+            }
         }
     },
     methods:{
         close(){
             this.isShown = false
         },
+        show(){
+            this.isShown = true
+        },
         renameTemplate(){
-            if(!this.templateName){
+            if(!this.form.templateName){
                 alert('请填写模板名称');
                 this.$refs.templateName.$el.querySelector('input').focus()
             } else {
-                this.$emit('rename_template', this.type, {templateId: this.templateId, templateName: this.templateName})
+                this.$emit('rename_template', this.type, this.form)
             }
         }
     },

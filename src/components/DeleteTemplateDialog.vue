@@ -1,5 +1,5 @@
 <template>
-    <el-dialog class="delete-template-dialog" title="删除模板" v-model="isShown" size="tiny">
+    <el-dialog class="delete-template-dialog" title="删除模板" v-model="isShown" :close-on-click-modal="false" size="tiny">
         <p class="dialog-content">确认要删除此模板吗？</p>
         <div slot="footer" class="dialog-footer">
             <el-button class="cancel" @click="close">取 消</el-button>
@@ -28,6 +28,9 @@ export default {
     methods:{
         close(){
             this.isShown = false
+        },
+        show(){
+            this.isShown = true
         },
         deleteTemplate(){
             this.$emit('delete_template', this.type, this.templateId)

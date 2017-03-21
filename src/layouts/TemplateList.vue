@@ -154,37 +154,53 @@ export default {
     methods:{
         openRenameTemplateDialog(type, {templateId, templateName}){
             this.$refs.renameTemplateDialog.$emit('set_data', {
-                type, 
-                templateId,
-                templateName,
-                isShown: true
+                type,
+                form:{
+                    templateId,
+                    templateName,    
+                }
             })
+            this.$refs.renameTemplateDialog.show()
         },
         openCopyTemplateDialog(type, {templateName, width, height, content, shopId, shopName}){
             this.$refs.copyTemplateDialog.$emit('set_data', {
                 type,
-                templateName: templateName + '-副本', 
-                width,
-                height,
-                content, 
-                shopId,
-                shopName,
-                isShown: true
+                form: {
+                    type,
+                    templateName: templateName + '-副本', 
+                    width,
+                    height,
+                    content, 
+                    shopId,
+                    shopName,
+                }
             })
+            this.$refs.copyTemplateDialog.show()
         },
         openSetDefaultDialog(templateId){
-            this.$refs.setDefaultTemplateDialog.$emit('set_data', {templateId: templateId, isShown: true})
+            this.$refs.setDefaultTemplateDialog.$emit('set_data', {templateId: templateId})
+            this.$refs.setDefaultTemplateDialog.show()
         },
         openDeleteTemplateDialog(type, templateId){
             this.$refs.deleteTemplateDialog.$emit('set_data', {
                 type,
                 templateId,
-                isShown: true
             })
+            this.$refs.deleteTemplateDialog.show()
         },
         showCreateTemplateDialog(type){
             this.$store.dispatch('getPrintShopData', type)
-            this.$refs.createTemplateDialog.$emit('set_data', {type: type, isShown: true, templateName: '', shopId: '', currentTemplateSize: '', width: null, height: null})
+            this.$refs.createTemplateDialog.$emit('set_data', {
+                type,
+                form: {
+                    type,
+                    templateName: '',
+                    shopId: '', 
+                    width: null,
+                    height: null
+                }
+            })
+            this.$refs.createTemplateDialog.show()
         },
         copyTemplate(type, templateData){
             this.$store.dispatch('createTemplate', templateData).then(json => {

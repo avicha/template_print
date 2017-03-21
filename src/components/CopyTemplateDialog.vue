@@ -1,8 +1,8 @@
 <template>
-    <el-dialog class="copy-template-dialog" title="复制模板" v-model="isShown" size="tiny">
-        <el-form>
+    <el-dialog class="copy-template-dialog" title="复制模板" v-model="isShown" :close-on-click-modal="false" size="tiny">
+        <el-form :model="form" @submit.native.prevent>
             <el-form-item label="名称">
-                <el-input ref="templateName" v-model="templateName" :autofocus="true" :icon="templateName? 'empty':''" :on-icon-click="()=>{templateName=''}"></el-input>
+                <el-input ref="templateName" v-model="form.templateName" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -29,24 +29,30 @@ export default {
         return {
             isShown: false,
             type: null,
-            templateName: '',
-            width: 0,
-            height: 0,
-            shopId: '',
-            shopName: '',
-            content: ''
+            form: {
+                type: null,
+                templateName: '',
+                width: 0,
+                height: 0,
+                shopId: '',
+                shopName: '',
+                content: ''    
+            }
         }
     },
     methods:{
         close(){
             this.isShown = false
         },
+        show(){
+            this.isShown = true
+        },
         copyTemplate(){
-            if(!this.templateName){
+            if(!this.form.templateName){
                 alert('请填写模板名称');
                 this.$refs.templateName.$el.querySelector('input').focus()
             } else {
-                this.$emit('copy_template', this.type, {type: this.type, templateName: this.templateName, width: this.width, height: this.height, shopId: this.shopId, shopName: this.shopName, content: this.content})    
+                this.$emit('copy_template', this.type, this.form)    
             }
         }
     },

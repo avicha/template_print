@@ -1,5 +1,5 @@
 <template>
-    <el-dialog class="set-default-template-dialog" title="设置默认" v-model="isShown" size="tiny">
+    <el-dialog class="set-default-template-dialog" title="设置默认" v-model="isShown" :close-on-click-modal="false" size="tiny">
         <p class="dialog-content">确认要设为默认吗？</p>
         <div slot="footer" class="dialog-footer">
             <el-button class="cancel" @click="close">取 消</el-button>
@@ -27,6 +27,9 @@ export default {
     methods:{
         close(){
             this.isShown = false
+        },
+        show(){
+            this.isShown = true
         },
         setDefaultTemplate(){
             this.$emit('set_default_template', this.templateId)
