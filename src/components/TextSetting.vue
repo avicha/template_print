@@ -1,7 +1,7 @@
 <template>
     <div class="text-setting">
         <div class="text-setting-title">
-            <span class="text-setting-span1">基本元件</span><span class="text-setting-span2">文本</span>
+            <span class="text-setting-span1">基本元件：</span><span class="text-setting-span2">文本</span>
         </div>
         <div class="text-setting-body">
             <textarea class="content" placeholder="请输入内容" v-model="data.content"></textarea>
@@ -10,7 +10,7 @@
                 <i class="icon italic-icon" :class="{active: data.isItalic}" @click="data.isItalic = !data.isItalic" title="斜体"></i>
                 <i class="icon underline-icon" :class="{active: data.isUnderline}" @click="data.isUnderline = !data.isUnderline" title="下划线"></i>
             </div>
-            <el-form label-width="68px" label-position="left">
+            <el-form label-width="80px" label-position="left">
                 <el-form-item label="字体">
                     <el-select v-model="data.fontFamily" placeholder="请选择字体" size="small">
                         <el-option label="宋体" value="SimSun"></el-option>
@@ -18,10 +18,12 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="字体大小">
-                    <el-input-number class="fontSize" v-model="data.fontSize" :min="12" :max="32" size="small"></el-input-number>
+                    <div class="fontSize">
+                        <i class="icon minus-icon" title="缩小" @click="minusFontSizeHandler"></i><input type="text" class="font-size-input" v-model="data.fontSize" @input="fontSizeInputHandler" /><i class="icon plus-icon" title="放大" @click="plusFontSizeHandler"></i>    
+                    </div>
                 </el-form-item>
                 <div class="el-form-item">
-                    <label class="el-label">文本颜色</label><el-color-picker v-model="data.color"></el-color-picker>
+                    <label class="el-label">文本颜色</label><input type="text" class="color" v-model="data.color"><el-color-picker v-model="data.color"></el-color-picker>
                 </div>
                 <el-form-item label="横轴">
                     <el-input v-model.number="data.left" placeholder="" size="small">
@@ -77,6 +79,22 @@ export default {
             deep: true
         }
     },
+    methods: {
+        minusFontSizeHandler(){
+            if(this.data.fontSize > 12){
+                this.data.fontSize--    
+            }
+        },
+        plusFontSizeHandler(){
+            this.data.fontSize++
+        },
+        fontSizeInputHandler(e){
+            let value = e.target.value
+            if(isNaN(Number(value))){
+                this.data.fontSize = window.parseInt(value)
+            }
+        }
+    },
     mounted(){
         this.$on('set_data', data => {
             let dataClone = JSON.parse(JSON.stringify(data))
@@ -95,6 +113,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../assets/scss/fonts.scss";
+@import "../assets/scss/colors.scss";
 .text-setting {
     .text-setting-title {
         padding: 0 20px;
@@ -110,6 +130,7 @@ export default {
         padding: 16px 20px 10px;
         border-top: 1px solid #d6d6d6;
         .content {
+            display: block;
             width: 100%;
             height: 120px;
             box-sizing: border-box;
@@ -122,7 +143,7 @@ export default {
         .font-style {
             width: 100%;
             height: 34px;
-            margin-bottom: 22px;
+            margin: 14px 0;
             box-sizing: border-box;
             border: 1px solid #d6d6d6;
             border-radius: 4px;
@@ -136,21 +157,81 @@ export default {
             }
         }
         .fontSize {
-            width: 122px;
+            height: 24px;
+            width: 108px;
+            line-height: 0;
+            @include BD1;
+            border-radius: 4px;
+            .plus-icon {
+                border-left: 1px solid #d6d6d6;
+            }
+            .font-size-input {
+                text-align: center;
+                width: 62px;
+                height: 24px;
+                line-height: 24px;
+                @include F(12);
+                @include TC1;
+            }
+            .minus-icon {
+                border-right: 1px solid #d6d6d6;
+            }
         }
         .el-form-item {
-            height: 36px;
-            margin-bottom: 22px;
+            height: 26px;
+            margin-bottom: 14px;
             &:last-child {
                 margin-bottom: 0;
             }
             .el-label {
-                line-height: 36px;
-                margin-right: 12px;
+                line-height: 1;
                 float: left;
             }
             label {
                 text-align-last: justify;
+                font-size: 14px;
+                padding: 6px 24px 6px 0;
+            }
+            .el-form-item__content {
+                line-height: 26px;
+                .el-select, .el-input {
+                    .el-input__inner {
+                        height: 26px;
+                    }
+                }
+            }
+            .color {
+                width: 88px;
+                height: 26px;
+                box-sizing: border-box;
+                padding: 3px 10px;
+                @include BD1;
+                border-right: 0;
+                border-radius: 4px;
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+                vertical-align: middle;
+            }
+            .el-color-picker {
+                vertical-align: middle;
+                .el-color-picker__trigger {
+                    display: block;
+                    padding: 0;
+                    height: 26px;
+                    border-left: 0;
+                    border-radius: 4px;
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                    overflow: hidden;
+                    .el-color-picker__color {
+                        width: 21px;
+                        height: 24px;
+                        border: none;
+                    }
+                    .el-color-picker__icon {
+                        display: none;
+                    }
+                }
             }
         }
     }

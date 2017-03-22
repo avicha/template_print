@@ -17,13 +17,27 @@ textarea {
 a {
     text-decoration: none;
 }
-.el-input__inner {
-    &:focus {
-        outline: none;
-        border-color: $C3 !important;
+.el-form-item {
+    .el-form-item__label {
+        @include TC1;
     }
-    &:hover {
-        outline: none;
-        border-color: $C3 !important;
+    .el-input,.el-select {
+        .el-input__inner {
+            @include TC1;
+            border-color: $C3;
+            &:focus {
+                border-color: $C3;
+            }
+            &:hover {
+                border-color: $C3;
+            }
+        }
+    }
+    &.is-error {
+        .el-input,.el-select {
+            .el-input__inner {
+                border-color: #ff4949;
+            }
+        }
     }
 }

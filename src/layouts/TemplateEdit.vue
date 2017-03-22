@@ -8,8 +8,9 @@
                 <span class="breadcrumb-item">新建质保单</span>
             </div>
             <div class="template-edit-content">
-                <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
+                <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @openBackConfirmDialog="openBackConfirmDialog" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
             </div>
+            <ConfirmDialog ref="backConfirmDialog" class="backConfirmDialog" title="返回" content="还未保存，是否确认要退出？" :onConfirmHandler="backConfirmHandler"></ConfirmDialog>
             <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
             <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
         </div>
@@ -23,6 +24,7 @@ import {
 } from 'vuex'
 import Vue from 'vue'
 import TemplateEditor from '../components/TemplateEditor'
+import ConfirmDialog from '../components/ConfirmDialog'
 import TemplatePreviewDialog from '../components/TemplatePreviewDialog'
 import LoadLabelTemplateDataDialog from '../components/LoadLabelTemplateDataDialog'
 import TemplatePreviewCanvasComponent from '../components/TemplatePreviewCanvas'
@@ -75,6 +77,7 @@ export default {
     },
     components:{
         TemplateEditor,
+        ConfirmDialog,
         TemplatePreviewDialog,
         LoadLabelTemplateDataDialog,
         TemplatePreviewCanvasComponent,
@@ -118,6 +121,13 @@ export default {
                 e.preventDefault()
             }
             return false
+        },
+        openBackConfirmDialog(){
+            this.$refs.backConfirmDialog.show()
+        },
+        backConfirmHandler(){
+            this.$refs.backConfirmDialog.close()
+            this.$router.go(-1)
         },
         //预览模板
         previewTemplate(canvas){

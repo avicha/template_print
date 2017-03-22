@@ -1,7 +1,7 @@
 <template>
     <div class="image-setting">
         <div class="setting-title">
-            <span class="setting-span1">基本元件</span><span class="setting-span2">图片</span>
+            <span class="setting-span1">基本元件：</span><span class="setting-span2">图片</span>
         </div>
         <div class="setting-body">
             <el-form label-width="68px" label-position="left">

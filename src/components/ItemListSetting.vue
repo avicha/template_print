@@ -1,10 +1,10 @@
 <template>
     <div class="item-list-setting">
         <div class="setting-title">
-            <span class="setting-span1">基本元件</span><span class="setting-span2">动态数据域</span>
+            <span class="setting-span1">基本元件：</span><span class="setting-span2">动态数据域</span>
         </div>
         <div class="setting-body">
-            <el-form label-width="68px" label-position="left">
+            <el-form label-width="80px" label-position="left">
                 <el-form-item label="宽">
                     <el-input v-model.number="data.width" placeholder="" size="small">
                         <template slot="append">mm</template>
@@ -26,7 +26,9 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item label="数据条数">
-                    <el-input-number class="number" v-model.number="data.number" :min="1" size="small"></el-input-number>
+                    <div class="number">
+                        <i class="icon minus-icon" title="缩小" @click="minusNumberHandler"></i><input type="text" class="number-input" v-model="data.number" @input="numberInputHandler" /><i class="icon plus-icon" title="放大" @click="plusNumberHandler"></i>    
+                    </div>
                 </el-form-item>
             </el-form>
         </div>
@@ -64,6 +66,22 @@ export default {
             deep: true
         }
     },
+    methods: {
+        minusNumberHandler(){
+            if(this.data.number > 1){
+                this.data.number--    
+            }
+        },
+        plusNumberHandler(){
+            this.data.number++
+        },
+        numberInputHandler(e){
+            let value = e.target.value
+            if(isNaN(Number(value))){
+                this.data.number = window.parseInt(value)
+            }
+        }
+    },
     mounted(){
         this.$on('set_data', data => {
             let dataClone = JSON.parse(JSON.stringify(data))
@@ -82,6 +100,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../assets/scss/fonts.scss";
+@import "../assets/scss/colors.scss";
 .item-list-setting {
     .setting-title {
         padding: 0 20px;
@@ -107,21 +127,48 @@ export default {
             font-family: Microsoft Yahei;
         }
         .number {
-            width: 122px;
+            height: 24px;
+            width: 108px;
+            line-height: 0;
+            @include BD1;
+            border-radius: 4px;
+            .plus-icon {
+                border-left: 1px solid #d6d6d6;
+            }
+            .number-input {
+                text-align: center;
+                width: 62px;
+                height: 24px;
+                line-height: 24px;
+                @include F(12);
+                @include TC1;
+            }
+            .minus-icon {
+                border-right: 1px solid #d6d6d6;
+            }
         }
         .el-form-item {
-            height: 36px;
+            height: 26px;
             margin-bottom: 14px;
             &:last-child {
                 margin-bottom: 0;
             }
             .el-label {
-                line-height: 36px;
-                margin-right: 12px;
+                line-height: 1;
                 float: left;
             }
             label {
                 text-align-last: justify;
+                font-size: 14px;
+                padding: 6px 24px 6px 0;
+            }
+            .el-form-item__content {
+                line-height: 26px;
+                .el-select, .el-input {
+                    .el-input__inner {
+                        height: 26px;
+                    }
+                }
             }
         }
     }

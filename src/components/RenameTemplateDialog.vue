@@ -1,7 +1,7 @@
 <template>
     <el-dialog class="rename-template-dialog" title="重命名" v-model="isShown" :close-on-click-modal="false" size="tiny">
-        <el-form :model="form" @submit.native.prevent>
-            <el-form-item label="名称">
+        <el-form ref="form" :model="form" :rules="rules" @submit.native.prevent>
+            <el-form-item label="名称" prop="templateName">
                 <el-input ref="templateName" v-model="form.templateName" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}"></el-input>
             </el-form-item>
         </el-form>
@@ -32,7 +32,24 @@ export default {
             form:{
                 templateId: null,
                 templateName: '',
+            },
+            rules:{
+                templateName: [
+                    {validator:(rule, value, callback)=>{
+                        if(value === ''){
+                            this.$refs.templateName.$el.querySelector('input').focus()
+                            callback(new Error('请输入' + this.templateType + '名称'))
+                        } else {
+                            callback()
+                        }
+                    }, trigger: 'change'},
+                ],
             }
+        }
+    },
+    computed:{
+        templateType(){
+            return this.type == 1 ? '质保单':'标签'
         }
     },
     methods:{
@@ -43,12 +60,11 @@ export default {
             this.isShown = true
         },
         renameTemplate(){
-            if(!this.form.templateName){
-                alert('请填写模板名称');
-                this.$refs.templateName.$el.querySelector('input').focus()
-            } else {
-                this.$emit('rename_template', this.type, this.form)
-            }
+            this.$refs.form.validate(valid=>{
+                if(valid){
+                    this.$emit('rename_template', this.type, this.form)
+                }
+            })
         }
     },
     mounted(){

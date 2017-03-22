@@ -68,13 +68,13 @@
             </div>
             <div class="menu-item-group">
                 <div class="menu-item percentage" :class="{disabled: !menuItems.isPercentageAvailable}">
-                    <i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><input class="percentage-input" v-model="canvas.percentage" /><i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler">-</i>
+                    <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model="canvas.percentage" @input="percentageInputHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
                 </div>
                 <div class="menu-item width" :class="{disabled: !menuItems.isWidthAvailable}">
-                    <span>宽(mm)</span><input type="number" class="width-input" v-model="canvas.width">
+                    <span>宽</span><input type="text" @input="widthInputHandler" class="width-input" v-model="canvas.width">
                 </div>
                 <div class="menu-item height" :class="{disabled: !menuItems.isHeightAvailable}">
-                    <span>高(mm)</span><input type="number" class="height-input" v-model="canvas.height">
+                    <span>高</span><input type="text" class="height-input" @input="heightInputHandler" v-model="canvas.height">
                 </div>
             </div>
             <div class="menu-item-group">
@@ -97,19 +97,15 @@
             <div class="left-panel">
                 <h4 class="title">基本元件</h4>
                 <div class="menu-component-list">
-                    <button class="menu-component" @dblclick="()=>{this.addText(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addText')">文本
-                        <div class="text-preview">
-                            <span>文本</span>
-                        </div>
-                    </button>
-                    <button class="menu-component image-btn">图片<input class="image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="addImage"/></button>
+                    <div class="menu-component" @dblclick="()=>{this.addText(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addText')">文本</div>
+                    <div class="menu-component image-btn">图片<input class="image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="addImage"/></div>
                     <div class="menu-component background-image-btn" :class="{active: isBackgroundImageActive}" @click="toggleBackgroundImageActive">背景图片
                         <ul class="background-image-menu-list">
                             <li class="change-background-image">替换<input ref="backgroundImageInput" class="background-image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="changeBackgroundImage"/></li>
                             <li class="remove-background-image" @click="removeBackgroundImage">删除</li>
                         </ul>
                     </div>
-                    <button v-show="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addItemList')">动态数据域</button>
+                    <div v-show="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addItemList')">动态数据域</div>
                 </div>
                 <p class="prop-text">动态数据项</p>
                 <div class="el-tree">
@@ -131,7 +127,10 @@
                 </div>
             </div>
             <div class="canvas-container">
-                <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.prevent="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop="canvasDropHandler">
+                <div class="zero">0</div>
+                <div class="top-ruler"></div>
+                <div class="left-ruler"></div>
+                <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.prevent="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
                     <component v-for="component in canvas.components" :is="component.type" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" @updateItemListId="updateItemListId" :isPreview="false">
                     </component>
                     <ContainerComponent v-for="container in canvas.containers" class="component" :class="{active: container.active}" :data="container.data" @changeComponentData="changeComponentData(container, $event)"></ContainerComponent>
@@ -429,6 +428,7 @@ export default {
             this.stackIndex = -1
             this._copyComponents = []
             this._copyContainers = []
+            this.menuItems.isSaveAvailable = false
         },
          //记录canvas数据，因为canvas是深度克隆出来的，所以容器的children需要改变指针
         record(){
@@ -436,6 +436,9 @@ export default {
             this.stack[++this.stackIndex] = canvas
             if(this.stack[this.stackIndex + 1]){
                 this.stack.splice(this.stackIndex + 1, this.stack.length)
+            }
+            if(this.ready){
+                this.menuItems.isSaveAvailable = true    
             }
         },
         restoreCanvas(canvas_str){
@@ -448,6 +451,28 @@ export default {
             })
             this.updateItemListId()
             return canvas
+        },
+        percentageInputHandler(e){
+            let value = e.target.value
+            if(isNaN(Number(value))){
+                this.canvas.percentage = window.parseInt(value)
+            }
+        },
+        widthInputHandler(e){
+            let value = e.target.value
+            if(isNaN(Number(value))){
+                this.canvas.width = window.parseInt(value)
+            } else {
+                this.record()    
+            }
+        },
+        heightInputHandler(e){
+            let value = e.target.value
+            if(isNaN(Number(value))){
+                this.canvas.height = window.parseInt(value)
+            } else {
+                this.record()
+            }
         },
         //记录鼠标按下时的位置和选中的组件
         canvasMousedownHandler(e){
@@ -603,9 +628,12 @@ export default {
         //返回
         backBtnHandler(){
             if(this.menuItems.isBackAvailable){
-                if(window.confirm('还未保存，是否确认要退出？')){
+                if(this.menuItems.isSaveAvailable){
+                    this.$emit('openBackConfirmDialog')
+                } else {
                     this.$router.go(-1)
-                }    
+                }
+                   
             }
         },
         //保存按钮
@@ -622,7 +650,7 @@ export default {
                     this.$store.dispatch('updateTemplate', templateData).then(json => {
                         if(json.state == 200){
                             this.$store.commit(types.TEMPLATE_DETAIL_UPDATED, templateData)
-                            alert('保存成功')
+                            this.menuItems.isSaveAvailable = false
                         }
                     })
                 }
@@ -1251,32 +1279,65 @@ export default {
                 border-radius: 4px;
                 margin-right: 0;
                 margin-top: 2px;
+                position: relative;
                 .plus-icon {
-                    border-right: 1px solid #d6d6d6;
+                    border-left: 1px solid #d6d6d6;
                 }
                 .percentage-input {
                     text-align: center;
-                    width: 46px;
+                    width: 40px;
                     height: 24px;
+                    padding-right: 6px;
                     line-height: 24px;
+                    @include F(12);
+                    @include TC1;
                 }
                 .minus-icon {
-                    border-left: 1px solid #d6d6d6;
+                    border-right: 1px solid #d6d6d6;
+                }
+                .percentage-text {
+                    position: absolute;
+                    height: 24px;
+                    line-height: 24px;
+                    @include F(12);
+                    @include TC1;
+                    right: 28px;
                 }
             }
             .width, .height {
                 margin-right: 0;
                 span {
                     margin: 0 10px 0 20px;
+                    vertical-align: middle;
                 }
                 input {
-                    color: #333;
-                    width: 70px;
+                    display: inline-block;
+                    @include F(12);
+                    @include TC1;
+                    @include BD1;
+                    width: 40px;
                     height: 24px;
                     line-height: 24px;
-                    border: 1px solid #d6d6d6;
                     border-radius: 4px;
+                    border-top-right-radius: 0;
+                    border-bottom-right-radius: 0;
+                    border-right: 0;
                     text-align: center;
+                    vertical-align: middle;
+                }
+                &:after {
+                    @include F(12);
+                    @include TC1;
+                    @include BD1;
+                    display: inline-block;
+                    content: 'mm';
+                    border-left: 0;
+                    border-radius: 4px;
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                    line-height: 24px;
+                    padding-right: .5rem;
+                    vertical-align: middle;
                 }
             }
             .load-data-btn {
@@ -1296,7 +1357,7 @@ export default {
         .left-panel {
             width: 190px;
             @include left;
-            overflow: scroll;
+            overflow: hidden;
             background-color: #fff;
             border-right: 1px solid #d6d6d6;
             .title {
@@ -1305,11 +1366,12 @@ export default {
                 margin: 0 10px;
                 text-align: center;
                 font-weight: normal;
-                color: #999;
+                @include F(14);
+                @include TC7;
                 border-bottom: 1px solid #d6d6d6;
             }
             .menu-component-list {
-                letter-spacing: -3px;
+                font-size: 0;
                 padding: 0 10px;
                 margin-bottom: 20px;
                 .menu-component {
@@ -1321,10 +1383,14 @@ export default {
                     margin-left: 10px;
                     width: 70px;
                     height: 30px;
+                    text-align: center;
+                    line-height: 30px;
+                    @include F(12);
                     @include BD1;
                     border-radius: 4px;
                     background: #fff;
                     color: #333;
+                    cursor: pointer;
                 }
                 .text-preview {
                     position: fixed;
@@ -1396,6 +1462,8 @@ export default {
             }
             .prop-text {
                 text-align: center;
+                @include F(14);
+                @include TC7;
                 margin: 0 10px;
                 padding-bottom: 10px;
                 border-bottom: 1px solid $C3;
@@ -1415,9 +1483,34 @@ export default {
             height: 100%;
             overflow: scroll;
             box-sizing: border-box;
-            background-image: url(~assets/images/ruler.png);
-            background-repeat: no-repeat;
-            overflow: scroll;
+            position: relative;
+            .zero {
+                @include top-left;
+                @include F(14);
+                @include TC1;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                text-align: center;
+            }
+            .left-ruler {
+                position: absolute;
+                top: 30px;
+                left: 0;
+                bottom: 0;
+                width: 30px;
+                background-image: url(~assets/images/ruler-left.png);
+                background-repeat: no-repeat;
+            }
+            .top-ruler {
+                position: absolute;
+                top: 0;
+                left: 30px;
+                right: 0;
+                height: 30px;
+                background-image: url(~assets/images/ruler-top.png);
+                background-repeat: no-repeat;
+            }
             .canvas {
                 background-color: #fff;
                 box-shadow: 0 0 6px #d6d6d6;
@@ -1433,7 +1526,7 @@ export default {
         .right-panel {
             width: 230px;
             @include right;
-            overflow: scroll;
+            overflow: hidden;
             box-shadow: 0 0 6px #d6d6d6;
             background-color: #fff;
         }

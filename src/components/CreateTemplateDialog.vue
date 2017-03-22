@@ -1,11 +1,11 @@
 <template>
-    <el-dialog class="create-template-dialog" :title="title" v-model="isShown" :close-on-click-modal="false" size="tiny">
-        <el-form :model="form" @submit.native.prevent>
-            <el-form-item label="名称">
+    <el-dialog class="create-template-dialog" :title="'新建' + templateType" v-model="isShown" :close-on-click-modal="false" size="tiny">
+        <el-form ref="form" :model="form" :rules="rules" @submit.native.prevent>
+            <el-form-item label="名称" prop="templateName">
                 <el-input v-model="form.templateName" ref="templateName" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}">
                 </el-input>
             </el-form-item>
-            <el-form-item label="店铺" v-show="type==1">
+            <el-form-item label="店铺" v-show="type==1" prop="shopId">
                 <el-select v-model="form.shopId" placeholder="请选择">
                     <el-option
                         v-for="shop in shopList"
@@ -29,9 +29,9 @@
                     尺寸（单位：毫米）
                 </p>
                 <div class="size">
-                    <span class="height-text">高度</span><el-input ref="height" class="height" v-model="form.height" @change="customTemplateSize"></el-input><span class="multiple-text">x</span><span class="width-text">宽度</span><el-input ref="width" class="width" v-model="form.width" @change="customTemplateSize"></el-input>
+                    <el-form-item label="高度" prop="height"><el-input ref="height" class="height" v-model="form.height" @change="customTemplateSize"></el-input></el-form-item><span class="multiple-text">x</span><el-form-item label="宽度" prop="width"><el-input ref="width" class="width" v-model="form.width" @change="customTemplateSize"></el-input></el-form-item>
                 </div>
-            </el-form-item>
+            </div>
         </el-form>    
         <div slot="footer" class="dialog-footer">
             <el-button class="cancel" @click="close">取 消</el-button>
@@ -70,12 +70,59 @@ export default {
                 height: null,
             },
             currentTemplateSize: '',
+            rules:{
+                templateName: [
+                    {validator:(rule, value, callback)=>{
+                        if(value === ''){
+                            this.$refs.templateName.$el.querySelector('input').focus()
+                            callback(new Error('请输入' + this.templateType + '名称'))
+                        } else {
+                            callback()
+                        }
+                    }, trigger: 'change'},
+                ],
+                shopId: [
+                    {validator:(rule, value, callback)=>{
+                        if(this.type == 1 && value === ''){
+                            callback(new Error('请选择店铺'))
+                        } else {
+                            callback()
+                        }
+                    }, trigger: 'change'},
+                ],
+                width: [
+                    {validator:(rule, value, callback)=>{
+                        if(!value){
+                            callback(new Error('请填写模板宽度'))
+                        } else {
+                            if(isNaN(window.parseInt(value))){
+                                callback(new Error('宽度必须为数字值'))
+                            } else {
+                                callback()    
+                            }
+                        }
+                    }, trigger: 'change'},
+                ],
+                height: [
+                    {validator:(rule, value, callback)=>{
+                        if(!value){
+                            callback(new Error('请填写模板高度'))
+                        } else {
+                            if(isNaN(window.parseInt(value))){
+                                callback(new Error('高度必须为数字值'))
+                            } else {
+                                callback()    
+                            }
+                        }
+                    }, trigger: 'change'},
+                ],
+            }
         }
     },
     props: ['shopList', 'templateSizeList'],
     computed: {
-        title(){
-            return this.type == 1 ? '新建质保单':'新建标签'
+        templateType(){
+            return this.type == 1 ? '质保单':'标签'
         },
         shopName(){
             if(this.form.shopId){
@@ -94,40 +141,24 @@ export default {
             this.isShown = true
         },
         createTemplate(){
-            let templateType = this.type == 1 ? '质保单':'标签'
-            if(!this.form.templateName){
-                alert('请输入' + templateType +'名称');
-                this.$refs.templateName.$el.querySelector('input').focus()
-                return
-            }
-            if(!this.form.height){
-                alert('请输入模板高度');
-                this.$refs.height.$el.querySelector('input').focus()
-                return
-            }
-            if(!this.form.width){
-                alert('请输入模板宽度');
-                this.$refs.width.$el.querySelector('input').focus()
-                return
-            }
-            if(this.type ==1 && !this.form.shopId){
-                alert('请选择店铺');
-                return
-            }
-            let content = JSON.stringify({
-                percentage: 100,
-                width: this.form.width,
-                height: this.form.height,
-                backgroundImage: '',
-                rotateDeg: 0,
-                components: [
+            this.$refs.form.validate(valid=>{
+                if(valid){
+                    let content = JSON.stringify({
+                        percentage: 100,
+                        width: this.form.width,
+                        height: this.form.height,
+                        backgroundImage: '',
+                        rotateDeg: 0,
+                        components: [
 
-                ],
-                containers: [
+                        ],
+                        containers: [
 
-                ]
+                        ]
+                    })
+                    this.$emit('create_template', this.type, {shopName: this.shopName, content: content, ...this.form})
+                }
             })
-            this.$emit('create_template', this.type, {shopName: this.shopName, content: content, ...this.form})
         },
         changeTemplateSize(value){
             if(value){
@@ -185,9 +216,14 @@ export default {
                     box-sizing: border-box;
                 }
                 .size {
-                    .width-text, .height-text {
-                        margin-right: 14px;
-                        vertical-align: middle;
+                    .el-form-item {
+                        display: inline-block;
+                        .el-form-item__label {
+                            padding: 11px 14px 11px 0;
+                        }
+                        .el-form-item__content {
+                            display: inline-block;
+                        }
                     }
                     .multiple-text {
                         margin: 0 14px;

@@ -16,10 +16,15 @@
         .el-dialog__headerbtn {
             .el-icon-close {
                 @include F(14);
+                @include TC7;
+                &:hover {
+                    @include TC7;
+                }
             }
         }
     }
     .el-dialog__body {
+        @include TC1;
         .el-form {
             padding: 0 20px;
         }    

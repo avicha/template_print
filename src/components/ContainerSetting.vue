@@ -1,7 +1,7 @@
 <template>
     <div class="container-setting">
         <div class="setting-title">
-            <span class="setting-span">组合组件</span>
+            <span class="setting-span">组合组件：</span>
         </div>
         <div class="setting-body">
             <el-form label-width="68px" label-position="left">
