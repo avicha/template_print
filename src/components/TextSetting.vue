@@ -72,8 +72,7 @@ export default {
         data:{
             handler(data){
                 if(this.ready){
-                    this.$emit('changeComponentData', data)
-                    this.$emit('record')
+                    this.$emit('changeComponentSetting', data)
                 }
             },
             deep: true

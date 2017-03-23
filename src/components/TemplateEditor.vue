@@ -88,11 +88,11 @@
         </div>
         <div class="main-panel">
             <div class="right-panel">
-                <TextSettingComponent ref="textSettingComponent" v-show="setting.isTextComponent" @changeComponentData="(data, shouldUpdate) => {this.changeComponentData(this.activeComponents[0], data, shouldUpdate)}" @record="record"></TextSettingComponent>
-                <ImageSettingComponent ref="imageSettingComponent" v-show="setting.isImageComponent" @changeComponentData="(data, shouldUpdate)=>{this.changeComponentData(this.activeComponents[0], data, shouldUpdate)}" @record="record"></ImageSettingComponent>
-                <ContainerSettingComponent ref="containerSettingComponent" v-show="setting.isContainerComponent" @changeComponentData="(data, shouldUpdate)=>{this.changeComponentData(this.activeContainers[0], data, shouldUpdate)}" @record="record"></ContainerSettingComponent>
-                <PropertySettingComponent ref="propertySettingComponent" v-show="setting.isPropertyComponent"  @changeComponentData="(data, shouldUpdate) => {this.changeComponentData(this.activeComponents[0], data, shouldUpdate)}" @record="record"></PropertySettingComponent>
-                <ItemListSettingComponent ref="itemListSettingComponent" v-show="setting.isItemListComponent" @changeComponentData="(data, shouldUpdate) => {this.changeComponentData(this.activeComponents[0], data, shouldUpdate)}" @record="record"></ItemListSettingComponent>
+                <TextSettingComponent ref="textSettingComponent" v-show="setting.isTextComponent" @changeComponentSetting="changeComponentSetting"></TextSettingComponent>
+                <ImageSettingComponent ref="imageSettingComponent" v-show="setting.isImageComponent" @changeComponentSetting="changeComponentSetting"></ImageSettingComponent>
+                <ContainerSettingComponent ref="containerSettingComponent" v-show="setting.isContainerComponent" @changeComponentSetting="changeComponentSetting"></ContainerSettingComponent>
+                <PropertySettingComponent ref="propertySettingComponent" v-show="setting.isPropertyComponent" @changeComponentSetting="changeComponentSetting"></PropertySettingComponent>
+                <ItemListSettingComponent ref="itemListSettingComponent" v-show="setting.isItemListComponent" @changeComponentSetting="changeComponentSetting"></ItemListSettingComponent>
             </div>
             <div class="left-panel">
                 <h4 class="title">基本元件</h4>
@@ -112,7 +112,7 @@
                         </div>
                     </div>
                     <div class="menu-component-block">
-                        <div v-show="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addItemList')">动态数据域</div>
+                        <div v-if="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addItemList')">动态数据域</div>
                     </div>
                 </div>
                 <p class="prop-text">动态数据项</p>
@@ -136,8 +136,8 @@
             </div>
             <div class="canvas-container">
                 <div class="zero">0</div>
-                <div class="top-ruler"></div>
-                <div class="left-ruler"></div>
+                <div class="top-ruler" :style="{backgroundSize: 0.3 * this.canvas.percentage + 'cm 100%'}"></div>
+                <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.3 * this.canvas.percentage + 'cm'}"></div>
                 <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.prevent="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
                     <component v-for="component in canvas.components" :is="component.type" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" @updateItemListId="updateItemListId" :isPreview="false">
                     </component>
@@ -1215,6 +1215,10 @@ export default {
             this.canvas.components.push(component)
             this.updateItemListId()
             this.activeComponent(component, true)
+            this.record()
+        },
+        changeComponentSetting(data){
+            this.changeComponentData(this.activeComponents[0] || this.activeContainers[0], data)
             this.record()
         },
         //拖动数据项时，更新数据项的所属数据域，默认放在数据域的顶部

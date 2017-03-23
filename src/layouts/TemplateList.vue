@@ -9,12 +9,12 @@
             <div class="template-list-content">
                 <div class="operation-dropdown-container">
                     <div class="operation-dropdown-menu-list">
-                        <el-button class="el-dropdown-link" type="primary">新建
-                            <i class="el-icon-caret-bottom el-icon--right"></i>
+                        <el-button class="el-dropdown-link" type="primary">
+                            <i class="icon icon-create"></i>+新建
                         </el-button>
                         <ul class="dropdown">
-                            <li class="dropdown-item" @click="showCreateTemplateDialog(1)">质保单</li>
-                            <li class="dropdown-item" @click="showCreateTemplateDialog(2)">标签</li>
+                            <li class="dropdown-item" @click="showCreateTemplateDialog(1)">新建质保单</li>
+                            <li class="dropdown-item" @click="showCreateTemplateDialog(2)">新建标签</li>
                         </ul>
                     </div>
                 </div>
@@ -70,11 +70,6 @@ import {
     mapState
 } from 'vuex'
 import Vue from 'vue'
-import TemplatePreviewDialog from '../components/TemplatePreviewDialog'
-import LoadLabelTemplateDataDialog from '../components/LoadLabelTemplateDataDialog'
-import TemplatePreviewCanvasComponent from '../components/TemplatePreviewCanvas'
-import * as types from '../store/mutation_types'
-
 import {Breadcrumb, BreadcrumbItem, Button, Dropdown, DropdownMenu, DropdownItem, Row, Col} from 'element-ui'
 Vue.use(Breadcrumb)
 Vue.use(BreadcrumbItem)
@@ -92,6 +87,10 @@ import CopyTemplateDialog from 'components/CopyTemplateDialog'
 import SetDefaultTemplateDialog from 'components/SetDefaultTemplateDialog'
 import DeleteTemplateDialog from 'components/DeleteTemplateDialog'
 import CreateTemplateDialog from 'components/CreateTemplateDialog'
+import TemplatePreviewDialog from '../components/TemplatePreviewDialog'
+import LoadLabelTemplateDataDialog from '../components/LoadLabelTemplateDataDialog'
+import TemplatePreviewCanvasComponent from '../components/TemplatePreviewCanvas'
+import * as types from '../store/mutation_types'
 
 export default {
     name: 'TemplateListPage',
@@ -166,7 +165,6 @@ export default {
             this.$refs.copyTemplateDialog.$emit('set_data', {
                 type,
                 form: {
-                    type,
                     templateName: templateName + '-副本', 
                     width,
                     height,
@@ -193,7 +191,6 @@ export default {
             this.$refs.createTemplateDialog.$emit('set_data', {
                 type,
                 form: {
-                    type,
                     templateName: '',
                     shopId: '', 
                     width: 0,
@@ -308,6 +305,7 @@ export default {
                         padding: 7px 10px;
                         background-color: $C1;
                         border-color: $C1;
+                        width: 100px;
                     }
                     .dropdown {
                         display: none;

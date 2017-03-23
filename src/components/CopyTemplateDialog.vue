@@ -30,7 +30,6 @@ export default {
             isShown: false,
             type: null,
             form: {
-                type: null,
                 templateName: '',
                 width: 0,
                 height: 0,
@@ -73,7 +72,7 @@ export default {
         copyTemplate(){
             this.$refs.form.validate(valid=>{
                 if(valid){
-                    this.$emit('copy_template', this.type, this.form)
+                    this.$emit('copy_template', this.type, {type: this.type,...this.form})
                 }
             })
         }
@@ -82,6 +81,9 @@ export default {
         this.$on('set_data', data => {
             data = JSON.parse(JSON.stringify(data))
             extend(this.$data, data)
+            Vue.nextTick(()=>{
+                this.$refs.form.resetFields()
+            })
         })
     }
 }

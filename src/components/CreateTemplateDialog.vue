@@ -63,7 +63,6 @@ export default {
             isShown: false,
             type: null,
             form:{
-                type: null,
                 templateName: '',
                 shopId: '',
                 width: 0,
@@ -106,7 +105,7 @@ export default {
                                 callback()    
                             }
                         }
-                    }},
+                    }, trigger: 'change'},
                 ],
                 height: [
                     {validator:(rule, value, callback)=>{
@@ -119,7 +118,7 @@ export default {
                                 callback()    
                             }
                         }
-                    }},
+                    }, trigger: 'change'},
                 ],
             }
         }
@@ -161,7 +160,7 @@ export default {
 
                         ]
                     })
-                    this.$emit('create_template', this.type, {shopName: this.shopName, content: content, ...this.form})
+                    this.$emit('create_template', this.type, {type: this.type, shopName: this.shopName, content: content, ...this.form})
                 }
             })
         },
@@ -177,7 +176,7 @@ export default {
         heightInputHandler(value){
             if(!/^[0-9]*$/.test(value)){
                 Vue.nextTick(() => {
-                    this.form.height = value.match(/\d+/) && value.match(/\d+/)[0] || 0
+                    this.form.height = value.match(/\d+/) && value.match(/\d+/)[0] || ''
                 })
             } else {
                 if(Number(value) > 9999){
@@ -190,7 +189,7 @@ export default {
         widthInputHandler(value){
             if(!/^[0-9]*$/.test(value)){
                 Vue.nextTick(() => {
-                    this.form.width = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                    this.form.width = value.match(/\d+/) && value.match(/\d+/)[0] || '' 
                 })
             } else {
                 if(Number(value) > 9999){
@@ -205,6 +204,9 @@ export default {
         this.$on('set_data', data => {
             data = JSON.parse(JSON.stringify(data))
             extend(this.$data, data)
+            Vue.nextTick(()=>{
+                this.$refs.form.resetFields()
+            })
         })
     }
 }

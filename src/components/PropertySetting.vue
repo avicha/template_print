@@ -275,9 +275,11 @@ export default {
     watch:{
         defaultStyle:{
             handler(style){
-                ['prefix', 'value', 'suffix'].forEach((type) => {
-                    extend(this.data[type + 'Style'], style)
-                })
+                if(this.ready){
+                    ['prefix', 'value', 'suffix'].forEach((type) => {
+                        extend(this.data[type + 'Style'], style)
+                    })
+                }
             },
             deep: true
         },
@@ -296,8 +298,7 @@ export default {
                             this.data.alignNumber = this.data.left + this.data.width
                             break;
                     }
-                    this.$emit('changeComponentData', data)
-                    this.$emit('record')    
+                    this.$emit('changeComponentSetting', data)
                 }
             },
             deep: true
@@ -305,13 +306,22 @@ export default {
     },
     mounted(){
         this.$on('set_data', data => {
+            this.ready = false
             let dataClone = JSON.parse(JSON.stringify(data))
             for(let key in dataClone){
                 if(this.data[key] !== undefined){
                     this.data[key] = dataClone[key]
                 }
             }
-            this.ready = false
+            this.styleType = ''
+            this.defaultStyle = {
+                isBold: false,
+                isItalic: false,
+                isUnderline: false,
+                fontFamily: 'SimSun',
+                fontSize: 14,
+                color: '#333',
+            }
             Vue.nextTick(() => {
                 this.ready = true
             })

@@ -48,3 +48,18 @@ a {
         }
     }
 }
+.el-select-dropdown {
+    .el-select-dropdown__wrap {
+        .el-select-dropdown__list {
+            .el-select-dropdown__item {
+                background-color: $C2;
+                &.hover {
+                    background-color: $C2;
+                }
+                &.selected {
+                    background-color: $C2;
+                }
+            }
+        }
+    }
+}

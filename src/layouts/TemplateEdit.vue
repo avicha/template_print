@@ -10,7 +10,7 @@
             <div class="template-edit-content">
                 <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @openBackConfirmDialog="openBackConfirmDialog" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
             </div>
-            <ConfirmDialog ref="backConfirmDialog" class="backConfirmDialog" title="返回" content="还未保存，是否确认要退出？" :onConfirmHandler="backConfirmHandler"></ConfirmDialog>
+            <ConfirmDialog ref="backConfirmDialog" title="返回" content="还未保存，是否确认要退出？" :onConfirmHandler="backConfirmHandler"></ConfirmDialog>
             <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
             <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
         </div>
