@@ -185,6 +185,7 @@ export default {
             width: 100%;
             height: 100%;
             background-image: url(~assets/images/barcode-sample.png);
+            background-size: 100% 100%;
         }
         &.active {
             opacity: .7;

@@ -2,7 +2,7 @@
     <el-dialog class="copy-template-dialog" title="复制模板" v-model="isShown" :close-on-click-modal="false" size="tiny">
         <el-form ref="form" :rules="rules" :model="form" @submit.native.prevent>
             <el-form-item label="名称" prop="templateName">
-                <el-input ref="templateName" v-model="form.templateName" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}"></el-input>
+                <el-input ref="templateName" v-model.trim="form.templateName" :maxlength="20" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -41,11 +41,17 @@ export default {
             rules:{
                 templateName: [
                     {validator:(rule, value, callback)=>{
+                        value = value.trim()
                         if(value === ''){
                             this.$refs.templateName.$el.querySelector('input').focus()
                             callback(new Error('请输入' + this.templateType + '名称'))
                         } else {
-                            callback()
+                            if(value.length >20){
+                                this.$refs.templateName.$el.querySelector('input').focus()
+                                callback(new Error('名称长度不能超过20个字符'))
+                            } else {
+                                callback()    
+                            }
                         }
                     }, trigger: 'change'},
                 ],

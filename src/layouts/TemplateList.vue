@@ -196,8 +196,8 @@ export default {
                     type,
                     templateName: '',
                     shopId: '', 
-                    width: null,
-                    height: null
+                    width: 0,
+                    height: 0
                 }
             })
             this.$refs.createTemplateDialog.show()

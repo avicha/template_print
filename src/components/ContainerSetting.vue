@@ -6,12 +6,12 @@
         <div class="setting-body">
             <el-form label-width="68px" label-position="left">
                 <el-form-item label="横轴">
-                    <el-input v-model.number="data.left" placeholder="" size="small">
+                    <el-input v-model.number="data.left" @input="leftInputHandler" placeholder="" size="small">
                         <template slot="append">mm</template>
                     </el-input>
                 </el-form-item>
                 <el-form-item label="竖轴">
-                    <el-input v-model.number="data.top" placeholder="" size="small">
+                    <el-input v-model.number="data.top" @input="topInputHandler" placeholder="" size="small">
                         <template slot="append">mm</template>
                     </el-input>
                 </el-form-item>
@@ -45,6 +45,34 @@ export default {
                 }
             },
             deep: true
+        }
+    },
+    methods:{
+        leftInputHandler(value){
+            if(!/^[0-9]*$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.data.left = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                })
+            } else {
+                if(Number(value) > 9999){
+                    Vue.nextTick(()=>{
+                        this.data.left = 9999  
+                    })
+                }
+            }
+        },
+        topInputHandler(value){
+            if(!/^[0-9]*$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.data.top = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                })
+            } else {
+                if(Number(value) > 9999){
+                    Vue.nextTick(()=>{
+                        this.data.top = 9999
+                    })
+                }
+            }
         }
     },
     mounted(){

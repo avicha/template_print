@@ -6,22 +6,22 @@
         <div class="setting-body">
             <el-form label-width="80px" label-position="left">
                 <el-form-item label="宽">
-                    <el-input v-model.number="data.width" placeholder="" size="small">
+                    <el-input v-model.number="data.width" @input="widthInputHandler" placeholder="" size="small">
                         <template slot="append">mm</template>
                     </el-input>
                 </el-form-item>
                 <el-form-item label="高">
-                    <el-input v-model.number="data.height" placeholder="" size="small">
+                    <el-input v-model.number="data.height" @input="heightInputHandler" placeholder="" size="small">
                         <template slot="append">mm</template>
                     </el-input>
                 </el-form-item>
                 <el-form-item label="横轴">
-                    <el-input v-model.number="data.left" placeholder="" size="small">
+                    <el-input v-model.number="data.left" @input="leftInputHandler" placeholder="" size="small">
                         <template slot="append">mm</template>
                     </el-input>
                 </el-form-item>
                 <el-form-item label="竖轴">
-                    <el-input v-model.number="data.top" placeholder="" size="small">
+                    <el-input v-model.number="data.top" @input="topInputHandler" placeholder="" size="small">
                         <template slot="append">mm</template>
                     </el-input>
                 </el-form-item>
@@ -77,8 +77,64 @@ export default {
         },
         numberInputHandler(e){
             let value = e.target.value
-            if(isNaN(Number(value))){
-                this.data.number = window.parseInt(value)
+            if(!/^[0-9]*$/.test(value)){
+                this.data.number = value.match(/\d+/) && value.match(/\d+/)[0] || 1
+            } else {
+                if(Number(value) > 9999){
+                    this.data.number = 9999  
+                }
+            }
+        },
+        widthInputHandler(value){
+            if(!/^[0-9]*$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.data.width = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                })
+            } else {
+                if(Number(value) > 9999){
+                    Vue.nextTick(()=>{
+                        this.data.width = 9999  
+                    })
+                }
+            }
+        },
+        heightInputHandler(value){
+            if(!/^[0-9]*$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.data.height = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                })
+            } else {
+                if(Number(value) > 9999){
+                    Vue.nextTick(()=>{
+                        this.data.height = 9999
+                    })
+                }
+            }
+        },
+        leftInputHandler(value){
+            if(!/^[0-9]*$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.data.left = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                })
+            } else {
+                if(Number(value) > 9999){
+                    Vue.nextTick(()=>{
+                        this.data.left = 9999  
+                    })
+                }
+            }
+        },
+        topInputHandler(value){
+            if(!/^[0-9]*$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.data.top = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                })
+            } else {
+                if(Number(value) > 9999){
+                    Vue.nextTick(()=>{
+                        this.data.top = 9999
+                    })
+                }
             }
         }
     },

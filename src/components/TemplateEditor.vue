@@ -68,10 +68,10 @@
             </div>
             <div class="menu-item-group">
                 <div class="menu-item percentage" :class="{disabled: !menuItems.isPercentageAvailable}">
-                    <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model="canvas.percentage" @input="percentageInputHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
+                    <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model="canvas.percentage" @blur="percentageInputHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
                 </div>
                 <div class="menu-item width" :class="{disabled: !menuItems.isWidthAvailable}">
-                    <span>宽</span><input type="text" @input="widthInputHandler" class="width-input" v-model="canvas.width">
+                    <span>宽</span><input type="text" class="width-input" @input="widthInputHandler" v-model="canvas.width">
                 </div>
                 <div class="menu-item height" :class="{disabled: !menuItems.isHeightAvailable}">
                     <span>高</span><input type="text" class="height-input" @input="heightInputHandler" v-model="canvas.height">
@@ -446,7 +446,7 @@ export default {
                 this.stack.splice(this.stackIndex + 1, this.stack.length)
             }
             if(this.ready){
-                this.menuItems.isSaveAvailable = true    
+                this.menuItems.isSaveAvailable = true  
             }
         },
         restoreCanvas(canvas_str){
@@ -462,23 +462,41 @@ export default {
         },
         percentageInputHandler(e){
             let value = e.target.value
-            if(isNaN(Number(value))){
-                this.canvas.percentage = window.parseInt(value)
+            value = Math.round(value)
+            if(isNaN(value)){
+                this.canvas.percentage = 100
+            } else {
+                if(value < 10){
+                    this.canvas.percentage = 10
+                } else {
+                    if(value > 300){
+                        this.canvas.percentage = 300
+                    } else {
+                        this.canvas.percentage = value        
+                    }
+                }
+                this.record()
             }
         },
         widthInputHandler(e){
             let value = e.target.value
-            if(isNaN(Number(value))){
-                this.canvas.width = window.parseInt(value)
+            if(!/^[0-9]*$/.test(value)){
+                this.canvas.width = value.match(/\d+/) && value.match(/\d+/)[0] || 0
             } else {
-                this.record()    
+                if(Number(value) > 9999){
+                    this.canvas.width = 9999
+                }
+                this.record()
             }
         },
         heightInputHandler(e){
             let value = e.target.value
-            if(isNaN(Number(value))){
-                this.canvas.height = window.parseInt(value)
+            if(!/^[0-9]*$/.test(value)){
+                this.canvas.height = value.match(/\d+/) && value.match(/\d+/)[0] || 0
             } else {
+                if(Number(value) > 9999){
+                    this.canvas.height = 9999
+                }
                 this.record()
             }
         },
@@ -875,15 +893,25 @@ export default {
         //增加比例，记录
         plusPercentageBtnHandler(){
             if(this.menuItems.isPercentageAvailable){
-                this.canvas.percentage += 10
-                this.record()
+                if(this.canvas.percentage <= 290){
+                    this.canvas.percentage += 10
+                    this.record()    
+                } else {
+                    this.canvas.percentage = 300 
+                    this.record()
+                }
             }
         },
         //减少比例
         minusPercentageBtnHandler(){
             if(this.menuItems.isPercentageAvailable){
-                this.canvas.percentage -= 10  
-                this.record()  
+                if(this.canvas.percentage >= 20){
+                    this.canvas.percentage -= 10  
+                    this.record()    
+                } else {
+                    this.canvas.percentage = 10  
+                    this.record()
+                }
             }
         },
         //预览
