@@ -64,7 +64,7 @@
             </el-form>
         </div>
         <div class="property-setting-body" v-if="data.propertyType != 4">
-            <el-form label-width="80x" label-position="left">
+            <el-form label-width="80px" label-position="left">
                 <el-form-item label="横轴">
                     <el-input v-model.number="data.left" placeholder="" size="small">
                         <template slot="append">mm</template>
@@ -315,7 +315,6 @@ export default {
         .text-align {
             width: 100%;
             height: 34px;
-            margin-bottom: 14px;
             box-sizing: border-box;
             border: 1px solid #d6d6d6;
             border-radius: 4px;

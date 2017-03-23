@@ -185,7 +185,6 @@ export default {
 @media screen {
     .template-edit-page {
         display: block;
-        overflow: scroll;
         padding: 0 20px;
         @import "../assets/scss/breadcrumb.scss";
         .template-edit-content {

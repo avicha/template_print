@@ -138,10 +138,8 @@ export default {
             deep: true
         },
         'data.sample'(sample){
-            if(this.data.propertyType == 4 && sample.length == 13){
-                JsBarcode('#barcode', sample, {format: 'ean13', displayValue: false})
-            } else {
-                this.$refs.barcode.src = ''
+            if(this.data.propertyType == 4){
+                JsBarcode('#barcode', sample, {displayValue: false})
             }
         },
         'data.top'(){
