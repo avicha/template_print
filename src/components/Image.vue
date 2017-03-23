@@ -1,10 +1,12 @@
 <template>
-<div class="image-component" :style="componentStyle">
+<div class="image-component" :style="componentStyle" @dblclick="openFileUploadDialog">
     <img :src="data.src">
+    <input ref="imageInput" type="file" class="image-input" @change="changeURL">
 </div>
 </template>
 
 <script>
+import {readImageAsDataURL} from '../services/utils'
 export default {
     props: ['data', 'isPreview', 'templateData'],
     computed: {
@@ -36,15 +38,39 @@ export default {
             }
         },
     },
+    methods:{
+        openFileUploadDialog(){
+            this.$refs.imageInput.click()
+        },
+        changeURL(e){
+            let file = e.target.files[0]
+            if(file){
+                readImageAsDataURL(file, (error, base64URL, imageInfo) => {
+                    if(error){
+                        alert(error)
+                    } else {
+                        this.$emit('changeComponentData', {src: base64URL})
+                    }
+                })
+            }
+        }
+    }
 }
 </script>
 
 <style lang="scss">
+@import "../assets/scss/mixin.scss";
 .image-component {
+    position: relative;
     img {
         display: block;
         width: 100%;
         height: 100%;
+        background-image: url(~assets/images/image-sample.png);
+    }
+    .image-input {
+        @include full;
+        display: none;
     }
     &.active {
         opacity: .7;

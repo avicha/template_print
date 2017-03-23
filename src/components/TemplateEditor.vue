@@ -97,15 +97,23 @@
             <div class="left-panel">
                 <h4 class="title">基本元件</h4>
                 <div class="menu-component-list">
-                    <div class="menu-component" @dblclick="()=>{this.addText(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addText')">文本</div>
-                    <div class="menu-component image-btn">图片<input class="image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="addImage"/></div>
-                    <div class="menu-component background-image-btn" :class="{active: isBackgroundImageActive}" @click="toggleBackgroundImageActive">背景图片
-                        <ul class="background-image-menu-list">
-                            <li class="change-background-image">替换<input ref="backgroundImageInput" class="background-image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="changeBackgroundImage"/></li>
-                            <li class="remove-background-image" @click="removeBackgroundImage">删除</li>
-                        </ul>
+                    <div class="menu-component-block">
+                        <div class="menu-component" @dblclick="()=>{this.addText(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addText')">文本</div>    
                     </div>
-                    <div v-show="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addItemList')">动态数据域</div>
+                    <div class="menu-component-block">
+                        <div class="menu-component" @dblclick="()=>{this.addImage(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addImage')">图片</div>
+                    </div>
+                    <div class="menu-component-block">
+                        <div class="menu-component background-image-btn" :class="{active: isBackgroundImageActive}" @click="toggleBackgroundImageActive">背景图片
+                            <ul class="background-image-menu-list">
+                                <li class="change-background-image">替换<input ref="backgroundImageInput" class="background-image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="changeBackgroundImage"/></li>
+                                <li class="remove-background-image" @click="removeBackgroundImage">删除</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="menu-component-block">
+                        <div v-show="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addItemList')">动态数据域</div>
+                    </div>
                 </div>
                 <p class="prop-text">动态数据项</p>
                 <div class="el-tree">
@@ -1028,7 +1036,7 @@ export default {
         },
         //拖动组件时，带上拖动时的偏移位置
         componentDragStartHandler(e, action, data){
-            e.dataTransfer.setData('text/plain', JSON.stringify({action: action, offsetX: Math.round(e.offsetX/this.ppi*2.54*10), offsetY: Math.round(e.offsetY/this.ppi*2.54*10), data: data}))
+            e.dataTransfer.setData('data', JSON.stringify({action: action, offsetX: Math.round(e.offsetX/this.ppi*2.54*10), offsetY: Math.round(e.offsetY/this.ppi*2.54*10), data: data}))
             e.dataTransfer.effectAllowed = 'move'
             e.dataTransfer.setDragImage(e.target, e.offsetX, e.offsetY)
         },
@@ -1038,7 +1046,7 @@ export default {
         },
         //画布上落下时，根据要添加的元素和位置添加组件
         canvasDropHandler(e){
-            let data = e.dataTransfer.getData('text/plain') 
+            let data = e.dataTransfer.getData('data') 
             if(data){
                 data = JSON.parse(data)
                 let {offsetX, offsetY} = this._getPointerOffset(e)
@@ -1047,7 +1055,10 @@ export default {
                 switch(data.action){
                     case 'addText':
                         this.addText(left, top)
-                        break;
+                        break
+                    case 'addImage':
+                        this.addImage(left, top)
+                        break
                     case 'addItemList':
                         this.addItemList(left, top)
                         break
@@ -1083,35 +1094,24 @@ export default {
             this.record()
         },
         //添加图片，默认添加到画布中央右下角，并选中，记录
-        addImage(e){
-            let file = e.target.files[0]
-            if(file){
-                readImageAsDataURL(file, (error, base64URL, imageInfo) => {
-                    if(error){
-                        alert(error)
-                    } else {
-                        let top = this.canvas.height/2
-                        let left = this.canvas.width/2
-                        let component = {
-                            type: 'ImageComponent',
-                            active: false,
-                            data: {
-                                id: Date.now(),
-                                src: base64URL,
-                                rotateDeg: 0,
-                                width: Math.round(imageInfo.width/this.ppi*2.54*10),
-                                height: Math.round(imageInfo.height/this.ppi*2.54*10),
-                                top: top,
-                                left: left,
-                                zIndex: this.canvas.components.length,
-                            }
-                        }
-                        this.canvas.components.push(component)
-                        this.activeComponent(component, true)
-                        this.record()
-                    }
-                })
+        addImage(left = 0, top = 0){
+            let component = {
+                type: 'ImageComponent',
+                active: false,
+                data: {
+                    id: Date.now(),
+                    src: '',
+                    rotateDeg: 0,
+                    width: Math.round(85/this.ppi*2.54*10),
+                    height: Math.round(68/this.ppi*2.54*10),
+                    top: top,
+                    left: left,
+                    zIndex: this.canvas.components.length,
+                }
             }
+            this.canvas.components.push(component)
+            this.activeComponent(component, true)
+            this.record()
         },
         //选中属性时，添加属性组件，默认添加到画布中央右下角，并选中，记录
         handlePropClick(data, left = this.canvas.width/2, top = this.canvas.height/2){
@@ -1357,7 +1357,7 @@ export default {
         .left-panel {
             width: 190px;
             @include left;
-            overflow: hidden;
+            overflow-y: scroll;
             background-color: #fff;
             border-right: 1px solid #d6d6d6;
             .title {
@@ -1374,37 +1374,43 @@ export default {
                 font-size: 0;
                 padding: 0 10px;
                 margin-bottom: 20px;
-                .menu-component {
-                    position: relative;
-                    letter-spacing: 0px;
-                    display: inline-block;
-                    box-sizing: border-box;
-                    margin-top: 20px;
-                    margin-left: 10px;
-                    width: 70px;
-                    height: 30px;
-                    text-align: center;
-                    line-height: 30px;
-                    @include F(12);
-                    @include BD1;
-                    border-radius: 4px;
-                    background: #fff;
-                    color: #333;
-                    cursor: pointer;
+                &:after {
+                    content: '';
+                    display: block;
+                    clear: both;
                 }
-                .text-preview {
-                    position: fixed;
-                    display: none;
-                    text-align: center;
-                    line-height: 30px;
-                    border: 1px dashed #4ec0ff;
-                    background-color: rgba(78, 192, 255, .15);
-                    span {
-                        padding: 5px;
-                        font-family: Microsoft Yahei;
-                        @include F(14);
+                .menu-component-block {
+                    float: left;
+                    width: 50%;
+                    .menu-component {
+                        display: block;
+                        box-sizing: border-box;
+                        margin-top: 20px;
+                        width: 70px;
+                        height: 30px;
+                        text-align: center;
+                        line-height: 30px;
+                        @include F(12);
+                        @include BD1;
+                        border-radius: 4px;
+                        background: #fff;
+                        color: #333;
+                        cursor: pointer;
+                    }
+                    &:nth-child(odd){
+                        .menu-component {
+                            float: right;
+                            margin-right: 5px;    
+                        }
+                    }
+                    &:nth-child(even){
+                        .menu-component {
+                            float: left;
+                            margin-left: 5px;
+                        }
                     }
                 }
+                
                 .background-image-btn {
                     position: relative;
                     box-sizing: border-box;
@@ -1452,13 +1458,6 @@ export default {
                         }
                     }
                 }
-                .image-btn {
-                    position: relative;
-                    .image-input {
-                        opacity: 0;
-                        @include full;
-                    }
-                } 
             }
             .prop-text {
                 text-align: center;
