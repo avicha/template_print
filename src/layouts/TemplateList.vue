@@ -105,9 +105,6 @@ export default {
                 components: [
                     
                 ],
-                containers: [
-
-                ]
             },
             templateData: {
                 productList: []

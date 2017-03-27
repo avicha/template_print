@@ -21,9 +21,6 @@ const state = {
             components: [
 
             ],
-            containers: [
-
-            ]
         }),
         shopName: '',
         shopId: null,

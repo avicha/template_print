@@ -78,6 +78,7 @@ export default {
                 fontFamily: this.data.prefixStyle.fontFamily,
                 fontSize: this.data.prefixStyle.fontSize + 'px',
                 color: this.data.prefixStyle.color,
+                verticalAlign: this.data.verticalAlign,
             }
         },
         valueStyle(){
@@ -88,6 +89,7 @@ export default {
                 fontFamily: this.data.valueStyle.fontFamily,
                 fontSize: this.data.valueStyle.fontSize + 'px',
                 color: this.data.valueStyle.color,
+                verticalAlign: this.data.verticalAlign,
             }
         },
         suffixStyle(){
@@ -98,6 +100,7 @@ export default {
                 fontFamily: this.data.suffixStyle.fontFamily,
                 fontSize: this.data.suffixStyle.fontSize + 'px',
                 color: this.data.suffixStyle.color,
+                verticalAlign: this.data.verticalAlign,
             }
         },
         value(){
@@ -196,6 +199,7 @@ export default {
         span {
             display: inline-block;
             vertical-align: middle;
+            line-height: 1;
         }
         &.active {
             border: 1px dashed #4ec0ff;

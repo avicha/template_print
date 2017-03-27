@@ -296,9 +296,6 @@ export default {
         },
         //根据操作记录显示撤回和重做菜单
         stackIndex(i){
-            if(i){
-                this.menuItems.isSaveAvailable = true
-            }
             if(this.stack[i - 1]){
                 this.menuItems.isUndoAvailable = true
             } else {
@@ -418,7 +415,7 @@ export default {
         },
          //记录canvas数据，因为canvas是深度克隆出来的，所以容器的children需要改变指针
         record(){
-            // this.updateItemListId()
+            this.updateItemListId()
             let canvas = JSON.stringify(this.canvas)
             this.stack[++this.stackIndex] = canvas
             if(this.stack[this.stackIndex + 1]){
@@ -1055,6 +1052,7 @@ export default {
                     left: left,
                     textAlign: 'left',
                     alignNumber: left,
+                    verticalAlign: 'middle',
                     itemListId: null,
                     zIndex: this.canvas.components.length,
                 }

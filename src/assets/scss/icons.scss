@@ -28,7 +28,7 @@
         }
     }
 }
-@each $icon in text-align-left, text-align-center, text-align-right {
+@each $icon in text-align-left, text-align-center, text-align-right, vertical-align-top, vertical-align-middle, vertical-align-bottom {
     .#{$icon}-icon {
         display: inline-block;
         width: 62px;

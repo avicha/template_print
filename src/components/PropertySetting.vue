@@ -80,6 +80,11 @@
                     <i class="icon text-align-center-icon" :class="{active: data.textAlign == 'center'}" @click="data.textAlign = 'center'"></i>
                     <i class="icon text-align-right-icon" :class="{active: data.textAlign == 'right'}" @click="data.textAlign = 'right'"></i>
                 </div>
+                <div class="vertical-align">
+                    <i class="icon vertical-align-top-icon" :class="{active: data.verticalAlign == 'top'}" @click="data.verticalAlign = 'top'"></i>
+                    <i class="icon vertical-align-middle-icon" :class="{active: data.verticalAlign == 'middle'}" @click="data.verticalAlign = 'middle'"></i>
+                    <i class="icon vertical-align-bottom-icon" :class="{active: data.verticalAlign == 'bottom'}" @click="data.verticalAlign = 'bottom'"></i>
+                </div>
             </el-form>
         </div>
         <div  class="property-setting-body" v-if="data.propertyType == 4">
@@ -175,7 +180,8 @@ export default {
                 top: 0,
                 width: 0,
                 height: 0,
-                textAlign: '',
+                textAlign: 'left',
+                verticalAlign: 'middle',
             }
         }
     },
@@ -300,14 +306,16 @@ export default {
                     this.data[key] = dataClone[key]
                 }
             }
-            this.styleType = ''
-            this.defaultStyle = {
-                isBold: false,
-                isItalic: false,
-                isUnderline: false,
-                fontFamily: 'SimSun',
-                fontSize: 14,
-                color: '#333',
+            if(data.propertyCode != this.data.propertyCode){
+                this.styleType = ''
+                this.defaultStyle = {
+                    isBold: false,
+                    isItalic: false,
+                    isUnderline: false,
+                    fontFamily: 'SimSun',
+                    fontSize: 14,
+                    color: '#333',
+                }
             }
             Vue.nextTick(() => {
                 this.ready = true
@@ -365,9 +373,10 @@ export default {
                 }
             }
         }
-        .text-align {
+        .text-align, .vertical-align {
             width: 100%;
             height: 34px;
+            margin-bottom: 14px;
             box-sizing: border-box;
             border: 1px solid #d6d6d6;
             border-radius: 4px;
