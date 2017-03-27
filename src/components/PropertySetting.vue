@@ -23,7 +23,7 @@
                     </el-select>
                 </div>
                 <el-form-item label="样本">
-                    <el-input class="sample-input" v-model.number="data.sample" placeholder="" size="small">
+                    <el-input class="sample-input" v-model="data.sample" placeholder="" size="small">
                         <i class="icon font-style-icon" slot="append"  :class="{active: styleType == 'value'}" @click="toggleStyle('value')"></i>
                     </el-input>
                 </el-form-item>
@@ -33,7 +33,7 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item label="后缀">
-                    <el-input class="suffix-input" v-model.number="data.suffix" placeholder="" size="small">
+                    <el-input class="suffix-input" v-model="data.suffix" placeholder="" size="small">
                         <i class="icon font-style-icon" slot="append" :class="{active: styleType == 'suffix'}" @click="toggleStyle('suffix')"></i>
                     </el-input>
                 </el-form-item>
@@ -176,7 +176,6 @@ export default {
                 width: 0,
                 height: 0,
                 textAlign: '',
-                alignNumber: 0,
             }
         }
     },
@@ -286,18 +285,6 @@ export default {
         data:{
             handler(data){
                 if(this.ready){
-                    let textAlign = this.data.textAlign
-                    switch(textAlign){
-                        case 'left':
-                            this.data.alignNumber = this.data.left
-                            break
-                        case 'center':
-                            this.data.alignNumber = this.data.left + 0.5 * this.data.width
-                            break;
-                        case 'right':
-                            this.data.alignNumber = this.data.left + this.data.width
-                            break;
-                    }
                     this.$emit('changeComponentSetting', data)
                 }
             },

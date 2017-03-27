@@ -1,53 +1,69 @@
 <template>
 <div class="container-component" :style="componentStyle">
-    
+    <component v-for="component in data.children" :is="component.type" :isPreview="isPreview" :parent="data" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)">
+    </component>
 </div>
 </template>
 
 <script>
+import TextComponent from '../components/Text'
+import ImageComponent from '../components/Image'
+import PropertyComponent from '../components/Property'
+import ItemListComponent from '../components/ItemList'
 export default {
-    props: ['data'],
+    props: ['isPreview', 'data', 'templateData', 'changeComponentData'],
     computed: {
         componentStyle(){
+            let tops = [],lefts = [],rights = [], bottoms = []
+            this.data.children.forEach(component => {
+                tops.push(component.data.top)
+                lefts.push(component.data.left)
+                rights.push(component.data.left + component.data.width)
+                bottoms.push(component.data.top + component.data.height)
+            })
+            let top = Math.min.apply(this, tops)
+            let left = Math.min.apply(this, lefts)
+            let right = Math.max.apply(this, rights)
+            let bottom = Math.max.apply(this, bottoms)
+            let w = right - left
+            let h = bottom - top
+            let rotateDeg = (this.data.rotateDeg + 360)%360
+            let translate = ''
+            switch(rotateDeg){
+                case 90:
+                    translate = 'translateY(-' + h +'mm)'
+                    break;
+                case 180:
+                    translate = 'translate(-' + w +'mm, -' + h + 'mm)'
+                    break;
+                case 270:
+                    translate = 'translateX(-' + w +'mm)'
+                    break;
+                default:
+                    translate = 'translate(0, 0)'
+            }
+            this.$emit('changeComponentData', {data: {top, left}, shouldUpdate: false})
             return {
-                top: this.data.top + 'mm',
-                left: this.data.left + 'mm',
-                width: this.data.width + 'mm',
-                height: this.data.height + 'mm',
-                zIndex: this.data.zIndex,
+                top: top + 'mm',
+                left: left + 'mm',
+                width: w + 'mm',
+                height: h + 'mm',
+                transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
+                transformOrigin: '0 0',
             }
         },
     },
-    watch: {
-        'data.children': {
-            handler(children){
-                let tops = [],lefts = [],rights = [], bottoms = []
-                children.forEach(component => {
-                    tops.push(component.data.top)
-                    lefts.push(component.data.left)
-                    rights.push(component.data.left + component.data.width)
-                    bottoms.push(component.data.top + component.data.height)
-                })
-                let top = Math.min.apply(this, tops)
-                let left = Math.min.apply(this, lefts)
-                let right = Math.max.apply(this, rights)
-                let bottom = Math.max.apply(this, bottoms)
-                this.$emit('changeComponentData', {
-                    top: top,
-                    left: left,
-                    width: right - left,
-                    height: bottom - top,
-                })
-            },
-            deep: true
-        }
+    components: {
+        TextComponent,
+        ImageComponent,
+        PropertyComponent,
+        ItemListComponent,
     },
 }
 </script>
 
 <style lang="scss">
 .container-component {
-    display: none;
     &.active {
         border: 1px dashed #4ec0ff;
         margin-left: -1px;

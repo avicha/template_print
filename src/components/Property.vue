@@ -18,11 +18,13 @@ export default {
             ppi: 96
         }
     },
-    props: ['data', 'isPreview', 'templateData'],
+    props: ['isPreview', 'parent', 'data', 'templateData', 'page'],
     computed: {
         componentStyle(){
             let w = this.data.width
             let h = this.data.height
+            let top = this.parent ? this.data.top - this.parent.top : this.data.top
+            let left = this.parent ? this.data.left - this.parent.left : this.data.left
             let rotateDeg = (this.data.rotateDeg + 360)%360
             let translate = ''
             switch(rotateDeg){
@@ -38,33 +40,34 @@ export default {
                 default:
                     translate = 'translate(0, 0)'
             }
-            let l
-            switch(this.data.textAlign){
-                case 'left':
-                    l = this.data.left
-                    break
-                case 'center':
-                    l = this.data.alignNumber - 0.5 * w
-                    break
-                case 'right':
-                    l = this.data.alignNumber - w
-                    break
-            }
             if(this.data.propertyType == 4){
                 return {
-                    top: this.data.top + 'mm',
-                    left: l + 'mm',
+                    top: top + 'mm',
+                    left: left + 'mm',
                     width: w + 'mm',
                     height: h + 'mm',
                     transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                     transformOrigin: '0 0',
                 }    
-            }
-            return {
-                top: this.data.top + 'mm',
-                left: l + 'mm',
-                transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
-                transformOrigin: '0 0',
+            } else {
+                let l, alignNumber = this.data.alignNumber
+                switch(this.data.textAlign){
+                    case 'left':
+                        l =  this.parent ? alignNumber - this.parent.left : alignNumber
+                        break
+                    case 'center':
+                        l = this.parent ? alignNumber - this.parent.left - 0.5 *  w : alignNumber - 0.5 * w
+                        break
+                    case 'right':
+                        l = this.parent ? alignNumber - this.parent.left - w : alignNumber - w
+                        break
+                }
+                return {
+                    top: top + 'mm',
+                    left: l + 'mm',
+                    transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
+                    transformOrigin: '0 0',
+                }    
             }
         },
         prefixStyle(){
@@ -127,13 +130,15 @@ export default {
     watch: {
         data:{
             handler(newData, oldData){
-                Vue.nextTick(() => {
-                    let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
-                    let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
-                    if(w != oldData.width || h != oldData.height){
-                        this.$emit('changeComponentData', {width: w, height: h}, true)
-                    }
-                })
+                if(!this.isPreview){
+                    Vue.nextTick(() => {
+                        let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
+                        let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
+                        if(w != oldData.width || h != oldData.height){
+                            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})
+                        }
+                    })
+                }
             },
             deep: true
         },
@@ -143,24 +148,42 @@ export default {
             }
         },
         'data.top'(){
-            this.$emit('updateItemListId')
+            this.computeAlignNumber()
         },
         'data.left'(){
-            this.$emit('updateItemListId')
+            this.computeAlignNumber()
         },
-        'data.width'(){
-            this.$emit('updateItemListId')
-        },
-        'data.height'(){
-            this.$emit('updateItemListId')
+        'data.textAlign'(){
+            this.computeAlignNumber()
         },
     },
+    methods:{
+        computeAlignNumber(){
+            if(!this.isPreview){
+                let textAlign = this.data.textAlign, alignNumber
+                switch(textAlign){
+                    case 'left':
+                        alignNumber = this.data.left
+                        break
+                    case 'center':
+                        alignNumber = this.data.left + 0.5 * this.data.width
+                        break;
+                    case 'right':
+                        alignNumber = this.data.left + this.data.width
+                        break;
+                }
+                this.$emit('changeComponentData', {data: {alignNumber: alignNumber}, shouldUpdate: false})
+            }
+        }
+    },
     mounted(){
-        let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
-        let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
-        this.$emit('changeComponentData', {width: w, height: h}, true)
-        if(this.data.propertyType == 4 && this.data.sample.length == 13){
-            JsBarcode('#barcode', this.data.sample, {format: 'ean13', displayValue: false})
+        if(!this.isPreview){
+            let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
+            let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
+            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})
+        }
+        if(this.data.propertyType == 4){
+            JsBarcode('#barcode', this.data.sample, {displayValue: false})
         }
     }
 }
@@ -176,6 +199,7 @@ export default {
         }
         &.active {
             border: 1px dashed #4ec0ff;
+            padding: 4px;
             background-color: rgba(78, 192, 255, .15);
         }  
     }

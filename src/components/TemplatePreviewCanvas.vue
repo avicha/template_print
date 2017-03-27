@@ -1,7 +1,7 @@
 <template>
 <div class="template-preview-canvas-wrapper" :style="canvasWrapperStyle">
     <div class="template-preview-canvas" :style="canvasStyle">
-        <component v-for="component in canvas.components" :is="component.type" :isPreview="true" class="component" :data="component.data" :templateData="templateData" :page="page"></component>
+        <component v-for="component in canvas.components" :is="component.type" :isPreview="true" :parent="null" class="component" :data="component.data" :templateData="templateData" :changeComponentData="changeComponentData" :page="page"></component>
     </div>
 </div>
 </template>
@@ -12,6 +12,8 @@ import TextComponent from '../components/Text'
 import ImageComponent from '../components/Image'
 import PropertyComponent from '../components/Property'
 import ItemListComponent from '../components/ItemList'
+import ContainerComponent from '../components/Container'
+import extend from 'lodash/extend'
 
 export default {
     data(){
@@ -25,6 +27,7 @@ export default {
         ImageComponent,
         PropertyComponent,
         ItemListComponent,
+        ContainerComponent,
     },
     computed: {
         canvasWrapperStyle() {
@@ -93,6 +96,12 @@ export default {
                 transformOrigin: '0 0',
                 
             }
+        },
+    },
+    methods:{
+        //改变组件的数据
+        changeComponentData(component, {data}){
+            extend(component.data, data)
         },
     }
 }

@@ -8,11 +8,13 @@
 <script>
 import {readImageAsDataURL} from '../services/utils'
 export default {
-    props: ['data', 'isPreview', 'templateData'],
+    props: ['data', 'parent', 'templateData'],
     computed: {
         componentStyle(){
             let w = this.data.width
             let h = this.data.height
+            let top = this.parent ? this.data.top - this.parent.top : this.data.top
+            let left = this.parent ? this.data.left - this.parent.left : this.data.left
             let rotateDeg = (this.data.rotateDeg + 360)%360
             let translate = ''
             switch(rotateDeg){
@@ -29,10 +31,10 @@ export default {
                     translate = 'translate(0, 0)'
             }
             return {
-                top: this.data.top + 'mm',
-                left: this.data.left + 'mm',
-                width: this.data.width + 'mm',
-                height: this.data.height + 'mm',
+                top: top + 'mm',
+                left: left + 'mm',
+                width: w + 'mm',
+                height: h + 'mm',
                 transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                 transformOrigin: '0 0',
             }
@@ -40,7 +42,9 @@ export default {
     },
     methods:{
         openFileUploadDialog(){
-            this.$refs.imageInput.click()
+            if(!this.isPreview){
+                this.$refs.imageInput.click()
+            }
         },
         changeURL(e){
             let file = e.target.files[0]
@@ -49,7 +53,7 @@ export default {
                     if(error){
                         alert(error)
                     } else {
-                        this.$emit('changeComponentData', {src: base64URL})
+                        this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false})
                     }
                 })
             }

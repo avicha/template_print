@@ -21,22 +21,31 @@ a {
     .el-form-item__label {
         @include TC1;
     }
-    .el-input,.el-select {
-        .el-input__inner {
-            @include TC1;
-            border-color: $C3;
-            &:focus {
+    .el-form-item__content {
+        .el-input,.el-select {
+            .el-input__inner {
+                @include TC1;
                 border-color: $C3;
+                &:focus {
+                    border-color: $C3;
+                }
+                &:hover {
+                    border-color: $C3;
+                }
             }
-            &:hover {
-                border-color: $C3;
+        }
+        .el-input-group--append {
+            .el-input__inner {
+                border-right: 0;
             }
         }
     }
     &.is-error {
-        .el-input,.el-select {
-            .el-input__inner {
-                border-color: #ff4949;
+        .el-form-item__content {
+            .el-input,.el-select {
+                .el-input__inner {
+                    border-color: #ff4949;
+                }
             }
         }
     }

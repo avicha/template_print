@@ -138,10 +138,9 @@
                 <div class="zero">0</div>
                 <div class="top-ruler" :style="{backgroundSize: 0.2 * this.canvas.percentage + 'cm 100%'}"></div>
                 <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.2 * this.canvas.percentage + 'cm'}"></div>
-                <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.prevent="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
-                    <component v-for="component in canvas.components" :is="component.type" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" @updateItemListId="updateItemListId" :isPreview="false">
+                <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.stop.prevent="canvasMousedownHandler" @mousemove.stop.prevent="canvasMousemoveHandler" @mouseup.stop.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
+                    <component v-for="component in canvas.components" :is="component.type" :isPreview="false" :parent="null" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
                     </component>
-                    <ContainerComponent v-for="container in canvas.containers" class="component" :class="{active: container.active}" :data="container.data" @changeComponentData="changeComponentData(container, $event)"></ContainerComponent>
                 </div>
             </div>
         </div>
@@ -184,7 +183,6 @@ export default {
             stackIndex: -1,
             isBackgroundImageActive: false,
             _copyComponents: [],
-            _copyContainers: [],
             propListData: this.propList.map(prop => {
                 return {
                     prop,
@@ -224,9 +222,6 @@ export default {
                 components: [
                     
                 ],
-                containers: [
-
-                ]
             },
         }
     },
@@ -268,22 +263,28 @@ export default {
             }
         },
         activeComponents() {
-            return this.canvas.components.filter(component => {
-                return component.active
+            let items = []
+            this.canvas.components.forEach(component => {
+                if(component.active){
+                    items.push(component)
+                }
+                if(component.type == 'ContainerComponent'){
+                    component.data.children.forEach(child => {
+                        if(child.active){
+                            items.push(child)
+                        }
+                    })
+                }
             })
-        },
-        activeContainers() {
-            return this.canvas.containers.filter(container => {
-                return container.active
-            })
+            return items
         },
         setting() {
             return {
-                isTextComponent: !this.activeContainers.length && this.activeComponents.length == 1 && this.activeComponents[0].type == 'TextComponent',
-                isImageComponent: !this.activeContainers.length && this.activeComponents.length == 1 && this.activeComponents[0].type == 'ImageComponent',
-                isContainerComponent: !this.activeComponents.length && this.activeContainers.length == 1 && this.activeContainers[0].type == 'ContainerComponent',
-                isPropertyComponent: !this.activeContainers.length && this.activeComponents.length == 1 && this.activeComponents[0].type == 'PropertyComponent',
-                isItemListComponent: !this.activeContainers.length && this.activeComponents.length == 1 && this.activeComponents[0].type == 'ItemListComponent',
+                isTextComponent: this.activeComponents.length == 1 && this.activeComponents[0].type == 'TextComponent',
+                isImageComponent: this.activeComponents.length == 1 && this.activeComponents[0].type == 'ImageComponent',
+                isContainerComponent: this.activeComponents.length == 1 && this.activeComponents[0].type == 'ContainerComponent',
+                isPropertyComponent: this.activeComponents.length == 1 && this.activeComponents[0].type == 'PropertyComponent',
+                isItemListComponent: this.activeComponents.length == 1 && this.activeComponents[0].type == 'ItemListComponent',
             }
         },
     },
@@ -291,10 +292,6 @@ export default {
     watch:{
         //改变菜单的显示
         activeComponents(){
-            this.showMenu()
-        },
-        //改变菜单的显示
-        activeContainers(){
             this.showMenu()
         },
         //根据操作记录显示撤回和重做菜单
@@ -334,62 +331,45 @@ export default {
         })
         //删除选中的组件和容器
         this.$on('delete_keyup',() => {
-            if(this.activeComponents.length || this.activeContainers.length){
+            if(this.activeComponents.length){
                 if(window.confirm('确认删除选中的组件')){
-                    this.activeContainers.forEach(container => {
-                        this.removeContainer(container)
-                    })
                     this.activeComponents.forEach(component => {
                         this.removeComponent(component)
                     })
-                    this.updateItemListId()
                     this.record()
                 }
             }
         })
         //复制选中的组件和容器
         this.$on('copy_keyup', () => {
-            let components = [], containers = []
-            this.activeContainers.forEach(container => {
-                let container_str = JSON.stringify(container)
-                containers.push(container_str)
-            })
+            let components = []
             this.activeComponents.forEach(component => {
                 let component_str = JSON.stringify(component)
                 components.push(component_str)
             })
             this._copyComponents = components
-            this._copyContainers = containers
         })
         //粘贴之前复制的组件和容器
         this.$on('paste_keyup', () => {
-            if(this._copyComponents.length || this._copyContainers.length){
-                let components = [], containers = []
+            if(this._copyComponents.length){
+                let components = []
                 this._copyComponents.forEach(component_str => {
                     let component = JSON.parse(component_str)
                     component.data.id = Math.round(Date.now() + Math.random() * 100)
+                    if(component.type == 'ContainerComponent'){
+                        //改变容器下的组件children
+                        component.data.children = component.data.children.map(child => {
+                            //容器下的组件也进行复制，并改变组件的id
+                            child.data.id = Math.round(Date.now() + Math.random() * 100)
+                            return child
+                        })
+                    }
                     //把组件移到右下方5mm
                     this.moveComponent(component, {left: 5, top: 5})
                     components.push(component)
                 })
-                this._copyContainers.forEach(container_str => {
-                    let container = JSON.parse(container_str)
-                    //改变容器下的组件children
-                    container.data.children = container.data.children.map(child => {
-                        //容器下的组件也进行复制，并改变组件的id
-                        child.id = Math.round(Date.now() + Math.random() * 100)
-                        this.moveComponent(child, {left: 5, top: 5})
-                        components.push(child)
-                        return child
-                    })
-                    container.data.id = Math.round(Date.now() + Math.random() * 100)
-                    this.moveComponent(container, {left: 5, top: 5})
-                    containers.push(container)
-                })
                 //把复制的组件和容器添加到canvas
                 this.canvas.components = this.canvas.components.concat(components)
-                this.canvas.containers = this.canvas.containers.concat(containers)
-                this.updateItemListId()
                 this.record()
             }
         })
@@ -415,17 +395,16 @@ export default {
             this.activeComponents.forEach(component => {
                 this.moveComponent(component, pos)
             })
-            this.activeContainers.forEach(container => {
-                this.moveComponent(container, pos)
-            })
             if(this.setting.isTextComponent || this.setting.isImageComponent || this.setting.isPropertyComponent || this.setting.isItemListComponent){
                 this.showItemSetting(this.activeComponents[0])
-            } else {
-                if(this.setting.isContainerComponent){
-                    this.showItemSetting(this.activeContainers[0])
-                }
             }
             this.record()
+        })
+        this.$on('mouseup', e => {
+            if(this._isDraging){
+                this._isDraging = false
+                this._dragingComponent = null
+            }
         })
     },
     methods:{
@@ -435,11 +414,11 @@ export default {
             this.stack = []
             this.stackIndex = -1
             this._copyComponents = []
-            this._copyContainers = []
             this.menuItems.isSaveAvailable = false
         },
          //记录canvas数据，因为canvas是深度克隆出来的，所以容器的children需要改变指针
         record(){
+            // this.updateItemListId()
             let canvas = JSON.stringify(this.canvas)
             this.stack[++this.stackIndex] = canvas
             if(this.stack[this.stackIndex + 1]){
@@ -451,53 +430,39 @@ export default {
         },
         restoreCanvas(canvas_str){
             let canvas = JSON.parse(canvas_str)
-            //因为canvas是反序列化得来的，所以要为容器下的children恢复指针指向组件
-            canvas.containers.forEach(container => {
-                container.data.children = container.data.children.map(child => {
-                    return find(canvas.components, component => component.data.id == child.data.id)
-                })
-            })
-            this.updateItemListId()
             return canvas
         },
-        percentageInputHandler(e){
-            let value = e.target.value
-            value = Math.round(value)
-            if(isNaN(value)){
-                this.canvas.percentage = 100
-            } else {
-                if(value < 10){
-                    this.canvas.percentage = 10
-                } else {
-                    if(value > 300){
-                        this.canvas.percentage = 300
-                    } else {
-                        this.canvas.percentage = value        
-                    }
-                }
-                this.record()
-            }
+        //拖动组件时，带上拖动时的偏移位置
+        componentDragStartHandler(e, action, data){
+            e.dataTransfer.setData('data', JSON.stringify({action: action, offsetX: Math.round(e.offsetX/this.ppi*2.54*10), offsetY: Math.round(e.offsetY/this.ppi*2.54*10), data: data}))
+            e.dataTransfer.effectAllowed = 'move'
+            e.dataTransfer.setDragImage(e.target, e.offsetX, e.offsetY)
         },
-        widthInputHandler(e){
-            let value = e.target.value
-            if(!/^[0-9]*$/.test(value)){
-                this.canvas.width = value.match(/\d+/) && value.match(/\d+/)[0] || 0
-            } else {
-                if(Number(value) > 9999){
-                    this.canvas.width = 9999
-                }
-                this.record()
-            }
+        //经过画布上时显示移动效果
+        canvasDragoverHandler(e){
+            e.dataTransfer.dropEffect = 'move'
         },
-        heightInputHandler(e){
-            let value = e.target.value
-            if(!/^[0-9]*$/.test(value)){
-                this.canvas.height = value.match(/\d+/) && value.match(/\d+/)[0] || 0
-            } else {
-                if(Number(value) > 9999){
-                    this.canvas.height = 9999
+        //画布上落下时，根据要添加的元素和位置添加组件
+        canvasDropHandler(e){
+            let data = e.dataTransfer.getData('data') 
+            if(data){
+                data = JSON.parse(data)
+                let {offsetX, offsetY} = this._getPointerOffset(e)
+                let left = offsetX - data.offsetX
+                let top = offsetY - data.offsetY
+                switch(data.action){
+                    case 'addText':
+                        this.addText(left, top)
+                        break
+                    case 'addImage':
+                        this.addImage(left, top)
+                        break
+                    case 'addItemList':
+                        this.addItemList(left, top)
+                        break
+                    case 'addProp':
+                        this.handlePropClick(data.data, left, top)
                 }
-                this.record()
             }
         },
         //记录鼠标按下时的位置和选中的组件
@@ -565,15 +530,16 @@ export default {
         _getComponentByPos({offsetX, offsetY}, isActive){
             let items = []
             let components = isActive ? this.activeComponents : this.canvas.components
-            let containers = isActive ? this.activeContainers : this.canvas.containers
             components.forEach(component => {
                 if(offsetX > component.data.left && offsetX < component.data.left + component.data.width && offsetY > component.data.top && offsetY < component.data.top + component.data.height){
                     items.push(component)
-                }
-            })
-            containers.forEach(container => {
-                if(offsetX > container.data.left && offsetX < container.data.left + container.data.width && offsetY > container.data.top && offsetY < container.data.top + container.data.height){
-                    items.push(container)
+                    if(component.type == 'ContainerComponent' && !isActive && component.active){
+                        component.data.children.forEach(child => {
+                            if(offsetX > child.data.left && offsetX < child.data.left + child.data.width && offsetY > child.data.top && offsetY < child.data.top + child.data.height){
+                                items.push(child)
+                            }
+                        })   
+                    }
                 }
             })
             items = items.sort((a, b) => b.data.zIndex - a.data.zIndex)
@@ -581,8 +547,7 @@ export default {
         },
         //根据不同的组合情况，显示适当的菜单项
         showMenu(){
-            let l1 = this.activeComponents.length
-            let l2 = this.activeContainers.length
+            let l = this.activeComponents.length
             let g0 = {
                 isAlignLeftAvailable: false,
                 isAlignCenterAvailable: false,
@@ -623,30 +588,27 @@ export default {
             let g6 = {
                 isLoadDataAvailable: true,
             }
-            if(l1 + l2 >= 3){
+            if(l >= 3){
                 extend(this.menuItems, g0, g1, g2, g3)
             } else {
-                if(l1 + l2 == 2){
+                if(l == 2){
                     extend(this.menuItems, g0, g1, g3)
                 } else {
-                    if(l1){
-                        if(['ItemListComponent', 'PropertyComponent'].includes(this.activeComponents[0].type)){
+                    if(l == 1){
+                        if(this.setting.isPropertyComponent || this.setting.isItemListComponent){
                             extend(this.menuItems, g0, g5, g6)
                         } else {
-                            extend(this.menuItems, g0, g5)    
+                            if(this.setting.isContainerComponent){
+                                extend(this.menuItems, g0, g4, g5)
+                            } else {
+                                extend(this.menuItems, g0, g5)    
+                            } 
                         }
                         Vue.nextTick(() => {
                             this.showItemSetting(this.activeComponents[0])
                         })
                     } else {
-                        if(l2) {
-                            extend(this.menuItems, g0, g4, g5)
-                            Vue.nextTick(() => {
-                                this.showItemSetting(this.activeContainers[0])
-                            })
-                        } else {
-                            extend(this.menuItems, g0)
-                        }
+                        extend(this.menuItems, g0)
                     }
                 }
             }
@@ -659,7 +621,6 @@ export default {
                 } else {
                     this.$router.go(-1)
                 }
-                   
             }
         },
         //保存按钮
@@ -697,9 +658,8 @@ export default {
         //左对齐，记录
         alignLeftBtnHandler(){
             if(this.menuItems.isAlignLeftAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
-                let left = Math.min.apply(this, items.map(component => component.data.left))
-                items.forEach(component => {
+                let left = Math.min.apply(this, this.activeComponents.map(component => component.data.left))
+                this.activeComponents.forEach(component => {
                     this.moveComponentTo(component, {left: left})
                 })
                 this.record()
@@ -708,9 +668,8 @@ export default {
         //水平居中，记录
         alignCenterBtnHandler(){
             if(this.menuItems.isAlignCenterAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
                 let top = Number.MAX_VALUE, topest = null
-                items.forEach(component => {
+                this.activeComponents.forEach(component => {
                     let t = component.data.top
                     if(t < top){
                         top = t
@@ -718,7 +677,7 @@ export default {
                     }
                 })
                 let center = topest.data.left + 0.5 * topest.data.width
-                items.forEach(component => {
+                this.activeComponents.forEach(component => {
                     this.moveComponentTo(component, {left: center - 0.5 * component.data.width})
                 })
                 this.record()
@@ -727,9 +686,8 @@ export default {
         //右对齐，记录
         alignRightBtnHandler(){
             if(this.menuItems.isAlignRightAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
-                let right = Math.max.apply(this, items.map(component => component.data.left + component.data.width))
-                items.forEach(component => {
+                let right = Math.max.apply(this, this.activeComponents.map(component => component.data.left + component.data.width))
+                this.activeComponents.forEach(component => {
                     this.moveComponentTo(component, {left: right - component.data.width})
                 })
                 this.record()
@@ -738,9 +696,8 @@ export default {
         //顶部对齐，记录
         alignTopBtnHandler(){
             if(this.menuItems.isAlignTopAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
-                let top = Math.min.apply(this, items.map(component => component.data.top))
-                items.forEach(component => {
+                let top = Math.min.apply(this, this.activeComponents.map(component => component.data.top))
+                this.activeComponents.forEach(component => {
                     this.moveComponentTo(component, {top: top})
                 })
                 this.record()
@@ -749,9 +706,8 @@ export default {
         //垂直居中，记录
         alignMiddleBtnHandler(){
             if(this.menuItems.isAlignCenterAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
                 let left = Number.MAX_VALUE, leftest = null
-                items.forEach(component => {
+                this.activeComponents.forEach(component => {
                     let l = component.data.left
                     if(l < left){
                         left = l
@@ -759,7 +715,7 @@ export default {
                     }
                 })
                 let middle = leftest.data.top + 0.5 * leftest.data.height
-                items.forEach(component => {
+                this.activeComponents.forEach(component => {
                     this.moveComponentTo(component, {top: middle - 0.5 * component.data.height})
                 })
                 this.record()
@@ -768,9 +724,8 @@ export default {
         //底部对齐，记录
         alignBottomBtnHandler(){
             if(this.menuItems.isAlignBottomAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
-                let bottom = Math.max.apply(this, items.map(component => component.data.top + component.data.height))
-                items.forEach(component => {
+                let bottom = Math.max.apply(this, this.activeComponents.map(component => component.data.top + component.data.height))
+                this.activeComponents.forEach(component => {
                     this.moveComponentTo(component, {top: bottom - component.data.height})
                 })
                 this.record()
@@ -779,8 +734,7 @@ export default {
         //垂直居中分布，记录
         alignVCenterBtnHandler(){
             if(this.menuItems.isAlignVCenterAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
-                let componentDataTemp = items.sort((item1, item2) => {
+                let componentDataTemp = this.activeComponents.sort((item1, item2) => {
                     return item1.data.top - item2.data.top
                 })
                 let first = componentDataTemp[0]
@@ -797,8 +751,7 @@ export default {
         //水平居中分布，记录
         alignHCenterBtnHandler(){
             if(this.menuItems.isAlignHCenterAvailable){
-                let items = [].concat(this.activeComponents, this.activeContainers)
-                let componentDataTemp = items.sort((item1, item2) => {
+                let componentDataTemp = this.activeComponents.sort((item1, item2) => {
                     return item1.data.left - item2.data.left
                 })
                 let first = componentDataTemp[0]
@@ -817,20 +770,21 @@ export default {
             if(this.menuItems.isCombineAvailable){
                 let tops = [],lefts = [],rights = [], bottoms = [], children = []
                 this.activeComponents.forEach(component => {
-                    tops.push(component.data.top)
-                    lefts.push(component.data.left)
-                    rights.push(component.data.left + component.data.width)
-                    bottoms.push(component.data.top + component.data.height)
-                    children.push(component)
-                })
-                this.activeContainers.forEach(component => {
-                    component.data.children.forEach(child => {
-                        tops.push(child.data.top)
-                        lefts.push(child.data.left)
-                        rights.push(child.data.left + child.data.width)
-                        bottoms.push(child.data.top + child.data.height)
-                        children.push(child)
-                    })
+                    if(component.type == 'ContainerComponent'){
+                        component.data.children.forEach(child => {
+                            tops.push(child.data.top)
+                            lefts.push(child.data.left)
+                            rights.push(child.data.left + child.data.width)
+                            bottoms.push(child.data.top + child.data.height)
+                        })
+                        children = children.concat(component.data.children)
+                    } else {
+                        tops.push(component.data.top)
+                        lefts.push(component.data.left)
+                        rights.push(component.data.left + component.data.width)
+                        bottoms.push(component.data.top + component.data.height)
+                        children.push(component)
+                    }
                 })
                 let top = Math.min.apply(this, tops)
                 let left = Math.min.apply(this, lefts)
@@ -846,22 +800,24 @@ export default {
                         left: left,
                         width: right - left,
                         height: bottom - top,
+                        rotateDeg: 0,
                         zIndex: -1
                     }
                 }
-                this.canvas.containers = this.canvas.containers.filter(container => !container.active)
-                this.canvas.containers.push(container)
-                this.activeContainer(container, true)
+                this.canvas.components = this.canvas.components.filter(component => !component.active)
+                this.canvas.components.push(container)
+                this.activeComponent(container, true)
                 this.record()
             }
         },
         //拆分组件，记录
         splitBtnHandler(){
             if(this.menuItems.isSplitAvailable){
-                let activeContainer = this.activeContainers[0]
-                let index = this.canvas.containers.indexOf(activeContainer)
-                this.canvas.containers.splice(index, 1)
+                let activeContainer = this.activeComponents[0]
+                let index = this.canvas.components.indexOf(activeContainer)
+                this.canvas.components.splice(index, 1)
                 activeContainer.data.children.forEach(child => {
+                    this.canvas.components.push(child)
                     this.activeComponent(child, false)
                 })
                 this.record()
@@ -890,6 +846,36 @@ export default {
                 this.record()  
             }
         },
+        //减少比例
+        minusPercentageBtnHandler(){
+            if(this.menuItems.isPercentageAvailable){
+                if(this.canvas.percentage >= 20){
+                    this.canvas.percentage -= 10  
+                    this.record()    
+                } else {
+                    this.canvas.percentage = 10  
+                    this.record()
+                }
+            }
+        },
+        percentageInputHandler(e){
+            let value = e.target.value
+            value = Math.round(value)
+            if(isNaN(value)){
+                this.canvas.percentage = 100
+            } else {
+                if(value < 10){
+                    this.canvas.percentage = 10
+                } else {
+                    if(value > 300){
+                        this.canvas.percentage = 300
+                    } else {
+                        this.canvas.percentage = value        
+                    }
+                }
+                this.record()
+            }
+        },
         //增加比例，记录
         plusPercentageBtnHandler(){
             if(this.menuItems.isPercentageAvailable){
@@ -902,16 +888,26 @@ export default {
                 }
             }
         },
-        //减少比例
-        minusPercentageBtnHandler(){
-            if(this.menuItems.isPercentageAvailable){
-                if(this.canvas.percentage >= 20){
-                    this.canvas.percentage -= 10  
-                    this.record()    
-                } else {
-                    this.canvas.percentage = 10  
-                    this.record()
+        widthInputHandler(e){
+            let value = e.target.value
+            if(!/^[0-9]*$/.test(value)){
+                this.canvas.width = value.match(/\d+/) && value.match(/\d+/)[0] || 0
+            } else {
+                if(Number(value) > 9999){
+                    this.canvas.width = 9999
                 }
+                this.record()
+            }
+        },
+        heightInputHandler(e){
+            let value = e.target.value
+            if(!/^[0-9]*$/.test(value)){
+                this.canvas.height = value.match(/\d+/) && value.match(/\d+/)[0] || 0
+            } else {
+                if(Number(value) > 9999){
+                    this.canvas.height = 9999
+                }
+                this.record()
             }
         },
         //预览
@@ -928,29 +924,6 @@ export default {
                 } else {
                     this.$emit('openLoadLabelTemplateDataDialog')
                 }
-            }
-        },
-        //把组件移动到某个坐标
-        moveComponentTo(component, pos){
-            if(component.type == 'ContainerComponent'){
-                let offsetTop = pos.top == null ? 0 : pos.top - component.data.top
-                let offsetLeft = pos.left == null ? 0: pos.left - component.data.left
-                component.data.children.forEach(child => {
-                    this.moveComponent(child, {top: offsetTop, left: offsetLeft})
-                })
-            } else {
-                extend(component.data, pos)
-            }
-        },
-        //把组件偏移某个坐标
-        moveComponent(component, pos){
-            if(component.type == 'ContainerComponent'){
-                component.data.children.forEach(child => {
-                    this.moveComponent(child, pos)
-                })
-            } else {
-                component.data.left += (pos.left || 0)
-                component.data.top += (pos.top || 0)
             }
         },
         //点击背景图片时，如果已经有背景图片
@@ -989,111 +962,6 @@ export default {
             this.$refs.backgroundImageInput.value = ''
             this.isBackgroundImageActive = false
             this.record()
-        },
-        //改变组件的数据
-        changeComponentData(component, data, shouldUpdate){
-            extend(component.data, data)
-            if(shouldUpdate){
-                this.showItemSetting(component)
-            }
-        },
-        //重置组件为未选中状态
-        resetComponentsActiveState(){
-            this.canvas.components.forEach(component => {
-                component.active = false
-            })
-            this.canvas.containers.forEach(container => {
-                container.active = false
-            })
-        },
-        //选中组件，是否reset代表是否把其他组件设置为未选中状态
-        activeComponent(component, isReset){
-            for(let i = 0,l = this.canvas.containers.length; i < l; i++){
-                let container = this.canvas.containers[i]
-                if(~container.data.children.indexOf(component)){
-                    if(!container.active){
-                        return this.activeContainer(container, isReset)
-                    }
-                }
-            }
-            if(isReset){
-                this.resetComponentsActiveState()
-                component.active = true
-            } else {
-                component.active = true
-            }
-        },
-        //选中容器，是否reset代表是否把其他组件设置为未选中状态
-        activeContainer(container, isReset){
-            if(isReset){
-                this.resetComponentsActiveState()
-                container.active = true
-            } else {
-                container.active = true
-            }
-        },
-        removeComponent(component){
-            let index = this.canvas.components.indexOf(component)
-            this.canvas.components.splice(index, 1)
-        },
-        removeContainer(container){
-            let index = this.canvas.containers.indexOf(container)
-            this.canvas.containers.splice(index, 1)
-            container.data.children.forEach(child => {
-                this.removeComponent(child)
-            })
-        },
-        //显示某个组件的设置信息
-        showItemSetting(component){
-            switch(component.type){
-                case 'TextComponent':
-                    this.$refs.textSettingComponent.$emit('set_data', component.data)
-                    break
-                case 'ImageComponent':
-                    this.$refs.imageSettingComponent.$emit('set_data', component.data)
-                    break
-                case 'ContainerComponent':
-                    this.$refs.containerSettingComponent.$emit('set_data', component.data)
-                    break
-                case 'PropertyComponent':
-                    this.$refs.propertySettingComponent.$emit('set_data', component.data)
-                    break
-                case 'ItemListComponent':
-                    this.$refs.itemListSettingComponent.$emit('set_data', component.data)
-            }
-        },
-        //拖动组件时，带上拖动时的偏移位置
-        componentDragStartHandler(e, action, data){
-            e.dataTransfer.setData('data', JSON.stringify({action: action, offsetX: Math.round(e.offsetX/this.ppi*2.54*10), offsetY: Math.round(e.offsetY/this.ppi*2.54*10), data: data}))
-            e.dataTransfer.effectAllowed = 'move'
-            e.dataTransfer.setDragImage(e.target, e.offsetX, e.offsetY)
-        },
-        //经过画布上时显示移动效果
-        canvasDragoverHandler(e){
-            e.dataTransfer.dropEffect = 'move'
-        },
-        //画布上落下时，根据要添加的元素和位置添加组件
-        canvasDropHandler(e){
-            let data = e.dataTransfer.getData('data') 
-            if(data){
-                data = JSON.parse(data)
-                let {offsetX, offsetY} = this._getPointerOffset(e)
-                let left = offsetX - data.offsetX
-                let top = offsetY - data.offsetY
-                switch(data.action){
-                    case 'addText':
-                        this.addText(left, top)
-                        break
-                    case 'addImage':
-                        this.addImage(left, top)
-                        break
-                    case 'addItemList':
-                        this.addItemList(left, top)
-                        break
-                    case 'addProp':
-                        this.handlePropClick(data.data, left, top)
-                }
-            }
         },
         //添加文本时，添加到画布left，top位置，并选中，记录
         addText(left = 0, top = 0){
@@ -1186,13 +1054,12 @@ export default {
                     top: top,
                     left: left,
                     textAlign: 'left',
-                    alignNumber: 0,
+                    alignNumber: left,
                     itemListId: null,
                     zIndex: this.canvas.components.length,
                 }
             }
             this.canvas.components.push(component)
-            this.updateItemListId()
             this.activeComponent(component, true)
             this.record()
         },
@@ -1213,13 +1080,78 @@ export default {
                 }
             }
             this.canvas.components.push(component)
-            this.updateItemListId()
             this.activeComponent(component, true)
             this.record()
         },
+        //显示某个组件的设置信息
+        showItemSetting(component){
+            switch(component.type){
+                case 'TextComponent':
+                    this.$refs.textSettingComponent.$emit('set_data', component.data)
+                    break
+                case 'ImageComponent':
+                    this.$refs.imageSettingComponent.$emit('set_data', component.data)
+                    break
+                case 'ContainerComponent':
+                    this.$refs.containerSettingComponent.$emit('set_data', component.data)
+                    break
+                case 'PropertyComponent':
+                    this.$refs.propertySettingComponent.$emit('set_data', component.data)
+                    break
+                case 'ItemListComponent':
+                    this.$refs.itemListSettingComponent.$emit('set_data', component.data)
+            }
+        },
+        //把组件移动到某个坐标
+        moveComponentTo(component, pos){
+            if(component.type == 'ContainerComponent'){
+                let offsetTop = pos.top == null ? 0 : pos.top - component.data.top
+                let offsetLeft = pos.left == null ? 0: pos.left - component.data.left
+                component.data.children.forEach(child => {
+                    this.moveComponent(child, {top: offsetTop, left: offsetLeft})
+                })
+            }
+            extend(component.data, pos)
+        },
+        //把组件偏移某个坐标
+        moveComponent(component, pos){
+            if(component.type == 'ContainerComponent'){
+                component.data.children.forEach(child => {
+                    this.moveComponent(child, pos)
+                })
+            } 
+            component.data.left += (pos.left || 0)
+            component.data.top += (pos.top || 0)
+        },
         changeComponentSetting(data){
-            this.changeComponentData(this.activeComponents[0] || this.activeContainers[0], data)
+            this.changeComponentData(this.activeComponents[0], {data, shouldUpdate: false})
             this.record()
+        },
+        //改变组件的数据
+        changeComponentData(component, {data, shouldUpdate}){
+            extend(component.data, data)
+            if(shouldUpdate){
+                this.showItemSetting(component)
+            }
+        },
+        //重置组件为未选中状态
+        resetComponentsActiveState(){
+            this.activeComponents.forEach(component => {
+                component.active = false
+            })
+        },
+        //选中组件，是否reset代表是否把其他组件设置为未选中状态
+        activeComponent(component, isReset){
+            if(isReset){
+                this.resetComponentsActiveState()
+                component.active = true
+            } else {
+                component.active = true
+            }
+        },
+        removeComponent(component){
+            let index = this.canvas.components.indexOf(component)
+            this.canvas.components.splice(index, 1)
         },
         //拖动数据项时，更新数据项的所属数据域，默认放在数据域的顶部
         updateItemListId(){

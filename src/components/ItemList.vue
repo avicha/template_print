@@ -10,15 +10,17 @@
 <script>
 import PropertyComponent from '../components/Property'
 export default {
-    props: ['data', 'isPreview', 'templateData', 'page'],
+    props: ['isPreview', 'parent', 'data', 'templateData', 'page'],
     components:{
         PropertyComponent
     },
     computed: {
         componentStyle(){
+            let top = this.parent ? this.data.top - this.parent.top : this.data.top
+            let left = this.parent ? this.data.left - this.parent.left : this.data.left
             return {
-                top: this.data.top + 'mm',
-                left: this.data.left + 'mm',
+                top: top + 'mm',
+                left: left + 'mm',
                 width: this.data.width + 'mm',
                 height: this.data.height + 'mm',
             }
@@ -49,20 +51,6 @@ export default {
             }
             return items
         }
-    },
-    watch: {
-        'data.top'(){
-            this.$emit('updateItemListId')
-        },
-        'data.left'(){
-            this.$emit('updateItemListId')
-        },
-        'data.width'(){
-            this.$emit('updateItemListId')
-        },
-        'data.height'(){
-            this.$emit('updateItemListId')
-        },
     },
 }
 </script>

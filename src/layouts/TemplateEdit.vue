@@ -122,6 +122,9 @@ export default {
             }
             return false
         },
+        mouseupHandler(e){
+            this.$refs.templateEditor.$emit('mouseup', e)
+        },
         openBackConfirmDialog(){
             this.$refs.backConfirmDialog.show()
         },
@@ -170,10 +173,12 @@ export default {
         })
         //初始化键盘事件
         window.addEventListener('keydown', this.keydownHandler)
+        window.addEventListener('mouseup', this.mouseupHandler)
     },
     destroyed(){
         //移除组件时移除键盘事件
         window.removeEventListener('keydown', this.keydownHandler)
+        window.removeEventListener('mouseup', this.mouseupHandler)
     }
 }
 </script>
