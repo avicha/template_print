@@ -85,5 +85,8 @@ export default {
         padding: 4px;
         background-color: rgba(78, 192, 255, .15);
     }
+    span {
+        line-height: 1;
+    }
 }
 </style>

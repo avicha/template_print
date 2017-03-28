@@ -146,7 +146,7 @@ export default {
             deep: true
         },
         'data.sample'(sample){
-            if(this.data.propertyType == 4){
+            if(this.data.propertyType == 4 && sample.length){
                 JsBarcode('#barcode', sample, {displayValue: false})
             }
         },
@@ -185,7 +185,7 @@ export default {
             let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
             this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})
         }
-        if(this.data.propertyType == 4){
+        if(this.data.propertyType == 4 && this.data.sample.length){
             JsBarcode('#barcode', this.data.sample, {displayValue: false})
         }
     }

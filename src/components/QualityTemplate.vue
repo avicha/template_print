@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import {createImageByTemplateCanvas} from '../services/utils'
 export default {
     name: 'QualityTemplateComponent',
     data(){
@@ -32,7 +33,10 @@ export default {
     computed:{
         picStyle() {
             return {
-                backgroundImage: this.qualityTemplate.picURL && ('url(' + this.qualityTemplate.picURL + ')')
+                backgroundImage: 'url(' + createImageByTemplateCanvas(JSON.parse(this.qualityTemplate.content)) + ')',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center center',
             }
         }
     },

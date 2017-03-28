@@ -278,6 +278,19 @@ export default {
             })
             return items
         },
+        allComponents() {
+            let items = []
+            this.canvas.components.forEach(component => {
+                if(component.type == 'ContainerComponent'){
+                    component.data.children.forEach(child => {
+                        items.push(child)
+                    })
+                } else {
+                    items.push(component)
+                }
+            })
+            return items
+        },
         setting() {
             return {
                 isTextComponent: this.activeComponents.length == 1 && this.activeComponents[0].type == 'TextComponent',
@@ -840,7 +853,7 @@ export default {
         rotateCanvasLeftBtnHandler(){
             if(this.menuItems.isRotateCanvasLeftAvailable){
                 this.canvas.rotateDeg = (this.canvas.rotateDeg - 90) % 360
-                this.record()  
+                this.record()
             }
         },
         //减少比例
@@ -1153,13 +1166,12 @@ export default {
         },
         //拖动数据项时，更新数据项的所属数据域，默认放在数据域的顶部
         updateItemListId(){
-            let itemListComponents = this.canvas.components.filter(component => {
-                component.data.itemListId = null
+            let itemListComponents = this.allComponents.filter(component => {
                 return component.type == 'ItemListComponent'
             })
             itemListComponents.forEach(itemListComponent => {
                 let children = []
-                this.canvas.components.forEach(component => {
+                this.allComponents.forEach(component => {
                     if(component.type == 'PropertyComponent'){
                         let isContain = false
                         let componentL = component.data.left
@@ -1170,6 +1182,7 @@ export default {
                         let thisR = itemListComponent.data.left + itemListComponent.data.width
                         let thisT = itemListComponent.data.top
                         let thisB = itemListComponent.data.top + itemListComponent.data.height
+                        component.data.itemListId = null
                         if((thisL < componentR) && (thisR > componentL) && (thisT < componentB) && (thisB > componentT)) {
                             children.push(component)
                             component.data.itemListId = itemListComponent.data.id

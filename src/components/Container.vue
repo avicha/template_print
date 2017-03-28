@@ -42,7 +42,7 @@ export default {
                 default:
                     translate = 'translate(0, 0)'
             }
-            this.$emit('changeComponentData', {data: {top, left}, shouldUpdate: false})
+            this.$emit('changeComponentData', {data: {top, left, width: w, height: h}, shouldUpdate: false})
             return {
                 top: top + 'mm',
                 left: left + 'mm',

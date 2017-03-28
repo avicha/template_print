@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import {createImageByTemplateCanvas} from '../services/utils'
 export default {
     name: 'LabelTemplateComponent',
     data(){
@@ -31,7 +32,10 @@ export default {
     computed:{
         picStyle() {
             return {
-                backgroundImage: this.labelTemplate.picURL && ('url(' + this.labelTemplate.picURL + ')')
+                backgroundImage: 'url(' + createImageByTemplateCanvas(JSON.parse(this.labelTemplate.content)) + ')',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center center',
             }
         }
     },
