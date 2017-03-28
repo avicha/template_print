@@ -1,5 +1,5 @@
 <template>
-    <el-dialog class="create-template-dialog" :title="'新建' + templateType" v-model="isShown" :close-on-click-modal="false" size="tiny">
+    <el-dialog class="create-template-dialog" :title="'新建' + templateType" v-model="isShown"  @close="reset" :close-on-click-modal="false" size="tiny">
         <el-form ref="form" :model="form" :rules="rules" @submit.native.prevent>
             <el-form-item label="名称" prop="templateName">
                 <el-input v-model.trim="form.templateName" :maxlength="20" ref="templateName" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}">
@@ -29,7 +29,7 @@
                     尺寸（单位：毫米）
                 </p>
                 <div class="size">
-                    <el-form-item label="高度" prop="height"><el-input ref="height" class="height" @input="heightInputHandler" v-model.trim="form.height" @change="customTemplateSize"></el-input></el-form-item><span class="multiple-text">x</span><el-form-item label="宽度" prop="width"><el-input ref="width" class="width" v-model.trim="form.width" @input="widthInputHandler" @change="customTemplateSize"></el-input></el-form-item>
+                    <el-form-item label="高度" prop="height"><el-input ref="height" class="height" @input="heightInputHandler" v-model.number.trim="form.height" @change="customTemplateSize"></el-input></el-form-item><span class="multiple-text">x</span><el-form-item label="宽度" prop="width"><el-input ref="width" class="width" v-model.number.trim="form.width" @input="widthInputHandler" @change="customTemplateSize"></el-input></el-form-item>
                 </div>
             </div>
         </el-form>    
@@ -80,7 +80,13 @@ export default {
                                 this.$refs.templateName.$el.querySelector('input').focus()
                                 callback(new Error('名称长度不能超过20个字符'))
                             } else {
-                                callback()   
+                                let list = this.type == 1? this.qualityList:this.labelList
+                                let template = find(list, {templateName: value})
+                                if(template){
+                                    callback(new Error('该' + this.templateType + '名称已存在，请重新输入'))
+                                } else {
+                                    callback()
+                                }
                             }
                         }
                     }, trigger: 'change'},
@@ -123,7 +129,7 @@ export default {
             }
         }
     },
-    props: ['shopList', 'templateSizeList'],
+    props: ['shopList', 'templateSizeList', 'qualityList', 'labelList'],
     computed: {
         templateType(){
             return this.type == 1 ? '质保单':'标签'
@@ -143,6 +149,9 @@ export default {
         },
         show(){
             this.isShown = true
+        },
+        reset(){
+            this.$refs.form.resetFields()
         },
         createTemplate(){
             this.$refs.form.validate(valid=>{
@@ -174,22 +183,22 @@ export default {
             this.currentTemplateSize = ''
         },
         heightInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
-                Vue.nextTick(() => {
-                    this.form.height = value.match(/\d+/) && value.match(/\d+/)[0] || ''
+            if(value && !/^\d+$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.form.height = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){
-                    Vue.nextTick(() => {
-                        this.form.height = 9999
+                    Vue.nextTick(()=>{
+                        this.data.height = 9999
                     })
                 }
             }
         },
         widthInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
+            if(value && !/^\d+$/.test(value)){
                 Vue.nextTick(() => {
-                    this.form.width = value.match(/\d+/) && value.match(/\d+/)[0] || '' 
+                    this.form.width = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){
@@ -204,9 +213,6 @@ export default {
         this.$on('set_data', data => {
             data = JSON.parse(JSON.stringify(data))
             extend(this.$data, data)
-            Vue.nextTick(()=>{
-                this.$refs.form.resetFields()
-            })
         })
     }
 }

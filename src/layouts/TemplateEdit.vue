@@ -8,9 +8,10 @@
                 <span class="breadcrumb-item">新建质保单</span>
             </div>
             <div class="template-edit-content">
-                <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @openBackConfirmDialog="openBackConfirmDialog" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
+                <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @openBackConfirmDialog="openBackConfirmDialog" @openDeleteConfirmDialog="openDeleteConfirmDialog" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
             </div>
             <ConfirmDialog ref="backConfirmDialog" title="返回" content="还未保存，是否确认要退出？" :onConfirmHandler="backConfirmHandler"></ConfirmDialog>
+            <ConfirmDialog ref="deleteConfirmDialog" title="删除" content="确认删除选中的组件？" :onConfirmHandler="deleteConfirmHandler"></ConfirmDialog>
             <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
             <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
         </div>
@@ -83,8 +84,10 @@ export default {
         //键盘处理函数，处理删除，复制，粘贴组件
         keydownHandler(e){
             if(!(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement)){
+                console.log(e.keyCode)
                 switch(e.keyCode){
                     case 8:
+                    case 46:
                         this.$refs.templateEditor.$emit('delete_keyup', e)
                         break
                     case 67:
@@ -95,6 +98,11 @@ export default {
                     case 86:
                         if(e.ctrlKey || e.metaKey){
                             this.$refs.templateEditor.$emit('paste_keyup', e)
+                        }
+                        break
+                    case 89:
+                        if(e.ctrlKey || e.metaKey){
+                            this.$refs.templateEditor.$emit('redo_keyup', e)
                         }
                         break
                     case 90:
@@ -125,9 +133,16 @@ export default {
         openBackConfirmDialog(){
             this.$refs.backConfirmDialog.show()
         },
+        openDeleteConfirmDialog(){
+            this.$refs.deleteConfirmDialog.show()
+        },
         backConfirmHandler(){
             this.$refs.backConfirmDialog.close()
             this.$router.go(-1)
+        },
+        deleteConfirmHandler(){
+            this.$refs.deleteConfirmDialog.close()
+            this.$refs.templateEditor.$emit('delete_confirm')
         },
         //预览模板
         previewTemplate(canvas){

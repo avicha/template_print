@@ -52,11 +52,11 @@
                         </el-col>
                     </el-row>
                 </div>
-                <RenameTemplateDialog ref="renameTemplateDialog" @rename_template="renameTemplate"></RenameTemplateDialog>
-                <CopyTemplateDialog ref="copyTemplateDialog" @copy_template="copyTemplate"></CopyTemplateDialog>
+                <RenameTemplateDialog ref="renameTemplateDialog" @rename_template="renameTemplate" :qualityList="qualityList" :labelList="labelList"></RenameTemplateDialog>
+                <CopyTemplateDialog ref="copyTemplateDialog" @copy_template="copyTemplate" :qualityList="qualityList" :labelList="labelList"></CopyTemplateDialog>
                 <SetDefaultTemplateDialog ref="setDefaultTemplateDialog" @set_default_template="setDefaultTemplate"></SetDefaultTemplateDialog>
                 <DeleteTemplateDialog ref="deleteTemplateDialog" @delete_template="deleteTemplate"></DeleteTemplateDialog>
-                <CreateTemplateDialog ref="createTemplateDialog" @create_template="createTemplate" :shopList="shopList" :templateSizeList="templateSizeList"></CreateTemplateDialog>
+                <CreateTemplateDialog ref="createTemplateDialog" @create_template="createTemplate" :shopList="shopList" :templateSizeList="templateSizeList" :qualityList="qualityList" :labelList="labelList"></CreateTemplateDialog>
                 <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
                 <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
             </div>

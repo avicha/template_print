@@ -80,8 +80,8 @@ export default {
     },
     methods: {
         minusFontSizeHandler(){
-            if(this.data.fontSize > 12){
-                this.data.fontSize--    
+            if(this.data.fontSize > 8){
+                this.data.fontSize-- 
             }
         },
         plusFontSizeHandler(){
@@ -89,18 +89,14 @@ export default {
         },
         fontSizeInputHandler(e){
             let value = e.target.value
-            if(!/^[0-9]*$/.test(value)){
-                this.data.fontSize = value.match(/\d+/) && value.match(/\d+/)[0] || 12
-            } else {
-                if(Number(value) > 32){
-                    this.data.fontSize = 32
-                }
+            if(value && !/^[1-9]\d*$/.test(value)){
+                this.data.fontSize = /[1-9]\d*/.test(value)? value.match(/[1-9]\d*/)[0] : ''
             }
         },
         leftInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
+            if(value && !/^\d+$/.test(value)){
                 Vue.nextTick(()=>{
-                    this.data.left = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                    this.data.left = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){
@@ -111,9 +107,9 @@ export default {
             }
         },
         topInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
+            if(value && !/^\d+$/.test(value)){
                 Vue.nextTick(()=>{
-                    this.data.top = value.match(/\d+/) && value.match(/\d+/)[0] || 0    
+                    this.data.top = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){

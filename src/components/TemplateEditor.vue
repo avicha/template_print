@@ -68,7 +68,7 @@
             </div>
             <div class="menu-item-group">
                 <div class="menu-item percentage" :class="{disabled: !menuItems.isPercentageAvailable}">
-                    <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model="canvas.percentage" @blur="percentageInputHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
+                    <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model="canvas.percentage" @input="percentageInputHandler" @blur="percentageBlurHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
                 </div>
                 <div class="menu-item width" :class="{disabled: !menuItems.isWidthAvailable}">
                     <span>宽</span><input type="text" class="width-input" @input="widthInputHandler" v-model="canvas.width">
@@ -342,13 +342,14 @@ export default {
         //删除选中的组件和容器
         this.$on('delete_keyup',() => {
             if(this.activeComponents.length){
-                if(window.confirm('确认删除选中的组件')){
-                    this.activeComponents.forEach(component => {
-                        this.removeComponent(component)
-                    })
-                    this.record()
-                }
+                this.$emit('openDeleteConfirmDialog')
             }
+        })
+        this.$on('delete_confirm', () => {
+            this.activeComponents.forEach(component => {
+                this.removeComponent(component)
+            })
+            this.record()
         })
         //复制选中的组件和容器
         this.$on('copy_keyup', () => {
@@ -385,6 +386,9 @@ export default {
         })
         this.$on('undo_keyup', () => {
             this.undoBtnHandler()
+        })
+        this.$on('redo_keyup', () => {
+            this.redoBtnHandler()
         })
         this.$on('move_keyup', (direction) => {
             let pos = {}
@@ -870,21 +874,34 @@ export default {
         },
         percentageInputHandler(e){
             let value = e.target.value
-            value = Math.round(value)
-            if(isNaN(value)){
-                this.canvas.percentage = 100
+            if(value && !/^\d+$/.test(value)){
+                this.canvas.percentage = /\d+/.test(value)? value.match(/\d+/)[0] : ''
             } else {
-                if(value < 10){
-                    this.canvas.percentage = 10
-                } else {
+                if(value){
+                    value = Number(value)
                     if(value > 300){
                         this.canvas.percentage = 300
-                    } else {
-                        this.canvas.percentage = value        
                     }
                 }
-                this.record()
             }
+        },
+        percentageBlurHandler(e){
+            let value = e.target.value
+            if(value){
+                value = Number(value)
+                if(value > 300){
+                    this.canvas.percentage = 300
+                } else {
+                    if(value < 10){
+                        this.canvas.percentage = 10
+                    } else {
+                        this.canvas.percentage = value
+                    }
+                }   
+            } else {
+                this.canvas.percentage = 100
+            }
+            this.record()
         },
         //增加比例，记录
         plusPercentageBtnHandler(){
@@ -900,24 +917,32 @@ export default {
         },
         widthInputHandler(e){
             let value = e.target.value
-            if(!/^[0-9]*$/.test(value)){
-                this.canvas.width = value.match(/\d+/) && value.match(/\d+/)[0] || 0
+            if(value && !/^\d+$/.test(value)){
+                this.canvas.width = /\d+/.test(value)? value.match(/\d+/)[0] : ''
             } else {
-                if(Number(value) > 9999){
-                    this.canvas.width = 9999
+                if(value){
+                    if(Number(value) > 9999){
+                        this.canvas.width = 9999
+                    } else {
+                        this.canvas.width = Number(value)
+                    }
+                    this.record()
                 }
-                this.record()
             }
         },
         heightInputHandler(e){
             let value = e.target.value
-            if(!/^[0-9]*$/.test(value)){
-                this.canvas.height = value.match(/\d+/) && value.match(/\d+/)[0] || 0
+            if(value && !/^\d+$/.test(value)){
+                this.canvas.height = /\d+/.test(value)? value.match(/\d+/)[0] : ''
             } else {
-                if(Number(value) > 9999){
-                    this.canvas.height = 9999
+                if(value){
+                    if(Number(value) > 9999){
+                        this.canvas.height = 9999
+                    } else {
+                        this.canvas.height = Number(value)
+                    }
+                    this.record()
                 }
-                this.record()
             }
         },
         //预览

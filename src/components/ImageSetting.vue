@@ -60,22 +60,22 @@ export default {
     },
     methods:{
         widthInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
+            if(value && !/^\d+$/.test(value)){
                 Vue.nextTick(()=>{
-                    this.data.width = value.match(/\d+/)[0] || 0    
+                    this.data.width = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){
                     Vue.nextTick(()=>{
-                        this.data.width = 9999  
+                        this.data.width = 9999
                     })
                 }
             }
         },
         heightInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
+            if(value && !/^\d+$/.test(value)){
                 Vue.nextTick(()=>{
-                    this.data.height = value.match(/\d+/)[0] || 0    
+                    this.data.height = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){
@@ -86,9 +86,9 @@ export default {
             }
         },
         leftInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
+            if(value && !/^\d+$/.test(value)){
                 Vue.nextTick(()=>{
-                    this.data.left = value.match(/\d+/)[0] || 0    
+                    this.data.left = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){
@@ -99,9 +99,9 @@ export default {
             }
         },
         topInputHandler(value){
-            if(!/^[0-9]*$/.test(value)){
+            if(value && !/^\d+$/.test(value)){
                 Vue.nextTick(()=>{
-                    this.data.top = value.match(/\d+/)[0] || 0    
+                    this.data.top = /\d+/.test(value)? value.match(/\d+/)[0] : ''
                 })
             } else {
                 if(Number(value) > 9999){
