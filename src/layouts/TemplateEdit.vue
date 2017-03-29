@@ -8,10 +8,11 @@
                 <span class="breadcrumb-item">新建质保单</span>
             </div>
             <div class="template-edit-content">
-                <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @openBackConfirmDialog="openBackConfirmDialog" @openDeleteConfirmDialog="openDeleteConfirmDialog" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
+                <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @openBackConfirmDialog="openBackConfirmDialog" @openDeleteConfirmDialog="openDeleteConfirmDialog" @openComponentRangeOutsideAlertDialog="openComponentRangeOutsideAlertDialog" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
             </div>
             <ConfirmDialog ref="backConfirmDialog" title="返回" content="还未保存，是否确认要退出？" :onConfirmHandler="backConfirmHandler"></ConfirmDialog>
             <ConfirmDialog ref="deleteConfirmDialog" title="删除" content="确认删除选中的组件？" :onConfirmHandler="deleteConfirmHandler"></ConfirmDialog>
+            <AlertDialog ref="componentRangeOutsideAlertDialog" title="警告" content="打印时不打印画布大小以外的数据"></AlertDialog>
             <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
             <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
         </div>
@@ -26,6 +27,7 @@ import {
 import Vue from 'vue'
 import TemplateEditor from '../components/TemplateEditor'
 import ConfirmDialog from '../components/ConfirmDialog'
+import AlertDialog from '../components/AlertDialog'
 import TemplatePreviewDialog from '../components/TemplatePreviewDialog'
 import LoadLabelTemplateDataDialog from '../components/LoadLabelTemplateDataDialog'
 import TemplatePreviewCanvasComponent from '../components/TemplatePreviewCanvas'
@@ -76,6 +78,7 @@ export default {
     components:{
         TemplateEditor,
         ConfirmDialog,
+        AlertDialog,
         TemplatePreviewDialog,
         LoadLabelTemplateDataDialog,
         TemplatePreviewCanvasComponent,
@@ -135,6 +138,9 @@ export default {
         },
         openDeleteConfirmDialog(){
             this.$refs.deleteConfirmDialog.show()
+        },
+        openComponentRangeOutsideAlertDialog(){
+            this.$refs.componentRangeOutsideAlertDialog.show()
         },
         backConfirmHandler(){
             this.$refs.backConfirmDialog.close()

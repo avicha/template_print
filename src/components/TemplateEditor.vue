@@ -1,6 +1,6 @@
 <template>
     <div class="template-editor">
-        <div class="menu-bar">
+        <div class="menu-bar" ref="menuBar">
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isBackAvailable}" @click="backBtnHandler">
                     <i class="icon back-icon" title="返回"></i><span class="menu-item-text">返回</span>
@@ -71,10 +71,10 @@
                     <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model="canvas.percentage" @input="percentageInputHandler" @blur="percentageBlurHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
                 </div>
                 <div class="menu-item width" :class="{disabled: !menuItems.isWidthAvailable}">
-                    <span>宽</span><input type="text" class="width-input" @input="widthInputHandler" v-model="canvas.width">
+                    <span>宽</span><input type="text" class="width-input" @input="widthInputHandler" @blur="validateComponentRange" v-model="canvas.width">
                 </div>
                 <div class="menu-item height" :class="{disabled: !menuItems.isHeightAvailable}">
-                    <span>高</span><input type="text" class="height-input" @input="heightInputHandler" v-model="canvas.height">
+                    <span>高</span><input type="text" class="height-input" @input="heightInputHandler" @blur="validateComponentRange" v-model="canvas.height">
                 </div>
             </div>
             <div class="menu-item-group">
@@ -86,7 +86,7 @@
                 </div>
             </div>
         </div>
-        <div class="main-panel">
+        <div class="main-panel" :style="{top: this.menuBarHeight}">
             <div class="right-panel">
                 <TextSettingComponent ref="textSettingComponent" v-show="setting.isTextComponent" @changeComponentSetting="changeComponentSetting"></TextSettingComponent>
                 <ImageSettingComponent ref="imageSettingComponent" v-show="setting.isImageComponent" @changeComponentSetting="changeComponentSetting"></ImageSettingComponent>
@@ -134,13 +134,15 @@
                     </div>
                 </div>
             </div>
-            <div class="canvas-container">
-                <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.stop.prevent="canvasMousedownHandler" @mousemove.stop.prevent="canvasMousemoveHandler" @mouseup.stop.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
+            <div class="canvas-panel">
+                <div class="canvas-container" :style="canvasContainerStyle">
                     <div class="zero">0</div>
                     <div class="top-ruler" :style="{backgroundSize: 0.2 * this.canvas.percentage + 'cm 100%'}"></div>
                     <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.2 * this.canvas.percentage + 'cm'}"></div>
-                    <component v-for="component in canvas.components" :is="component.type" :isPreview="false" :parent="null" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
-                    </component>
+                    <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.stop.prevent="canvasMousedownHandler" @mousemove.stop.prevent="canvasMousemoveHandler" @mouseup.stop.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
+                        <component v-for="component in canvas.components" :is="component.type" :isPreview="false" :parent="null" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
+                        </component>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,6 +174,7 @@ export default {
     data(){
         return {
             ppi: 96,
+            menuBarHeight: '51px',
             ready: false,
             _isDraging: false,
             _isResizing: false,
@@ -240,6 +243,12 @@ export default {
         ItemListSettingComponent,
     },
     computed: {
+        canvasContainerStyle(){
+            return {
+                width: this.canvas.width*this.canvas.percentage/100/25.4*this.ppi + 60 + 'px',
+                height: this.canvas.height*this.canvas.percentage/100/25.4*this.ppi + 60 + 'px',
+            }
+        },
         canvasStyle() {
             let translate = ''
             let rotateDeg = (this.canvas.rotateDeg + 360)%360
@@ -332,6 +341,8 @@ export default {
         },
     },
     mounted(){
+        window.addEventListener('resize', this.setMenuBarHeight)
+        this.setMenuBarHeight()
         //加载成功重置组件数据，记录canvas状态
         this.$on('set_canvas', canvas_str => {
             this.reset()
@@ -423,7 +434,13 @@ export default {
             }
         })
     },
+    destroyed(){
+        window.removeEventListener('resize', this.setMenuBarHeight)
+    },
     methods:{
+        setMenuBarHeight(){
+            this.menuBarHeight = (this.$refs.menuBar.clientHeight +1) + 'px'
+        },
         //重置数据
         reset(){
             this.ready = false
@@ -972,6 +989,21 @@ export default {
                 }
             }
         },
+        validateComponentRange(){
+            let w = this.canvas.width
+            let h = this.canvas.height
+            let isOutside = false
+            this.allComponents.forEach(component => {
+                let right = component.data.left + component.data.width
+                let bottom = component.data.top + component.data.height
+                if(w < right || h < bottom) {
+                    isOutside = true
+                }
+            })
+            if(isOutside){
+                this.$emit('openComponentRangeOutsideAlertDialog')
+            }
+        },
         //预览
         previewBtnHandler(){
             if(this.menuItems.isPreviewAvailable){
@@ -1378,8 +1410,7 @@ export default {
         }
     }
     .main-panel {
-        height: 100%;
-        position: relative;
+        @include bottom;
         background-color: #f1f4f8;
         .left-panel {
             width: 190px;
@@ -1502,19 +1533,20 @@ export default {
                 }
             }
         }
-        .canvas-container {
+        .canvas-panel {
             margin-left: 191px;
             margin-right: 230px;
-            padding: 30px;
             height: 100%;
             box-sizing: border-box;
-            position: relative;
             overflow: scroll;
-            .canvas {
+            .canvas-container {
+                position: relative;
+                padding: 30px;
+                min-width: 100%;
+                min-height: 100%;
+                box-sizing: border-box;
                 .zero {
-                    position: absolute;
-                    top: -30px;
-                    left: -30px;
+                    @include top-left;
                     @include F(14);
                     @include TC1;
                     width: 30px;
@@ -1524,38 +1556,39 @@ export default {
                 }
                 .left-ruler {
                     position: absolute;
-                    top: 0;
-                    left: -30px;
-                    bottom: -30px;
+                    top: 30px;
+                    left: 0;
+                    bottom: 0;
                     width: 30px;
-                    min-height: 20cm;
                     background-image: url(~assets/images/ruler-left.png);
                     background-repeat: no-repeat;
                 }
                 .top-ruler {
                     position: absolute;
-                    top: -30px;
-                    left: 0;
-                    right: -30px;
+                    top: 0;
+                    left: 30px;
+                    right: 0;
                     height: 30px;
-                    min-width: 20cm;
                     background-image: url(~assets/images/ruler-top.png);
                     background-repeat: no-repeat;
                 }
-                background-color: #fff;
-                box-shadow: 0 0 6px #d6d6d6;
-                position: relative;
-                .component {
-                    position: absolute;
-                    cursor: default;
-                    user-select: none;
+                .canvas {
+                    background-color: #fff;
+                    box-shadow: 0 0 6px #d6d6d6;
+                    position: relative;
+                    .component {
+                        position: absolute;
+                        cursor: default;
+                        user-select: none;
+                    }
                 }
             }
         }
         .right-panel {
             width: 230px;
             @include right;
-            overflow: hidden;
+            overflow-x: hidden; 
+            overflow-y: scroll;
             box-shadow: 0 0 6px #d6d6d6;
             background-color: #fff;
         }

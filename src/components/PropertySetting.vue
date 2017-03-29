@@ -87,10 +87,10 @@
                 </div>
             </el-form>
         </div>
-        <div  class="property-setting-body" v-if="data.propertyType == 4">
-            <el-form label-width="80px" label-position="left">
-                <el-form-item label="样本">
-                    <el-input class="sample-input" v-model="data.sample" placeholder="" size="small">
+        <div class="property-setting-body" v-if="data.propertyType == 4">
+            <el-form class="property-setting-form4" ref="form" label-width="80px" :rules="rules" :model="data" label-position="left" @submit.native.prevent>
+                <el-form-item label="样本" prop="sample">
+                    <el-input class="sample-input" v-model.trim="data.sample" :maxlength="8" @input="sampleInputHandler" placeholder="" size="small">
                     </el-input>
                 </el-form-item>
                 <el-form-item label="宽">
@@ -174,6 +174,11 @@ export default {
                 height: 0,
                 textAlign: 'left',
                 verticalAlign: 'middle',
+            },
+            rules:{
+                sample: [
+                    {min: 8, max: 8, message: '请输入8位数字', trigger: 'change'},
+                ],
             }
         }
     },
@@ -210,6 +215,13 @@ export default {
             let value = e.target.value
             if(value && !/^[1-9]\d*$/.test(value)){
                 this.style.fontSize = /[1-9]\d*/.test(value)? value.match(/[1-9]\d*/)[0] : ''
+            }
+        },
+        sampleInputHandler(value){
+            if(value && !/^\d+$/.test(value)){
+                Vue.nextTick(()=>{
+                    this.data.sample = /\d+/.test(value)? value.match(/\d+/)[0] : ''
+                })
             }
         },
         widthInputHandler(value){
@@ -422,6 +434,12 @@ export default {
                         }
                     }
                 }
+            }
+        }
+        .property-setting-form4 {
+            .el-form-item {
+                height: 34px;
+                margin-bottom: 18px;
             }
         }
         .el-form-item {

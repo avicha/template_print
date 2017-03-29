@@ -1,9 +1,8 @@
 <template>
-    <el-dialog class="confirm-dialog" :title="title" v-model="isShown" :close-on-click-modal="false" size="tiny">
+    <el-dialog class="alert-dialog" :title="title" v-model="isShown" :close-on-click-modal="false" size="tiny">
         <p class="dialog-content">{{ content }}</p>
         <div slot="footer" class="dialog-footer">
-            <el-button class="cancel" @click="close">取 消</el-button>
-            <el-button class="confirm" @click="onConfirmHandler">确 定</el-button>
+            <el-button class="confirm" @click="close">确 定</el-button>
         </div>
     </el-dialog>
 </template>
@@ -36,7 +35,7 @@ export default {
 <style lang="scss">
 @import "../assets/scss/fonts.scss";
 @import "../assets/scss/colors.scss";
-.confirm-dialog {
+.alert-dialog {
     @import "../assets/scss/dialog.scss";
     .dialog-content {
         text-align: center;

@@ -167,10 +167,11 @@ const mutations = {
         }
     },
     [types.QUALITY_TEMPLATE_LIST_APPEND](state, templateData) {
-        state.qualityList.push(templateData)
+
+        state.qualityList.splice(0, 0, templateData)
     },
     [types.LABEL_TEMPLATE_LIST_APPEND](state, templateData) {
-        state.labelList.push(templateData)
+        state.labelList.splice(0, 0, templateData)
     },
     [types.QUALITY_TEMPLATE_LIST_REMOVE](state, templateId) {
         state.qualityList = state.qualityList.filter(template => template.templateId != templateId)

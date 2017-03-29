@@ -145,8 +145,12 @@ export default {
             deep: true
         },
         'data.sample'(sample){
-            if(this.data.propertyType == 4 && sample.length){
-                JsBarcode('#barcode', sample, {displayValue: false})
+            if(this.data.propertyType == 4){
+                if(sample.length == 8){
+                    JsBarcode('#barcode', sample, {displayValue: false})
+                } else {
+                    this.$refs.barcode.removeAttribute('src')
+                }
             }
         },
         'data.top'(){
@@ -184,8 +188,12 @@ export default {
         if(w != this.data.width && h != this.data.height){
             this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})    
         }
-        if(this.data.propertyType == 4 && this.data.sample.length){
-            JsBarcode('#barcode', this.data.sample, {displayValue: false})
+        if(this.data.propertyType == 4){
+            if(this.data.sample.length == 8){
+                JsBarcode('#barcode', this.data.sample, {displayValue: false})
+            } else {
+                this.$refs.barcode.removeAttribute('src')
+            }
         }
     }
 }
