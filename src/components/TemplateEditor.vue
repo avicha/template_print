@@ -377,7 +377,7 @@ export default {
         this.$on('paste_keyup', () => {
             if(this._copyComponents.length){
                 let components = []
-                this._copyComponents.forEach(component_str => {
+                this._copyComponents = this._copyComponents.map(component_str => {
                     let component = JSON.parse(component_str)
                     component.data.id = Math.round(Date.now() + Math.random() * 100)
                     if(component.type == 'ContainerComponent'){
@@ -391,6 +391,7 @@ export default {
                     //把组件移到右下方5mm
                     this.moveComponent(component, {left: 5, top: 5})
                     components.push(component)
+                    return JSON.stringify(component)
                 })
                 //把复制的组件和容器添加到canvas
                 this.canvas.components = this.canvas.components.concat(components)
