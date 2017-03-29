@@ -1,9 +1,10 @@
 <template>
 <div class="item-list-component" :style="componentStyle" v-if="!isPreview">
-    
+    <div class="resize"></div>
 </div>
 <div class="item-list-component" v-else>
     <PropertyComponent v-for="child in items" class="component" :isPreview="false" :data="child.data" :templateData="templateData"></PropertyComponent>
+    <div class="resize"></div>
 </div>
 </template>
 
@@ -57,11 +58,26 @@ export default {
 <style lang="scss">
 .item-list-component {
     background-color: rgba(10, 191, 171, .2);
+    .resize {
+        display: none;
+        position: absolute;
+        opacity: 0;
+        width: 10px;
+        height: 10px;
+        top: 100%;
+        left: 100%;
+        margin-left: -5px;
+        margin-top: -5px;
+        cursor: nwse-resize;
+    }
     &.active {
         border: 1px dashed #4ec0ff;
         margin-left: -1px;
         margin-top: -1px;
         display: block;
+        .resize {
+            display: block;
+        }
     }
 }
 </style>

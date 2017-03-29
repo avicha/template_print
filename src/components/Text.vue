@@ -53,27 +53,23 @@ export default {
     },
     watch: {
         data:{
-            handler(newData, oldData){
-                if(!this.isPreview){
-                    Vue.nextTick(() => {
-                        let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
-                        let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
-                        if(w != oldData.width || h != oldData.height){
-                            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
-                        }
-                    })
-                }
+            handler(data){
+                Vue.nextTick(() => {
+                    let w = Math.round(window.parseInt(getComputedStyle(this.$el).width)/this.ppi*2.54*10)
+                    let h = Math.round(window.parseInt(getComputedStyle(this.$el).height)/this.ppi*2.54*10)
+                    if(w != data.width || h != data.height){
+                        this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
+                    }
+                })
             },
             deep: true
         }
     },
     mounted(){
-        if(!this.isPreview){
-            let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
-            let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
-            if(w != this.data.width && h != this.data.height){
-                this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
-            }  
+        let w = Math.round(window.parseInt(getComputedStyle(this.$el).width)/this.ppi*2.54*10)
+        let h = Math.round(window.parseInt(getComputedStyle(this.$el).height)/this.ppi*2.54*10)
+        if(w != this.data.width && h != this.data.height){
+            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
         }
     }
 }

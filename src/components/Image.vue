@@ -2,6 +2,7 @@
 <div class="image-component" :style="componentStyle" @dblclick="openFileUploadDialog">
     <img :src="data.src">
     <input ref="imageInput" type="file" class="image-input" @change="changeURL">
+    <div class="resize"></div>
 </div>
 </template>
 
@@ -57,6 +58,9 @@ export default {
                     }
                 })
             }
+        },
+        resizeMouseDownHandler(e){
+
         }
     }
 }
@@ -77,9 +81,24 @@ export default {
         @include full;
         display: none;
     }
+    .resize {
+        display: none;
+        position: absolute;
+        opacity: 0;
+        width: 10px;
+        height: 10px;
+        top: 100%;
+        left: 100%;
+        margin-left: -5px;
+        margin-top: -5px;
+        cursor: nwse-resize;
+    }
     &.active {
         opacity: .7;
         border: 1px dashed #4ec0ff;
+        .resize {
+            display: block;
+        }
     }
 }
 </style>

@@ -133,15 +133,7 @@ import extend from 'lodash/extend'
 export default {
     data(){
         return {
-            styleType: '',
-            defaultStyle: {
-                isBold: false,
-                isItalic: false,
-                isUnderline: false,
-                fontFamily: 'Microsoft Yahei',
-                fontSize: 14,
-                color: '#333',
-            },
+            styleType: 'value',
             ready: false,
             data: {
                 propertyCode: '',
@@ -298,15 +290,7 @@ export default {
             this.ready = false
             let dataClone = JSON.parse(JSON.stringify(data))
             if(data.propertyCode != this.data.propertyCode){
-                this.styleType = ''
-                this.defaultStyle = {
-                    isBold: false,
-                    isItalic: false,
-                    isUnderline: false,
-                    fontFamily: 'Microsoft Yahei',
-                    fontSize: 14,
-                    color: '#333',
-                }
+                this.styleType = 'value'
             }
             for(let key in dataClone){
                 if(this.data[key] !== undefined){

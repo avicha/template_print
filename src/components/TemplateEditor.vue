@@ -174,6 +174,8 @@ export default {
             ppi: 96,
             ready: false,
             _isDraging: false,
+            _isResizing: false,
+            _resizingComponent: null,
             _dragingComponent: null,
             _startX: null,
             _startY: null,
@@ -485,7 +487,11 @@ export default {
                 let {offsetX, offsetY} = this._getPointerOffset(e)
                 this._startX = offsetX
                 this._startY = offsetY
-                this._dragingComponent = this._getComponentByPos({offsetX, offsetY}, true)    
+                if(e.target.className == 'resize'){
+                    this._resizingComponent = this._getComponentByPos({offsetX: offsetX - e.offsetX, offsetY: offsetY - e.offsetY}, true)
+                } else {
+                    this._dragingComponent = this._getComponentByPos({offsetX, offsetY}, true)
+                }
             }
         },
         //拖动鼠标时，如果有选中的组件，则拖动组件
@@ -496,6 +502,16 @@ export default {
                 this._endX = offsetX
                 this._endY = offsetY
                 this.moveComponent(this._dragingComponent, {left: this._endX - this._startX, top: this._endY - this._startY})
+                this._startX = this._endX
+                this._startY = this._endY
+            }
+            if(this._resizingComponent && e.which ==1){
+                this._isResizing = true
+                let {offsetX, offsetY} = this._getPointerOffset(e)
+                this._endX = offsetX
+                this._endY = offsetY
+                this._resizingComponent.data.width += this._endX - this._startX
+                this._resizingComponent.data.height += this._endY - this._startY
                 this._startX = this._endX
                 this._startY = this._endY
             }
@@ -511,15 +527,26 @@ export default {
                     this.showItemSetting(this._dragingComponent)
                     this.record()
                 } else {
-                    let clickingComponent = this._getComponentByPos({offsetX, offsetY}, false)
-                    if(clickingComponent){
-                        this.activeComponent(clickingComponent, !(e.ctrlKey || e.metaKey))
+                    if(this._isResizing){
+                        this._endX = offsetX
+                        this._endY = offsetY
+                        this._resizingComponent.data.width += this._endX - this._startX
+                        this._resizingComponent.data.height += this._endY - this._startY
+                        this.showItemSetting(this._resizingComponent)
+                        this.record()
                     } else {
-                        this.resetComponentsActiveState()
+                        let clickingComponent = this._getComponentByPos({offsetX, offsetY}, false)
+                        if(clickingComponent){
+                            this.activeComponent(clickingComponent, !(e.ctrlKey || e.metaKey))
+                        } else {
+                            this.resetComponentsActiveState()
+                        }
                     }
                 }
                 this._isDraging = false
+                this._isResizing = false
                 this._dragingComponent = null
+                this._resizingComponent = null
             }
         },
         //根据点击事件，获取相对于canvas的点击位置

@@ -1,6 +1,7 @@
 <template>
 <div class="property-component barcode" :style="componentStyle" v-show="!(isPreview && data.itemListId)" v-if="data.propertyType == 4">
     <img ref="barcode" id="barcode">
+    <div class="resize"></div>
 </div>
 <div class="property-component string" :style="componentStyle" v-show="!(isPreview && data.itemListId)" v-else>
     <span :style="prefixStyle">{{ data.prefix }}</span><span :style="valueStyle">{{ value }}</span><span :style="suffixStyle">{{ data.suffix }}</span>
@@ -15,7 +16,7 @@ import JsBarcode from 'jsbarcode'
 export default {
     data(){
         return {
-            ppi: 96
+            ppi: 96,
         }
     },
     props: ['isPreview', 'parent', 'data', 'templateData', 'page'],
@@ -110,7 +111,7 @@ export default {
             if(this.data.itemListId){
                 value = product && product[code]
             } else {
-                value = this.templateData[code]    
+                value = this.templateData[code]
             }
             if(value == null){
                 if(this.data.sample){
@@ -132,16 +133,14 @@ export default {
     },
     watch: {
         data:{
-            handler(newData, oldData){
-                if(!this.isPreview){
-                    Vue.nextTick(() => {
-                        let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
-                        let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
-                        if(w != oldData.width || h != oldData.height){
-                            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})
-                        }
-                    })
-                }
+            handler(data){
+                Vue.nextTick(() => {
+                    let w = Math.round(window.parseInt(getComputedStyle(this.$el).width)/this.ppi*2.54*10)
+                    let h = Math.round(window.parseInt(getComputedStyle(this.$el).height)/this.ppi*2.54*10)
+                    if(w != data.width || h != data.height){
+                        this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})
+                    }
+                })
             },
             deep: true
         },
@@ -180,12 +179,10 @@ export default {
         }
     },
     mounted(){
-        if(!this.isPreview){
-            let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
-            let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
-            if(w != this.data.width && h != this.data.height){
-                this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})    
-            }
+        let w = Math.round(window.parseInt(getComputedStyle(this.$el).width)/this.ppi*2.54*10)
+        let h = Math.round(window.parseInt(getComputedStyle(this.$el).height)/this.ppi*2.54*10)
+        if(w != this.data.width && h != this.data.height){
+            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})    
         }
         if(this.data.propertyType == 4 && this.data.sample.length){
             JsBarcode('#barcode', this.data.sample, {displayValue: false})
@@ -209,6 +206,18 @@ export default {
             background-color: rgba(78, 192, 255, .15);
         }  
     }
+    .resize {
+        display: none;
+        position: absolute;
+        opacity: 0;
+        width: 10px;
+        height: 10px;
+        top: 100%;
+        left: 100%;
+        margin-left: -5px;
+        margin-top: -5px;
+        cursor: nwse-resize;
+    }
     &.barcode {
         img {
             display: block;
@@ -220,6 +229,9 @@ export default {
         &.active {
             opacity: .7;
             border: 1px dashed #4ec0ff;
+            .resize {
+                display: block;
+            }
         }
     }
 }
