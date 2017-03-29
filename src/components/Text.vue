@@ -71,7 +71,9 @@ export default {
         if(!this.isPreview){
             let w = Math.round(this.$el.clientWidth/this.ppi*2.54*10)
             let h = Math.round(this.$el.clientHeight/this.ppi*2.54*10)
-            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})    
+            if(w != this.data.width && h != this.data.height){
+                this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
+            }  
         }
     }
 }
