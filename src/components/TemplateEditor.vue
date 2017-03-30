@@ -165,11 +165,11 @@
                 </div>
             </div>
             <div class="canvas-panel">
-                <div class="canvas-container" :style="canvasContainerStyle">
+                <div class="canvas-container" :style="canvasContainerStyle" @mousedown.stop.prevent="canvasMousedownHandler" @mousemove.stop.prevent="canvasMousemoveHandler" @mouseup.stop.prevent="canvasMouseupHandler">
                     <div class="zero">0</div>
                     <div class="top-ruler" :style="{backgroundSize: 0.2 * this.canvas.percentage + 'cm 100%'}"></div>
                     <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.2 * this.canvas.percentage + 'cm'}"></div>
-                    <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.stop.prevent="canvasMousedownHandler" @mousemove.stop.prevent="canvasMousemoveHandler" @mouseup.stop.prevent="canvasMouseupHandler" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
+                    <div class="canvas" ref="canvas" :style="canvasStyle" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
                         <component v-for="component in canvas.components" :is="component.type" :isPreview="false" :parent="null" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
                         </component>
                     </div>
@@ -604,10 +604,15 @@ export default {
             let p = e.target
             let offsetX = e.offsetX
             let offsetY = e.offsetY
-            while(p!= canvas){
-                offsetX += p.offsetLeft
-                offsetY += p.offsetTop
-                p = p.parentNode
+            if(p == canvas.parentNode){
+                offsetX -= canvas.offsetLeft
+                offsetY -= canvas.offsetTop
+            } else {
+                while(p!= canvas){
+                    offsetX += p.offsetLeft
+                    offsetY += p.offsetTop
+                    p = p.parentNode
+                }
             }
             offsetX = Math.round(offsetX/this.ppi*2.54*10)
             offsetY = Math.round(offsetY/this.ppi*2.54*10)
@@ -1450,7 +1455,7 @@ export default {
         .left-panel {
             width: 190px;
             @include left;
-            overflow-y: scroll;
+            overflow-y: auto;
             background-color: #fff;
             border-right: 1px solid #d6d6d6;
             .title {
@@ -1573,7 +1578,7 @@ export default {
             margin-right: 230px;
             height: 100%;
             box-sizing: border-box;
-            overflow: scroll;
+            overflow: auto;
             .canvas-container {
                 position: relative;
                 padding: 30px;
@@ -1623,7 +1628,7 @@ export default {
             width: 230px;
             @include right;
             overflow-x: hidden; 
-            overflow-y: scroll;
+            overflow-y: auto;
             box-shadow: 0 0 6px #d6d6d6;
             background-color: #fff;
         }

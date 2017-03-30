@@ -142,7 +142,10 @@ export default {
         }
     }
     .setting-body {
-        padding: 16px 20px 10px;
+        padding-top: 16px;
+        padding-bottom: 10px;
+        width: 190px;
+        margin: 0 auto;
         border-top: 1px solid #d6d6d6;
         .content {
             width: 100%;

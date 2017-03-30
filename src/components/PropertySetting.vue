@@ -331,9 +331,11 @@ export default {
             color: #0abfab;
         }
     }
-
     .property-setting-body {
-        padding: 16px 20px 10px;
+        padding-top: 16px;
+        padding-bottom: 10px;
+        width: 190px;
+        margin: 0 auto;
         border-top: 1px solid #d6d6d6;
         .property-setting-text {
             margin-bottom: 10px;
