@@ -61,6 +61,10 @@
     content: '';
     clear: both;
 }
+@mixin text-align-justify {
+    text-align: justify;
+    text-align-last: justify;
+}
 @mixin text-ellipsis {
     white-space: nowrap;
     overflow: hidden;

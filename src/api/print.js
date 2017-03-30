@@ -1,7 +1,7 @@
 import 'whatwg-fetch'
 
 export default class PrintAPI {
-    static serverHost = 'https://www.jzmsoft.com:8082/yunzhubao'
+    static serverHost = process.env.NODE_ENV == 'development' ? '/yunzhubao' : 'https://www.jzmsoft.com:8082/yunzhubao'
 
     static version = 'v1'
 

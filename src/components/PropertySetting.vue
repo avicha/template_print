@@ -318,6 +318,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../assets/scss/mixin.scss";
 @import "../assets/scss/fonts.scss";
 @import "../assets/scss/colors.scss";
 .property-setting {
@@ -422,7 +423,7 @@ export default {
                     margin-bottom: 0;
                 }
                 label {
-                    text-align-last: justify;
+                    @include text-align-justify;
                     font-size: 14px;
                     padding: 0;
                     padding-right: 10px;
@@ -455,7 +456,7 @@ export default {
                 float: left;
             }
             label {
-                text-align-last: justify;
+                @include text-align-justify;
                 font-size: 14px;
                 padding: 6px 24px 6px 0;
             }

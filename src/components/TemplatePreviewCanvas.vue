@@ -22,7 +22,7 @@ export default {
             ppi: getPPI()
         }
     },
-    props: ['canvas', 'templateData', 'page', 'pageNumber'],
+    props: ['canvas', 'templateData', 'page', 'pageNumber', 'isPrintCanvas'],
     components: {
         TextComponent,
         ImageComponent,
@@ -32,32 +32,36 @@ export default {
     },
     computed: {
         canvasWrapperStyle() {
-            let w = this.canvas.width/10/2.54*this.ppi
-            let h = this.canvas.height/10/2.54*this.ppi
-            let maxW = window.innerWidth /2 - 2 * 20
-            let maxH = window.innerHeight * 0.6 - 55
-            let canvasRate = w/h
-            let dialogRate = maxW/maxH
-            let paddingTop = 0
-            let paddingLeft = 0
-            if(canvasRate > dialogRate){
-                paddingTop = (maxH - maxW/canvasRate)/2
+            if(this.isPrintCanvas){
+                return {}
             } else {
-                paddingLeft = (maxW - maxH*canvasRate)/2
-            }
-            if(canvasRate > dialogRate){
-                return {
-                    width: maxW + 'px',
-                    height: maxW/canvasRate + 'px',
-                    paddingTop: paddingTop + 'px',
-                    paddingLeft: paddingLeft + 'px'
+                let w = this.canvas.width/10/2.54*this.ppi
+                let h = this.canvas.height/10/2.54*this.ppi
+                let maxW = window.innerWidth /2 - 2 * 20
+                let maxH = window.innerHeight * 0.6 - 55
+                let canvasRate = w/h
+                let dialogRate = maxW/maxH
+                let paddingTop = 0
+                let paddingLeft = 0
+                if(canvasRate > dialogRate){
+                    paddingTop = (maxH - maxW/canvasRate)/2
+                } else {
+                    paddingLeft = (maxW - maxH*canvasRate)/2
                 }
-            } else {
-                return {
-                    width: maxH * canvasRate + 'px',
-                    height: maxH + 'px',
-                    paddingTop: paddingTop + 'px',
-                    paddingLeft: paddingLeft + 'px'
+                if(canvasRate > dialogRate){
+                    return {
+                        width: maxW + 'px',
+                        height: maxW/canvasRate + 'px',
+                        paddingTop: paddingTop + 'px',
+                        paddingLeft: paddingLeft + 'px'
+                    }
+                } else {
+                    return {
+                        width: maxH * canvasRate + 'px',
+                        height: maxH + 'px',
+                        paddingTop: paddingTop + 'px',
+                        paddingLeft: paddingLeft + 'px'
+                    }
                 }
             }
         },
@@ -66,13 +70,13 @@ export default {
             let rotateDeg = (this.canvas.rotateDeg + 360)%360
             switch(rotateDeg){
                 case 90:
-                    translate = ' translateY(-' + this.canvas.height*this.canvas.percentage/100 +'mm)'
+                    translate = ' translateY(-' + this.canvas.height +'mm)'
                     break;
                 case 180:
-                    translate = ' translate(-' + this.canvas.width*this.canvas.percentage/100 +'mm, -' + this.canvas.height*this.canvas.percentage/100 + 'mm)'
+                    translate = ' translate(-' + this.canvas.width +'mm, -' + this.canvas.height + 'mm)'
                     break;
                 case 270:
-                    translate = ' translateX(-' + this.canvas.width*this.canvas.percentage/100 +'mm)'
+                    translate = ' translateX(-' + this.canvas.width +'mm)'
                     break;
             }
             let w = this.canvas.width/10/2.54*this.ppi
@@ -87,15 +91,26 @@ export default {
             } else {
                 percentage = maxH/h
             }
-            return {
-                width: this.canvas.width + 'mm',
-                height: this.canvas.height + 'mm',
-                backgroundImage: this.canvas.backgroundImage && ('url(' + this.canvas.backgroundImage + ')'),
-                backgroundSize: '100% 100%',
-                backgroundRepeat: 'no-repeat',
-                transform: 'rotate(' + rotateDeg + 'deg)' + translate + ' scale(' + percentage + ')',
-                transformOrigin: '0 0',
-                
+            if(this.isPrintCanvas){
+                return {
+                    width: this.canvas.width + 'mm',
+                    height: this.canvas.height + 'mm',
+                    backgroundImage: this.canvas.backgroundImage && ('url(' + this.canvas.backgroundImage + ')'),
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat',
+                    transform: 'rotate(' + rotateDeg + 'deg)' + translate,
+                    transformOrigin: '0 0',
+                }
+            } else {
+                return {
+                    width: this.canvas.width + 'mm',
+                    height: this.canvas.height + 'mm',
+                    backgroundImage: this.canvas.backgroundImage && ('url(' + this.canvas.backgroundImage + ')'),
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat',
+                    transform: 'rotate(' + rotateDeg + 'deg)' + translate + ' scale(' + percentage + ')',
+                    transformOrigin: '0 0',
+                }
             }
         },
     },

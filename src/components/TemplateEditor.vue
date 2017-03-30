@@ -1207,6 +1207,7 @@ export default {
                     height: Math.round(60/this.ppi*2.54*10),
                     top: top,
                     left: left,
+                    number: 1,
                     children: [],
                     zIndex: -1,
                 }
@@ -1369,6 +1370,9 @@ export default {
                     color: #333;
                     user-select: none;
                     cursor: default;
+                }
+                .load-data-btn {
+                    display: block;
                 }
             }
             .percentage {
@@ -1631,6 +1635,7 @@ export default {
             overflow-y: auto;
             box-shadow: 0 0 6px #d6d6d6;
             background-color: #fff;
+            z-index: 100;
         }
     }
 }

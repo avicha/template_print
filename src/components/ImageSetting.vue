@@ -4,7 +4,7 @@
             <span class="setting-span1">基本元件：</span><span class="setting-span2">图片</span>
         </div>
         <div class="setting-body">
-            <el-form label-width="68px" label-position="left">
+            <el-form label-width="80px" label-position="left">
                 <el-form-item label="宽">
                     <el-input v-model.number="data.width" @input="widthInputHandler" placeholder="" size="small">
                         <template slot="append">mm</template>
@@ -130,6 +130,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../assets/scss/mixin.scss";
 .image-setting {
     .setting-title {
         padding: 0 20px;
@@ -147,29 +148,25 @@ export default {
         width: 190px;
         margin: 0 auto;
         border-top: 1px solid #d6d6d6;
-        .content {
-            width: 100%;
-            height: 120px;
-            box-sizing: border-box;
-            padding: 10px;
-            border: 1px solid #d6d6d6;
-            border-radius: 4px;
-            color: #333;
-            font-family: Microsoft Yahei;
-        }
         .el-form-item {
-            height: 36px;
+            height: 26px;
             margin-bottom: 14px;
             &:last-child {
                 margin-bottom: 0;
             }
-            .el-label {
-                line-height: 36px;
-                margin-right: 12px;
-                float: left;
+            .el-form-item__content {
+                line-height: 26px;
+                .el-input {
+                    width: 110px;
+                    .el-input__inner {
+                        height: 26px;
+                    }
+                }
             }
             label {
-                text-align-last: justify;
+                @include text-align-justify;
+                font-size: 14px;
+                padding: 6px 24px 6px 0;
             }
         }
     }

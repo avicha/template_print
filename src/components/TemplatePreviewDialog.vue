@@ -1,9 +1,11 @@
 <template>
 <el-dialog class="template-preview-dialog" v-model="isShown" :close-on-click-modal="false" size="small">
-    <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="1" :pageNumber="1" v-if="pageNumber==1"></TemplatePreviewCanvasComponent>
+    <div :style="{height: carouselHeight}" v-if="pageNumber==1">
+        <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="1" :pageNumber="1"  :isPrintCanvas="false"></TemplatePreviewCanvasComponent>
+    </div>
     <el-carousel :autoplay="false" arrow="always" :height="carouselHeight" trigger="click" v-else>
         <el-carousel-item v-for="i in pageNumber">
-            <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="i" :pageNumber="pageNumber"></TemplatePreviewCanvasComponent>
+            <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="i" :pageNumber="pageNumber" :isPrintCanvas="false"></TemplatePreviewCanvasComponent>
         </el-carousel-item>
     </el-carousel>
     <i class="icon icon-close" @click="close"></i>
@@ -51,6 +53,7 @@ export default {
         this.$on('set_data', data => {
             data = JSON.parse(JSON.stringify(data))
             extend(this.$data, data)
+
         })
     }
 }

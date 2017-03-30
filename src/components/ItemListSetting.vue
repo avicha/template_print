@@ -159,6 +159,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../assets/scss/mixin.scss";
 @import "../assets/scss/fonts.scss";
 @import "../assets/scss/colors.scss";
 .item-list-setting {
@@ -178,16 +179,6 @@ export default {
         width: 190px;
         margin: 0 auto;
         border-top: 1px solid #d6d6d6;
-        .content {
-            width: 100%;
-            height: 120px;
-            box-sizing: border-box;
-            padding: 10px;
-            border: 1px solid #d6d6d6;
-            border-radius: 4px;
-            color: #333;
-            font-family: Microsoft Yahei;
-        }
         .number {
             height: 24px;
             width: 108px;
@@ -215,22 +206,19 @@ export default {
             &:last-child {
                 margin-bottom: 0;
             }
-            .el-label {
-                line-height: 1;
-                float: left;
-            }
-            label {
-                text-align-last: justify;
-                font-size: 14px;
-                padding: 6px 24px 6px 0;
-            }
             .el-form-item__content {
                 line-height: 26px;
-                .el-select, .el-input {
+                .el-input {
+                    width: 110px;
                     .el-input__inner {
                         height: 26px;
                     }
                 }
+            }
+            label {
+                @include text-align-justify;
+                font-size: 14px;
+                padding: 6px 24px 6px 0;
             }
         }
     }

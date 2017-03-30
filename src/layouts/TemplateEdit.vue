@@ -16,7 +16,7 @@
             <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
             <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
         </div>
-        <TemplatePreviewCanvasComponent class="template-print-canvas" style="padding-top: 0; padding-left: 0" :canvas="canvas" :templateData="templateData" v-for="i in pageNumber" :page="i" :pageNumber="pageNumber"></TemplatePreviewCanvasComponent>
+        <TemplatePreviewCanvasComponent class="template-print-canvas" :canvas="canvas" :templateData="templateData" v-for="i in pageNumber" :page="i" :pageNumber="pageNumber" :isPrintCanvas="true"></TemplatePreviewCanvasComponent>
     </div>
 </template>
 
