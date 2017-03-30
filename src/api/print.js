@@ -10,6 +10,8 @@ export default class PrintAPI {
     static getTemplateList() {
         return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getTemplateList', {
             method: 'POST',
+            credentials: 'include',
+            mode: 'cors',
             headers: {
                 'Content-Type': 'application/json'
             },

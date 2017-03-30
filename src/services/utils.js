@@ -21,14 +21,18 @@ export const getInnerHeight = (dom) => {
 export const getOuterHeight = (dom) => {
     return window.parseInt(getComputedStyle(dom).height) + window.parseInt(getComputedStyle(dom).paddingTop) + window.parseInt(getComputedStyle(dom).paddingBottom) + window.parseInt(getComputedStyle(dom).borderTopWidth) + window.parseInt(getComputedStyle(dom).borderBottomWidth)
 }
-
+let ppi = 0
 export const getPPI = () => {
-    let dom = document.createElement('div')
-    dom.style.width = '1in'
-    dom.style.height = '1in'
-    dom.style.display = 'none'
-    document.body.appendChild(dom)
-    return getWidth(dom)
+    if (!ppi) {
+        let dom = document.createElement('div')
+        dom.style.width = '1in'
+        dom.style.height = '1in'
+        dom.style.display = 'none'
+        document.body.appendChild(dom)
+        ppi = getWidth(dom)
+        return ppi
+    }
+    return ppi
 }
 
 export const readImageAsDataURL = (file, callback) => {

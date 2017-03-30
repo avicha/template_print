@@ -41,6 +41,10 @@ const actions = {
                 commit(types.RECEIVE_LABEL_LIST, json.data.labelList)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     previewTemplate({
@@ -53,6 +57,10 @@ const actions = {
                 commit(types.RECEIVE_TEMPLATE_DETAIL, json.data)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     getPrintShopData({
@@ -66,6 +74,10 @@ const actions = {
                 commit(types.RECEIVE_TEMPLATE_SIZE_LIST, json.data.commonList)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     updateTemplate({
@@ -76,6 +88,10 @@ const actions = {
                 commit(types.RECEIVE_ERROR, json)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     createTemplate({
@@ -86,6 +102,10 @@ const actions = {
                 commit(types.RECEIVE_ERROR, json)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     setDefaultTemplate({
@@ -96,6 +116,10 @@ const actions = {
                 commit(types.RECEIVE_ERROR, json)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     deleteTemplate({
@@ -106,6 +130,10 @@ const actions = {
                 commit(types.RECEIVE_ERROR, json)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     getPrintMenuData({
@@ -118,6 +146,10 @@ const actions = {
                 commit(types.RECEIVE_PRODUCT_PROP_LIST, json.data)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     getPrintQualityData({
@@ -128,6 +160,10 @@ const actions = {
                 commit(types.RECEIVE_ERROR, json)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     },
     getPrintLabelData({
@@ -138,6 +174,10 @@ const actions = {
                 commit(types.RECEIVE_ERROR, json)
             }
             return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
         })
     }
 }

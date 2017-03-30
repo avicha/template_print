@@ -87,7 +87,6 @@ export default {
         //键盘处理函数，处理删除，复制，粘贴组件
         keydownHandler(e){
             if(!(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement)){
-                console.log(e.keyCode)
                 switch(e.keyCode){
                     case 8:
                     case 46:
