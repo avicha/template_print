@@ -1,3 +1,36 @@
+export const getWidth = (dom) => {
+    return window.parseInt(getComputedStyle(dom).width)
+}
+
+export const getInnerWidth = (dom) => {
+    return window.parseInt(getComputedStyle(dom).width) + window.parseInt(getComputedStyle(dom).paddingLeft) + window.parseInt(getComputedStyle(dom).paddingRight)
+}
+
+export const getOuterWidth = (dom) => {
+    return window.parseInt(getComputedStyle(dom).width) + window.parseInt(getComputedStyle(dom).paddingLeft) + window.parseInt(getComputedStyle(dom).paddingRight) + window.parseInt(getComputedStyle(dom).borderLeftWidth) + window.parseInt(getComputedStyle(dom).borderRightWidth)
+}
+
+export const getHeight = (dom) => {
+    return window.parseInt(getComputedStyle(dom).height)
+}
+
+export const getInnerHeight = (dom) => {
+    return window.parseInt(getComputedStyle(dom).height) + window.parseInt(getComputedStyle(dom).paddingTop) + window.parseInt(getComputedStyle(dom).paddingBottom)
+}
+
+export const getOuterHeight = (dom) => {
+    return window.parseInt(getComputedStyle(dom).height) + window.parseInt(getComputedStyle(dom).paddingTop) + window.parseInt(getComputedStyle(dom).paddingBottom) + window.parseInt(getComputedStyle(dom).borderTopWidth) + window.parseInt(getComputedStyle(dom).borderBottomWidth)
+}
+
+export const getPPI = () => {
+    let dom = document.createElement('div')
+    dom.style.width = '1in'
+    dom.style.height = '1in'
+    dom.style.display = 'none'
+    document.body.appendChild(dom)
+    return getWidth(dom)
+}
+
 export const readImageAsDataURL = (file, callback) => {
     if (!window.FileReader && !(window.URL && window.URL.createObjectURL)) {
         callback("抱歉，你的浏览器不支持FileReader和URL.createObjectURL");
@@ -35,6 +68,17 @@ export const readImageAsDataURL = (file, callback) => {
             image.src = url
         }
     }
+}
+export const isInteractWithComponent = (componentA, componentB) => {
+    let aLeft = componentA.data.left
+    let aRight = componentA.data.left + componentA.data.width
+    let aTop = componentA.data.top
+    let aBottom = componentA.data.top + componentA.data.height
+    let bLeft = componentB.data.left
+    let bRight = componentB.data.left + componentB.data.width
+    let bTop = componentB.data.top
+    let bBottom = componentB.data.top + componentB.data.height
+    return (aLeft < bRight) && (aRight > bLeft) && (aTop < bBottom) && (aBottom > bTop)
 }
 export const createImageByTemplateCanvas = (canvas) => {
     let ppi = 96

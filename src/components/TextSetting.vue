@@ -53,7 +53,6 @@ Vue.use(ColorPicker)
 export default {
     data(){
         return {
-            ppi: 96,
             ready: false,
             data: {
                 content: '',

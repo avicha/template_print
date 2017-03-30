@@ -13,57 +13,87 @@
             </div>
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isUndoAvailable}" @click="undoBtnHandler">
-                    <i class="icon undo-icon" title="撤销"></i>
+                    <el-tooltip effect="dark" content="撤销">
+                        <i class="icon undo-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isRedoAvailable}" @click="redoBtnHandler">
-                    <i class="icon redo-icon" title="重做"></i>
+                    <el-tooltip effect="dark" content="重做">
+                        <i class="icon redo-icon"></i>
+                    </el-tooltip>
                 </div>
             </div>
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignLeftAvailable}" @click="alignLeftBtnHandler">
-                    <i class="icon align-left-icon" title="左对齐"></i>
+                    <el-tooltip effect="dark" content="左对齐">
+                        <i class="icon align-left-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignCenterAvailable}" @click="alignCenterBtnHandler">
-                    <i class="icon align-center-icon" title="水平对齐"></i>
+                    <el-tooltip effect="dark" content="水平对齐">
+                        <i class="icon align-center-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignRightAvailable}" @click="alignRightBtnHandler">
-                    <i class="icon align-right-icon" title="右对齐"></i>
+                    <el-tooltip effect="dark" content="右对齐">
+                        <i class="icon align-right-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignTopAvailable}" @click="alignTopBtnHandler">
-                    <i class="icon align-top-icon" title="顶部对齐"></i>
+                    <el-tooltip effect="dark" content="顶部对齐">
+                        <i class="icon align-top-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignMiddleAvailable}" @click="alignMiddleBtnHandler">
-                    <i class="icon align-middle-icon" title="垂直居中"></i>
+                    <el-tooltip effect="dark" content="垂直居中">
+                        <i class="icon align-middle-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignBottomAvailable}" @click="alignBottomBtnHandler">
-                    <i class="icon align-bottom-icon" title="底部对齐"></i>
+                    <el-tooltip effect="dark" content="底部对齐">
+                        <i class="icon align-bottom-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignVCenterAvailable}" @click="alignVCenterBtnHandler">
-                    <i class="icon align-v-center-icon" title="垂直居中分布"></i>
+                    <el-tooltip effect="dark" content="垂直居中分布">
+                        <i class="icon align-v-center-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isAlignHCenterAvailable}" @click="alignHCenterBtnHandler">
-                    <i class="icon align-h-center-icon" title="水平居中分布"></i>
+                    <el-tooltip effect="dark" content="水平居中分布">
+                        <i class="icon align-h-center-icon"></i>
+                    </el-tooltip>
                 </div>
             </div>
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isCombineAvailable}" @click="combineBtnHandler">
-                    <i class="icon combine-icon" title="组合"></i>
+                    <el-tooltip effect="dark" content="组合">
+                        <i class="icon combine-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isSplitAvailable}" @click="splitBtnHandler">
-                    <i class="icon split-icon" title="拆分"></i>
+                    <el-tooltip effect="dark" content="拆分">
+                        <i class="icon split-icon"></i>
+                    </el-tooltip>
                 </div>
             </div>
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isRotateLeftAvailable}" @click="rotateLeftBtnHandler">
-                    <i class="icon rotate-left-icon" title="向左旋转"></i>
+                    <el-tooltip effect="dark" content="向左旋转">
+                        <i class="icon rotate-left-icon"></i>
+                    </el-tooltip>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isRotateRightAvailable}" @click="rotateRightBtnHandler">
-                    <i class="icon rotate-right-icon" title="向右旋转"></i>
+                    <el-tooltip effect="dark" content="向右旋转">
+                        <i class="icon rotate-right-icon"></i>
+                    </el-tooltip>
                 </div>
             </div>
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isRotateCanvasLeftAvailable}" @click="rotateCanvasLeftBtnHandler">
-                    <i class="icon rotate-canvas-left-icon" title="旋转画布"></i>
+                    <el-tooltip effect="dark" content="旋转画布">
+                        <i class="icon rotate-canvas-left-icon"></i>
+                    </el-tooltip>
                 </div>
             </div>
             <div class="menu-item-group">
@@ -79,14 +109,14 @@
             </div>
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isPreviewAvailable}" @click="previewBtnHandler">
-                    <i class="icon preview-icon" title="预览"></i><span class="menu-item-text">预览/打印</span>
+                    <el-tooltip effect="dark" content="预览"><i class="icon preview-icon"></i></el-tooltip><span class="menu-item-text">预览/打印</span>
                 </div>
                 <div class="menu-item" :class="{disabled: !menuItems.isLoadDataAvailable}" @click="loadDataBtnHandler">
                     <button class="load-data-btn">数据载入</button>
                 </div>
             </div>
         </div>
-        <div class="main-panel" :style="{top: this.menuBarHeight}">
+        <div class="main-panel" :style="{top: this.menuBarHeight + 'px'}">
             <div class="right-panel">
                 <TextSettingComponent ref="textSettingComponent" v-show="setting.isTextComponent" @changeComponentSetting="changeComponentSetting"></TextSettingComponent>
                 <ImageSettingComponent ref="imageSettingComponent" v-show="setting.isImageComponent" @changeComponentSetting="changeComponentSetting"></ImageSettingComponent>
@@ -151,8 +181,9 @@
 
 <script>
 import Vue from 'vue'
-import {Tree} from 'element-ui'
+import {Tree, Tooltip} from 'element-ui'
 Vue.use(Tree)
+Vue.use(Tooltip)
 
 import TextComponent from '../components/Text'
 import ImageComponent from '../components/Image'
@@ -166,15 +197,15 @@ import PropertySettingComponent from '../components/PropertySetting'
 import ItemListSettingComponent from '../components/ItemListSetting'
 import * as types from '../store/mutation_types'
 
-import {readImageAsDataURL} from '../services/utils'
+import {readImageAsDataURL, getPPI, getOuterHeight, isInteractWithComponent} from '../services/utils'
 import extend from 'lodash/extend'
 import find from 'lodash/find'
 
 export default {
     data(){
         return {
-            ppi: 96,
-            menuBarHeight: '51px',
+            ppi: getPPI(),
+            menuBarHeight: 51,
             ready: false,
             _isDraging: false,
             _isResizing: false,
@@ -440,7 +471,7 @@ export default {
     },
     methods:{
         setMenuBarHeight(){
-            this.menuBarHeight = (this.$refs.menuBar.clientHeight +1) + 'px'
+            this.menuBarHeight = getOuterHeight(this.$refs.menuBar)
         },
         //重置数据
         reset(){
@@ -860,7 +891,7 @@ export default {
                         width: right - left,
                         height: bottom - top,
                         rotateDeg: 0,
-                        zIndex: -1
+                        zIndex: 0
                     }
                 }
                 this.canvas.components = this.canvas.components.filter(component => !component.active)
@@ -1077,7 +1108,7 @@ export default {
                     height: 0,
                     top: top,
                     left: left,
-                    zIndex: this.canvas.components.length,
+                    zIndex: 2,
                 }
             }
             this.canvas.components.push(component)
@@ -1097,7 +1128,7 @@ export default {
                     height: Math.round(68/this.ppi*2.54*10),
                     top: top,
                     left: left,
-                    zIndex: this.canvas.components.length,
+                    zIndex: 1,
                 }
             }
             this.canvas.components.push(component)
@@ -1152,7 +1183,7 @@ export default {
                     alignNumber: left,
                     verticalAlign: 'middle',
                     itemListId: null,
-                    zIndex: this.canvas.components.length,
+                    zIndex: 2,
                 }
             }
             this.canvas.components.push(component)
@@ -1172,7 +1203,7 @@ export default {
                     top: top,
                     left: left,
                     children: [],
-                    zIndex: this.canvas.components.length,
+                    zIndex: -1,
                 }
             }
             this.canvas.components.push(component)
@@ -1256,28 +1287,31 @@ export default {
             })
             itemListComponents.forEach(itemListComponent => {
                 let children = []
-                this.allComponents.forEach(component => {
+                this.canvas.components.forEach(component => {
                     if(component.type == 'PropertyComponent'){
-                        let isContain = false
-                        let componentL = component.data.left
-                        let componentR = component.data.left + component.data.width
-                        let componentT = component.data.top
-                        let componentB = component.data.top + component.data.height
-                        let thisL = itemListComponent.data.left
-                        let thisR = itemListComponent.data.left + itemListComponent.data.width
-                        let thisT = itemListComponent.data.top
-                        let thisB = itemListComponent.data.top + itemListComponent.data.height
                         component.data.itemListId = null
-                        if((thisL < componentR) && (thisR > componentL) && (thisT < componentB) && (thisB > componentT)) {
+                        if(isInteractWithComponent(itemListComponent, component)) {
                             children.push(component)
                             component.data.itemListId = itemListComponent.data.id
-                            if((thisL < componentL) && (thisR > componentR) && (thisT < componentT) && (thisB > componentB)){
-                                isContain = true
+                            if(component.data.top != itemListComponent.data.top){
+                                this.moveComponentTo(component, {top: itemListComponent.data.top})
                             }
                         }
-                        if(componentT != thisT && isContain){
-                            this.moveComponentTo(component, {top: thisT})
-                            this.record()  
+                    } else {
+                        if(component.type == 'ContainerComponent'){
+                            component.data.children.forEach(child => {
+                                if(child.type == 'PropertyComponent'){
+                                    child.data.itemListId = null
+                                    if(isInteractWithComponent(itemListComponent, child)) {
+                                        children.push(child)
+                                        child.data.itemListId = itemListComponent.data.id
+                                        let middle = itemListComponent.data.top + 0.5 * itemListComponent.data.height
+                                        if(child.data.top != middle - 0.5 * child.data.height){
+                                            this.moveComponentTo(child, {top: middle - 0.5 * child.data.height})
+                                        }
+                                    }
+                                }
+                            })
                         }
                     }
                 })

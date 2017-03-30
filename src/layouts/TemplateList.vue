@@ -200,8 +200,9 @@ export default {
             this.$store.dispatch('createTemplate', templateData).then(json => {
                 if(json.state == 200){
                     this.$refs.copyTemplateDialog.close()
-                    templateData.templateId = json.data.templateId
-                    this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_APPEND : types.LABEL_TEMPLATE_LIST_APPEND, templateData)
+                    this.$store.dispatch('getTemplateList')
+                    // templateData.templateId = json.data.templateId
+                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_APPEND : types.LABEL_TEMPLATE_LIST_APPEND, templateData)
                 }
             })
         },
@@ -209,7 +210,8 @@ export default {
             this.$store.dispatch('deleteTemplate', templateId).then(json => {
                 if(json.state == 200){
                     this.$refs.deleteTemplateDialog.close()
-                    this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_REMOVE : types.LABEL_TEMPLATE_LIST_REMOVE, templateId)
+                    this.$store.dispatch('getTemplateList')
+                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_REMOVE : types.LABEL_TEMPLATE_LIST_REMOVE, templateId)
                 }
             })
         },
@@ -217,7 +219,8 @@ export default {
             this.$store.dispatch('updateTemplate', templateData).then(json => {
                 if(json.state == 200){
                     this.$refs.renameTemplateDialog.close()
-                    this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_UPDATED : types.LABEL_TEMPLATE_LIST_UPDATED, templateData)
+                    this.$store.dispatch('getTemplateList')
+                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_UPDATED : types.LABEL_TEMPLATE_LIST_UPDATED, templateData)
                 }
             })
         },
@@ -233,8 +236,8 @@ export default {
             this.$store.dispatch('createTemplate', templateData).then(json => {
                 if(json.state == 200){
                     this.$refs.createTemplateDialog.close()
-                    templateData.templateId = json.data.templateId
-                    this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_APPEND : types.LABEL_TEMPLATE_LIST_APPEND, templateData)
+                    // templateData.templateId = json.data.templateId
+                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_APPEND : types.LABEL_TEMPLATE_LIST_APPEND, templateData)
                     this.$router.push({name: 'TemplateEdit', query: { templateId: templateData.templateId }})
                 }
             })

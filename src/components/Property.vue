@@ -10,13 +10,14 @@
 
 <script>
 import Vue from 'vue'
+import {getOuterWidth, getOuterHeight, getPPI} from '../services/utils'
 import moment from 'moment'
 import JsBarcode from 'jsbarcode'
 
 export default {
     data(){
         return {
-            ppi: 96,
+            ppi: getPPI(),
         }
     },
     props: ['isPreview', 'parent', 'data', 'templateData', 'page'],
@@ -135,8 +136,8 @@ export default {
         data:{
             handler(data){
                 Vue.nextTick(() => {
-                    let w = Math.round(window.parseInt(getComputedStyle(this.$el).width)/this.ppi*2.54*10)
-                    let h = Math.round(window.parseInt(getComputedStyle(this.$el).height)/this.ppi*2.54*10)
+                    let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
+                    let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
                     if(w != data.width || h != data.height){
                         this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})
                     }
@@ -183,8 +184,8 @@ export default {
         }
     },
     mounted(){
-        let w = Math.round(window.parseInt(getComputedStyle(this.$el).width)/this.ppi*2.54*10)
-        let h = Math.round(window.parseInt(getComputedStyle(this.$el).height)/this.ppi*2.54*10)
+        let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
+        let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
         if(w != this.data.width && h != this.data.height){
             this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})    
         }

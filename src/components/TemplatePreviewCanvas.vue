@@ -13,12 +13,13 @@ import ImageComponent from '../components/Image'
 import PropertyComponent from '../components/Property'
 import ItemListComponent from '../components/ItemList'
 import ContainerComponent from '../components/Container'
+import {getPPI} from '../services/utils'
 import extend from 'lodash/extend'
 
 export default {
     data(){
         return {
-            ppi: 96
+            ppi: getPPI()
         }
     },
     props: ['canvas', 'templateData', 'page', 'pageNumber'],
