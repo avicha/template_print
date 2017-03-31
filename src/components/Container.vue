@@ -1,6 +1,6 @@
 <template>
 <div class="container-component" :style="componentStyle">
-    <component v-for="component in data.children" :is="component.type" :isPreview="isPreview" :parent="data" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)">
+    <component v-for="component in components" :is="component.type" :isPreview="isPreview" :parent="data" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)">
     </component>
 </div>
 </template>
@@ -13,6 +13,13 @@ import ItemListComponent from '../components/ItemList'
 export default {
     props: ['isPreview', 'data', 'templateData', 'changeComponentData'],
     computed: {
+        components(){
+            if(!this.isPreview){
+                return this.data.children
+            } else {
+                return this.data.children.filter(child => !(child.type == 'PropertyComponent' && child.data.itemListId))
+            }
+        },
         componentStyle(){
             let tops = [],lefts = [],rights = [], bottoms = []
             this.data.children.forEach(component => {
