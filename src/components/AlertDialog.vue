@@ -20,7 +20,7 @@ export default {
             isShown: false,
         }
     },
-    props: ['title', 'content', 'onConfirmHandler'],
+    props: ['title', 'content'],
     methods:{
         close(){
             this.isShown = false

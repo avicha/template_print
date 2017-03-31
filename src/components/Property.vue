@@ -1,9 +1,9 @@
 <template>
-<div class="property-component barcode" :style="componentStyle" v-show="!(isPreview && data.itemListId)" v-if="data.propertyType == 4">
+<div class="property-component barcode" :style="componentStyle" v-if="data.propertyType == 4">
     <img ref="barcode" id="barcode">
-    <div class="resize"></div>
+    <div class="resize" v-if="!isPreview"></div>
 </div>
-<div class="property-component string" :style="componentStyle" v-show="!(isPreview && data.itemListId)" v-else>
+<div class="property-component string" :style="componentStyle" v-else>
     <span :style="prefixStyle">{{ data.prefix }}</span><span :style="valueStyle">{{ value }}</span><span :style="suffixStyle">{{ data.suffix }}</span>
 </div>
 </template>
@@ -20,13 +20,17 @@ export default {
             ppi: getPPI(),
         }
     },
-    props: ['isPreview', 'parent', 'data', 'templateData', 'page'],
+    props: ['isPreview', 'parent', 'data', 'templateData'],
     computed: {
         componentStyle(){
             let w = this.data.width
             let h = this.data.height
-            let top = this.parent ? this.data.top - this.parent.top : this.data.top
-            let left = this.parent ? this.data.left - this.parent.left : this.data.left
+            let top = this.data.top
+            let left = this.data.left
+            if(this.parent){
+                top -= this.parent.top
+                left -= this.parent.left
+            }
             let rotateDeg = (this.data.rotateDeg + 360)%360
             let translate = ''
             switch(rotateDeg){
@@ -52,21 +56,9 @@ export default {
                     transformOrigin: '0 0',
                 }    
             } else {
-                let l, alignNumber = this.data.alignNumber
-                switch(this.data.textAlign){
-                    case 'left':
-                        l =  this.parent ? alignNumber - this.parent.left : alignNumber
-                        break
-                    case 'center':
-                        l = this.parent ? alignNumber - this.parent.left - 0.5 *  w : alignNumber - 0.5 * w
-                        break
-                    case 'right':
-                        l = this.parent ? alignNumber - this.parent.left - w : alignNumber - w
-                        break
-                }
                 return {
                     top: top + 'mm',
-                    left: l + 'mm',
+                    left: left + 'mm',
                     transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                     transformOrigin: '0 0',
                 }    
@@ -107,7 +99,7 @@ export default {
         },
         value(){
             let code = this.data.propertyCode
-            let product = this.templateData.productList[0]
+            let product = this.templateData.productList[this.data.productIndex || 0]
             let value = null
             if(this.data.itemListId){
                 value = product && product[code]
@@ -135,15 +127,16 @@ export default {
     watch: {
         data:{
             handler(data){
-                Vue.nextTick(() => {
-                    let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
-                    let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
-                    if(w != data.width || h != data.height){
-                        this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})
-                    }
-                })
+                window.setTimeout(() => {
+                    this.computeSize()
+                }, this.isPreview ? 300 : 0)
             },
             deep: true
+        },
+        value(newVal,oldVal){
+            window.setTimeout(() => {
+                this.computeSize()
+            }, this.isPreview ? 300 : 0)
         },
         'data.sample'(sample){
             if(this.data.propertyType == 4){
@@ -154,9 +147,6 @@ export default {
                 }
             }
         },
-        'data.top'(){
-            this.computeAlignNumber()
-        },
         'data.left'(){
             this.computeAlignNumber()
         },
@@ -166,7 +156,7 @@ export default {
     },
     methods:{
         computeAlignNumber(){
-            if(!this.isPreview){
+            if(this.data.propertyType != 4 && !this.isPreview){
                 let textAlign = this.data.textAlign, alignNumber
                 switch(textAlign){
                     case 'left':
@@ -179,22 +169,45 @@ export default {
                         alignNumber = this.data.left + this.data.width
                         break;
                 }
-                this.$emit('changeComponentData', {data: {alignNumber: alignNumber}, shouldUpdate: false})
+                if(alignNumber != this.data.alignNumber){
+                    this.$emit('changeComponentData', {data: {alignNumber: alignNumber}, shouldUpdate: false})    
+                }
+            }
+        },
+        computeSize(){
+            if(this.data.propertyType != 4){
+                let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
+                let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
+                let l, alignNumber = this.data.alignNumber
+                switch(this.data.textAlign){
+                    case 'left':
+                        l =  alignNumber
+                        break
+                    case 'center':
+                        l = alignNumber - 0.5 * w
+                        break
+                    case 'right':
+                        l = alignNumber - w
+                        break
+                }
+                if(w != this.data.width || h != this.data.height || l != this.data.left){
+                    console.debug(this.data, this.data.width, this.data.height, this.data.left, w , h, l)
+                    this.$emit('changeComponentData', {data: {width: w, height: h, left: l}, shouldUpdate: true})
+                }
             }
         }
     },
     mounted(){
-        let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
-        let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
-        if(w != this.data.width && h != this.data.height){
-            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: true})    
-        }
         if(this.data.propertyType == 4){
             if(this.data.sample.length == 8){
                 JsBarcode('#barcode', this.data.sample, {displayValue: false})
             } else {
                 this.$refs.barcode.removeAttribute('src')
             }
+        } else {
+            window.setTimeout(() => {
+                this.computeSize()
+            }, 300)
         }
     }
 }

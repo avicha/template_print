@@ -18,8 +18,12 @@ export default {
         componentStyle(){
             let w = this.data.width
             let h = this.data.height
-            let top = this.parent ? this.data.top - this.parent.top : this.data.top
-            let left = this.parent ? this.data.left - this.parent.left : this.data.left
+            let top = this.data.top
+            let left = this.data.left
+            if(this.parent){
+                top -= this.parent.top
+                left -= this.parent.left
+            }
             let rotateDeg = (this.data.rotateDeg + 360)%360
             let translate = ''
             switch(rotateDeg){
@@ -54,24 +58,27 @@ export default {
     },
     watch: {
         data:{
-            handler(data){
-                Vue.nextTick(() => {
-                    let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
-                    let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
-                    if(w != data.width || h != data.height){
-                        this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
-                    }
-                })
+            handler(){
+                window.setTimeout(() => {
+                    this.computeSize()
+                }, this.isPreview ? 300 : 0)
             },
             deep: true
         }
     },
-    mounted(){
-        let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
-        let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
-        if(w != this.data.width && h != this.data.height){
-            this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
+    methods:{
+        computeSize(){
+            let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
+            let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
+            if(w != this.data.width && h != this.data.height){
+                this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
+            }
         }
+    },
+    mounted(){
+        setTimeout(() => {
+            this.computeSize()
+        }, 300)
     }
 }
 </script>

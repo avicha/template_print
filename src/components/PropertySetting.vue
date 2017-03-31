@@ -196,7 +196,7 @@ export default {
             }
         },
         style(){
-            return this.data[this.styleType + 'Style'] || this.defaultStyle
+            return this.data[this.styleType + 'Style']
         }
     },
     methods: {
@@ -278,16 +278,6 @@ export default {
         }
     },
     watch:{
-        defaultStyle:{
-            handler(style){
-                if(this.ready){
-                    ['prefix', 'value', 'suffix'].forEach((type) => {
-                        extend(this.data[type + 'Style'], style)
-                    })
-                }
-            },
-            deep: true
-        },
         data:{
             handler(data){
                 if(this.ready){

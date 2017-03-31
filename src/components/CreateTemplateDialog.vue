@@ -165,9 +165,6 @@ export default {
                         components: [
 
                         ],
-                        containers: [
-
-                        ]
                     })
                     this.$emit('create_template', this.type, {type: this.type, shopName: this.shopName, content: content, ...this.form})
                 }

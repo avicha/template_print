@@ -114,13 +114,13 @@ export default {
     },
     mounted(){
         this.$on('set_data', data => {
+            this.ready = false
             let dataClone = JSON.parse(JSON.stringify(data))
             for(let key in dataClone){
                 if(this.data[key] !== undefined){
                     this.data[key] = dataClone[key]
                 }
             }
-            this.ready = false
             Vue.nextTick(() => {
                 this.ready = true
             })  

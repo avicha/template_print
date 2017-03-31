@@ -3,17 +3,21 @@
     <div class="resize"></div>
 </div>
 <div class="item-list-component" v-else>
-    <PropertyComponent v-for="child in items" class="component" :isPreview="false" :data="child.data" :templateData="templateData"></PropertyComponent>
-    <div class="resize"></div>
+    <PropertyComponent v-for="child in items" class="component" :isPreview="true" :data="child.data" :templateData="templateData" @changeComponentData="changeComponentData(child, $event)"></PropertyComponent>
 </div>
 </template>
 
 <script>
 import PropertyComponent from '../components/Property'
 export default {
-    props: ['isPreview', 'parent', 'data', 'templateData', 'page'],
+    props: ['isPreview', 'parent', 'data', 'templateData', 'page', 'changeComponentData'],
     components:{
         PropertyComponent
+    },
+    data(){
+        return {
+            children: [],
+        }
     },
     computed: {
         componentStyle(){
@@ -27,7 +31,7 @@ export default {
             }
         },
         items(){
-            let items = []
+            this.children = []
             let top = this.data.top
             let h = this.data.height
             let number = this.data.number
@@ -36,20 +40,22 @@ export default {
             if(number){
                 let gap = h/(number+1)
                 productList.forEach((item, i) => {
-                    let children = JSON.parse(JSON.stringify(this.data.children))
-                    children.forEach(child => {
+                    let items = JSON.parse(JSON.stringify(this.data.children))
+                    items.forEach(child => {
+                        child.data.productIndex = (this.page -1) * number + i
                         child.data.top = top + (i+1) * gap - 0.5 * child.data.height
                     })
-                    items = items.concat(children)
+                    this.children = this.children.concat(items)
                 })    
             } else {
                 this.data.children.forEach(child => {
                     let childClone = JSON.parse(JSON.stringify(child))
+                    childClone.data.productIndex = 0
                     childClone.data.top = top + 0.5 * h - 0.5 * childClone.data.height
-                    items.push(childClone)
+                    this.children.push(childClone)
                 })
             }
-            return items
+            return this.children
         }
     },
 }

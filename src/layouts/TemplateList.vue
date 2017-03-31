@@ -57,11 +57,11 @@
                 <SetDefaultTemplateDialog ref="setDefaultTemplateDialog" @set_default_template="setDefaultTemplate"></SetDefaultTemplateDialog>
                 <DeleteTemplateDialog ref="deleteTemplateDialog" @delete_template="deleteTemplate"></DeleteTemplateDialog>
                 <CreateTemplateDialog ref="createTemplateDialog" @create_template="createTemplate" :shopList="shopList" :templateSizeList="templateSizeList" :qualityList="qualityList" :labelList="labelList"></CreateTemplateDialog>
-                <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
+                <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" @close="templatePreviewDialogCloseHandler" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
                 <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
             </div>
         </div>
-        <TemplatePreviewCanvasComponent class="template-print-canvas" style="padding-top: 0; padding-left: 0" :canvas="canvas" :templateData="templateData" v-for="i in pageNumber" :page="i" :pageNumber="pageNumber"></TemplatePreviewCanvasComponent>
+        <TemplatePreviewCanvasComponent v-show="isPreview" class="template-print-canvas" :isPrintCanvas="true" :canvas="canvas" :templateData="templateData" v-for="i in pageNumber" :page="i"></TemplatePreviewCanvasComponent>
     </div>
 </template>
 
@@ -108,7 +108,8 @@ export default {
             },
             templateData: {
                 productList: []
-            }
+            },
+            isPreview: false,
         }
     },
     computed: {
@@ -201,8 +202,6 @@ export default {
                 if(json.state == 200){
                     this.$refs.copyTemplateDialog.close()
                     this.$store.dispatch('getTemplateList')
-                    // templateData.templateId = json.data.templateId
-                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_APPEND : types.LABEL_TEMPLATE_LIST_APPEND, templateData)
                 }
             })
         },
@@ -211,7 +210,6 @@ export default {
                 if(json.state == 200){
                     this.$refs.deleteTemplateDialog.close()
                     this.$store.dispatch('getTemplateList')
-                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_REMOVE : types.LABEL_TEMPLATE_LIST_REMOVE, templateId)
                 }
             })
         },
@@ -220,7 +218,6 @@ export default {
                 if(json.state == 200){
                     this.$refs.renameTemplateDialog.close()
                     this.$store.dispatch('getTemplateList')
-                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_UPDATED : types.LABEL_TEMPLATE_LIST_UPDATED, templateData)
                 }
             })
         },
@@ -236,9 +233,7 @@ export default {
             this.$store.dispatch('createTemplate', templateData).then(json => {
                 if(json.state == 200){
                     this.$refs.createTemplateDialog.close()
-                    // templateData.templateId = json.data.templateId
-                    // this.$store.commit(type == 1? types.QUALITY_TEMPLATE_LIST_APPEND : types.LABEL_TEMPLATE_LIST_APPEND, templateData)
-                    this.$router.push({name: 'TemplateEdit', query: { templateId: templateData.templateId }})
+                    this.$router.push({name: 'TemplateEdit', query: { templateId: json.data.templateId }})
                 }
             })
         },
@@ -246,9 +241,25 @@ export default {
         previewTemplate(type, {content}){
             this.canvas = JSON.parse(content)
             if(type == 1){
-                this.loadQualityTemplateData()
+                this.loadQualityTemplateData().then(json => {
+                    this.isPreview = true
+                    this.$refs.templatePreviewDialog.show()
+                })
             } else {
                 this.openLoadLabelTemplateDataDialog()
+            }
+        },
+        templatePreviewDialogCloseHandler(){
+            this.isPreview = false
+            this.canvas = {
+                percentage: 100,
+                width: 0,
+                height: 0,
+                backgroundImage: '',
+                rotateDeg: 0,
+                components: [
+                    
+                ],
             }
         },
         //打印模板
@@ -259,11 +270,11 @@ export default {
         },
         //加载数据用于预览效果
         loadQualityTemplateData(){
-            this.$store.dispatch('getPrintQualityData', {orderId: Date.now(), isTmp: 1}).then(json => {
+            return this.$store.dispatch('getPrintQualityData', {orderId: Date.now(), isTmp: 1}).then(json => {
                 if(json.state == 200){
                     this.templateData = json.data
-                    this.$refs.templatePreviewDialog.show()
                 }
+                return json
             })
         },
         openLoadLabelTemplateDataDialog(){
@@ -274,6 +285,7 @@ export default {
                 if(json.state == 200){
                     this.templateData = json.data
                     this.$refs.loadLabelTemplateDataDialog.close()
+                    this.isPreview = true
                     this.$refs.templatePreviewDialog.show()
                 }
             })
@@ -362,15 +374,18 @@ export default {
         }
     }
     .template-print-canvas {
-        display: none;
+        opacity: 0;
     }
 }
 @media print {
-    .template-list-page {
+    body {
+        background-color: #fff;
+    }
+    .template-list-page,.v-modal {
         display: none;
     }
     .template-print-canvas {
-        display: block;
+        opacity: 1;
     }
 }
 </style>

@@ -59,9 +59,6 @@ export default {
                 })
             }
         },
-        resizeMouseDownHandler(e){
-
-        }
     }
 }
 </script>

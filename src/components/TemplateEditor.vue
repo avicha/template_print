@@ -331,6 +331,8 @@ export default {
                     items.push(component)
                 }
             })
+            let isExists = find(items, item => ['PropertyComponent', 'ItemListComponent'].includes(item.type))
+            this.menuItems.isLoadDataAvailable = !!isExists
             return items
         },
         setting() {
@@ -656,7 +658,6 @@ export default {
                 isSplitAvailable: false,
                 isRotateLeftAvailable: false,
                 isRotateRightAvailable: false,
-                isLoadDataAvailable: false,
             }
             let g1 = {
                 isAlignLeftAvailable: true,
@@ -680,9 +681,6 @@ export default {
                 isRotateLeftAvailable: true,
                 isRotateRightAvailable: true,
             }
-            let g6 = {
-                isLoadDataAvailable: true,
-            }
             if(l >= 3){
                 extend(this.menuItems, g0, g1, g2, g3)
             } else {
@@ -690,14 +688,10 @@ export default {
                     extend(this.menuItems, g0, g1, g3)
                 } else {
                     if(l == 1){
-                        if(this.setting.isPropertyComponent || this.setting.isItemListComponent){
-                            extend(this.menuItems, g0, g5, g6)
+                        if(this.setting.isContainerComponent){
+                            extend(this.menuItems, g0, g4, g5)
                         } else {
-                            if(this.setting.isContainerComponent){
-                                extend(this.menuItems, g0, g4, g5)
-                            } else {
-                                extend(this.menuItems, g0, g5)    
-                            } 
+                            extend(this.menuItems, g0, g5)    
                         }
                         Vue.nextTick(() => {
                             this.showItemSetting(this.activeComponents[0])
@@ -722,6 +716,7 @@ export default {
         saveBtnHandler(){
             if(this.menuItems.isSaveAvailable){
                 if(this.template.templateId){
+                    this.resetComponentsActiveState()
                     let templateData = {
                         templateId: this.template.templateId,
                         content: JSON.stringify(this.canvas),
@@ -1044,6 +1039,7 @@ export default {
         //预览
         previewBtnHandler(){
             if(this.menuItems.isPreviewAvailable){
+                this.resetComponentsActiveState()
                 this.$emit('preview', this.canvas)
             }
         },

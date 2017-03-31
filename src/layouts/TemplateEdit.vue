@@ -13,10 +13,10 @@
             <ConfirmDialog ref="backConfirmDialog" title="返回" content="还未保存，是否确认要退出？" :onConfirmHandler="backConfirmHandler"></ConfirmDialog>
             <ConfirmDialog ref="deleteConfirmDialog" title="删除" content="确认删除选中的组件？" :onConfirmHandler="deleteConfirmHandler"></ConfirmDialog>
             <AlertDialog ref="componentRangeOutsideAlertDialog" title="警告" content="打印时不打印画布大小以外的数据"></AlertDialog>
-            <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber"></TemplatePreviewDialog>
+            <TemplatePreviewDialog ref="templatePreviewDialog" @print="printTemplate" :canvas="canvas" :templateData="templateData" :pageNumber="pageNumber" @close="templatePreviewDialogCloseHandler"></TemplatePreviewDialog>
             <LoadLabelTemplateDataDialog ref="loadLabelTemplateDataDialog" @loadLabelTemplateData="loadLabelTemplateData"></LoadLabelTemplateDataDialog>
         </div>
-        <TemplatePreviewCanvasComponent class="template-print-canvas" :canvas="canvas" :templateData="templateData" v-for="i in pageNumber" :page="i" :pageNumber="pageNumber" :isPrintCanvas="true"></TemplatePreviewCanvasComponent>
+        <TemplatePreviewCanvasComponent v-show="isPreview" class="template-print-canvas" :isPrintCanvas="true" :canvas="canvas" :templateData="templateData" v-for="i in pageNumber" :page="i"></TemplatePreviewCanvasComponent>
     </div>
 </template>
 
@@ -49,7 +49,8 @@ export default {
             },
             templateData: {
                 productList: []
-            }
+            },
+            isPreview: false,
         }
     },
     computed: {
@@ -152,7 +153,21 @@ export default {
         //预览模板
         previewTemplate(canvas){
             this.canvas = JSON.parse(JSON.stringify(canvas))
+            this.isPreview = true
             this.$refs.templatePreviewDialog.show()
+        },
+        templatePreviewDialogCloseHandler(){
+            this.isPreview = false
+            this.canvas = {
+                percentage: 100,
+                width: 0,
+                height: 0,
+                backgroundImage: '',
+                rotateDeg: 0,
+                components: [
+                    
+                ],
+            }
         },
         //打印模板
         printTemplate(){
@@ -220,16 +235,19 @@ export default {
         }
     }
     .template-print-canvas {
-        display: none;
+        opacity: 0;
     }  
 }
 
 @media print {
+    body {
+        background-color: #fff;
+    }
     .template-edit-page {
         display: none;
     }
     .template-print-canvas {
-        display: block;
+        opacity: 1;
     }
 }
 </style>

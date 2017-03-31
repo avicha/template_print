@@ -1,13 +1,14 @@
 <template>
-<el-dialog class="template-preview-dialog" v-model="isShown" :close-on-click-modal="false" size="small">
+<el-dialog class="template-preview-dialog" v-model="isShown" @close="onCloseHandler" :close-on-click-modal="false" size="small">
     <div :style="{height: carouselHeight}" v-if="pageNumber==1">
-        <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="1" :pageNumber="1"  :isPrintCanvas="false"></TemplatePreviewCanvasComponent>
+        <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="1" :isPrintCanvas="false"></TemplatePreviewCanvasComponent>
     </div>
-    <el-carousel :autoplay="false" arrow="always" :height="carouselHeight" trigger="click" v-else>
-        <el-carousel-item v-for="i in pageNumber">
-            <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="i" :pageNumber="pageNumber" :isPrintCanvas="false"></TemplatePreviewCanvasComponent>
-        </el-carousel-item>
-    </el-carousel>
+    <swiper :options="swiperOption" v-else>
+        <swiper-slide v-for="i in pageNumber">
+            <TemplatePreviewCanvasComponent :canvas="canvas" :templateData="templateData" :page="i" :isPrintCanvas="false"></TemplatePreviewCanvasComponent>
+        </swiper-slide>
+        <div class="swiper-pagination swiper-pagination-bullets" slot="pagination"></div>
+    </swiper>
     <i class="icon icon-close" @click="close"></i>
     <div slot="footer" class="dialog-footer">
         <el-button class="cancel" @click="close">取 消</el-button>
@@ -18,11 +19,12 @@
 
 <script>
 import Vue from 'vue'
-import {Dialog, Button, Carousel, CarouselItem} from 'element-ui'
+import {Dialog, Button} from 'element-ui'
+import VueAwesomeSwiper from 'vue-awesome-swiper'
 Vue.use(Dialog)
 Vue.use(Button)
-Vue.use(Carousel)
-Vue.use(CarouselItem)
+Vue.use(VueAwesomeSwiper)
+
 import TemplatePreviewCanvasComponent from './TemplatePreviewCanvas'
 import extend from 'lodash/extend'
 
@@ -32,7 +34,20 @@ export default {
     data() {
         return {
             isShown: false,
-            carouselHeight: (window.innerHeight * 0.6 - 55) + 'px'
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
+            swiperOption: {
+                pagination: '.swiper-pagination',
+                paginationClickable: true,
+                paginationBulletRender(swiper, index, className) {
+                    return `<span class="${className} swiper-pagination-bullet-custom">${index + 1}</span>`
+                }
+            }
+        }
+    },
+    computed:{
+        carouselHeight(){
+            return (this.windowHeight * 0.6 - 55) + 'px'
         }
     },
     components: {
@@ -45,17 +60,27 @@ export default {
         show(){
             this.isShown = true
         },
+        onCloseHandler(){
+            this.$emit('close')
+        },
         printTemplate(){
             this.$emit('print')
+        },
+        setWindowSize(){
+            this.windowWidth = window.innerWidth
+            this.windowHeight = window.innerHeight
         }
     },
     mounted(){
+        window.addEventListener('resize', this.setWindowSize)
         this.$on('set_data', data => {
             data = JSON.parse(JSON.stringify(data))
             extend(this.$data, data)
-
         })
-    }
+    },
+    destroyed(){
+        window.removeEventListener('resize', this.setWindowSize)
+    },
 }
 </script>
 
@@ -72,6 +97,20 @@ export default {
         .el-dialog__body {
             padding: 20px;
             position: relative;
+            .swiper-pagination-bullet-custom {
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                line-height: 20px;
+                font-size: 12px;
+                color: #000;
+                opacity: 1;
+                background: rgba(0,0,0,0.2);
+            }
+            .swiper-pagination-bullet-custom.swiper-pagination-bullet-active {
+                color:#fff;
+                background: #007aff;
+            }
             .icon-close {
                 width: 50px;
                 height: 50px;

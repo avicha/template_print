@@ -1,7 +1,7 @@
 <template>
 <div class="template-preview-canvas-wrapper" :style="canvasWrapperStyle">
     <div class="template-preview-canvas" :style="canvasStyle">
-        <component v-for="component in canvas.components" :is="component.type" :isPreview="true" :parent="null" class="component" :data="component.data" :templateData="templateData" :changeComponentData="changeComponentData" :page="page"></component>
+        <component v-for="component in components" :is="component.type" :isPreview="true" :parent="null" class="component" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData" :page="page"></component>
     </div>
 </div>
 </template>
@@ -19,10 +19,12 @@ import extend from 'lodash/extend'
 export default {
     data(){
         return {
-            ppi: getPPI()
+            ppi: getPPI(),
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
         }
     },
-    props: ['canvas', 'templateData', 'page', 'pageNumber', 'isPrintCanvas'],
+    props: ['canvas', 'templateData', 'page', 'isPrintCanvas'],
     components: {
         TextComponent,
         ImageComponent,
@@ -31,14 +33,17 @@ export default {
         ContainerComponent,
     },
     computed: {
+        components(){
+            return this.canvas.components.filter(component => !(component.type == 'PropertyComponent' && component.data.itemListId))
+        },
         canvasWrapperStyle() {
             if(this.isPrintCanvas){
                 return {}
             } else {
                 let w = this.canvas.width/10/2.54*this.ppi
                 let h = this.canvas.height/10/2.54*this.ppi
-                let maxW = window.innerWidth /2 - 2 * 20
-                let maxH = window.innerHeight * 0.6 - 55
+                let maxW = this.windowWidth /2 - 2 * 20
+                let maxH = this.windowHeight * 0.6 - 55
                 let canvasRate = w/h
                 let dialogRate = maxW/maxH
                 let paddingTop = 0
@@ -81,8 +86,8 @@ export default {
             }
             let w = this.canvas.width/10/2.54*this.ppi
             let h = this.canvas.height/10/2.54*this.ppi
-            let maxW = window.innerWidth /2 - 2 * 20
-            let maxH = window.innerHeight * 0.6 - 55
+            let maxW = this.windowWidth /2 - 2 * 20
+            let maxH = this.windowHeight * 0.6 - 55
             let canvasRate = w/h
             let dialogRate = maxW/maxH
             let percentage = 1
@@ -117,9 +122,20 @@ export default {
     methods:{
         //改变组件的数据
         changeComponentData(component, {data}){
+            console.debug('changeComponentData', component, data)
             extend(component.data, data)
         },
-    }
+        setWindowSize(){
+            this.windowWidth = window.innerWidth
+            this.windowHeight = window.innerHeight
+        }
+    },
+    mounted(){
+        window.addEventListener('resize', this.setWindowSize)
+    },
+    destroyed(){
+        window.removeEventListener('resize', this.setWindowSize)
+    },
 }
 </script>
 
