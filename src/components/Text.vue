@@ -70,7 +70,7 @@ export default {
         computeSize(){
             let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
             let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
-            if(w != this.data.width && h != this.data.height){
+            if(w != this.data.width || h != this.data.height){
                 this.$emit('changeComponentData', {data: {width: w, height: h}, shouldUpdate: false})
             }
         }

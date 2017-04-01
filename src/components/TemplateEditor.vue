@@ -282,7 +282,7 @@ export default {
         },
         canvasStyle() {
             let translate = ''
-            let rotateDeg = (this.canvas.rotateDeg + 360)%360
+            let rotateDeg = this.canvas.rotateDeg
             switch(rotateDeg){
                 case 90:
                     translate = ' translateY(-' + this.canvas.height*this.canvas.percentage/100 +'mm)'
@@ -552,7 +552,9 @@ export default {
                 let {offsetX, offsetY} = this._getPointerOffset(e)
                 this._endX = offsetX
                 this._endY = offsetY
-                this.moveComponent(this._dragingComponent, {left: this._endX - this._startX, top: this._endY - this._startY})
+                let dx = this._endX - this._startX
+                let dy = this._endY - this._startY
+                this.moveComponent(this._dragingComponent, {left: dx, top: dy})
                 this._startX = this._endX
                 this._startY = this._endY
             }
@@ -917,7 +919,7 @@ export default {
         rotateLeftBtnHandler(){
             if(this.menuItems.isRotateLeftAvailable){
                 let component = this.activeComponents[0]
-                component.data.rotateDeg = (component.data.rotateDeg - 90)%360
+                component.data.rotateDeg = (component.data.rotateDeg + 270)%360
                 this.record()
             }
         },
@@ -925,14 +927,14 @@ export default {
         rotateRightBtnHandler(){
             if(this.menuItems.isRotateRightAvailable){
                 let component = this.activeComponents[0]
-                component.data.rotateDeg = (component.data.rotateDeg + 90)%360
+                component.data.rotateDeg = (component.data.rotateDeg + 450)%360
                 this.record()
             }
         },
         //旋转画布，记录
         rotateCanvasLeftBtnHandler(){
             if(this.menuItems.isRotateCanvasLeftAvailable){
-                this.canvas.rotateDeg = (this.canvas.rotateDeg - 90) % 360
+                this.canvas.rotateDeg = (this.canvas.rotateDeg + 270) % 360
                 this.record()
             }
         },
