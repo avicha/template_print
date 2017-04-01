@@ -1,6 +1,6 @@
 <template>
 <div class="property-component barcode" :style="componentStyle" v-if="data.propertyType == 4">
-    <img ref="barcode" id="barcode">
+    <img ref="barcode" id="barcode" src="/static/images/barcode-sample.png">
     <div class="resize" v-if="!isPreview"></div>
 </div>
 <div class="property-component string" :style="componentStyle" v-else>
@@ -143,7 +143,7 @@ export default {
                 if(sample.length == 8){
                     JsBarcode('#barcode', sample, {displayValue: false})
                 } else {
-                    this.$refs.barcode.removeAttribute('src')
+                    this.$refs.barcode.src = '/static/images/barcode-sample.png'
                 }
             }
         },
@@ -191,7 +191,7 @@ export default {
                         break
                 }
                 if(w != this.data.width || h != this.data.height || l != this.data.left){
-                    console.debug(this.data, this.data.width, this.data.height, this.data.left, w , h, l)
+                    console.log(this.data, this.data.width, this.data.height, this.data.left, w , h, l)
                     this.$emit('changeComponentData', {data: {width: w, height: h, left: l}, shouldUpdate: true})
                 }
             }
@@ -202,7 +202,7 @@ export default {
             if(this.data.sample.length == 8){
                 JsBarcode('#barcode', this.data.sample, {displayValue: false})
             } else {
-                this.$refs.barcode.removeAttribute('src')
+                this.$refs.barcode.src = '/static/images/barcode-sample.png'
             }
         } else {
             window.setTimeout(() => {
@@ -232,12 +232,12 @@ export default {
         display: none;
         position: absolute;
         opacity: 0;
-        width: 10px;
-        height: 10px;
+        width: 20px;
+        height: 20px;
         top: 100%;
         left: 100%;
-        margin-left: -5px;
-        margin-top: -5px;
+        margin-left: -12px;
+        margin-top: -12px;
         cursor: nwse-resize;
     }
     &.barcode {
@@ -245,8 +245,6 @@ export default {
             display: block;
             width: 100%;
             height: 100%;
-            background-image: url(~assets/images/barcode-sample.png);
-            background-size: 100% 100%;
         }
         &.active {
             opacity: .7;

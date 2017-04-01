@@ -122,7 +122,7 @@ export default {
     methods:{
         //改变组件的数据
         changeComponentData(component, {data}){
-            console.debug('changeComponentData', component, data)
+            console.log('changeComponentData', component, data)
             extend(component.data, data)
         },
         setWindowSize(){

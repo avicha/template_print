@@ -68,12 +68,12 @@ export default {
         display: none;
         position: absolute;
         opacity: 0;
-        width: 10px;
-        height: 10px;
+        width: 20px;
+        height: 20px;
         top: 100%;
         left: 100%;
-        margin-left: -5px;
-        margin-top: -5px;
+        margin-left: -12px;
+        margin-top: -12px;
         cursor: nwse-resize;
     }
     &.active {

@@ -1,6 +1,6 @@
 <template>
 <div class="image-component" :style="componentStyle" @dblclick="openFileUploadDialog">
-    <img :src="data.src">
+    <img :src="data.src || '/static/images/image-sample.png'">
     <input ref="imageInput" type="file" class="image-input" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="changeURL">
     <div class="resize"></div>
 </div>
@@ -71,9 +71,6 @@ export default {
         display: block;
         width: 100%;
         height: 100%;
-        outline: none;
-        background-image: url(~assets/images/image-sample.png);
-        background-size: 100% 100%;
     }
     .image-input {
         @include full;
@@ -83,12 +80,12 @@ export default {
         display: none;
         position: absolute;
         opacity: 0;
-        width: 10px;
-        height: 10px;
+        width: 20px;
+        height: 20px;
         top: 100%;
         left: 100%;
-        margin-left: -5px;
-        margin-top: -5px;
+        margin-left: -12px;
+        margin-top: -12px;
         cursor: nwse-resize;
     }
     &.active {

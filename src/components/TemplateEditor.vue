@@ -1,5 +1,5 @@
 <template>
-    <div class="template-editor">
+    <div class="template-editor" @mousemove="editorMousemoveHandler" @mouseup="editorMouseupHandler">
         <div class="menu-bar" ref="menuBar">
             <div class="menu-item-group">
                 <div class="menu-item" :class="{disabled: !menuItems.isBackAvailable}" @click="backBtnHandler">
@@ -128,10 +128,10 @@
                 <h4 class="title">基本元件</h4>
                 <div class="menu-component-list">
                     <div class="menu-component-block">
-                        <div class="menu-component" @dblclick="()=>{this.addText(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addText')">文本</div>    
+                        <div class="menu-component" @mousedown="setComponentDragStartData($event, 'addText')" @dblclick="()=>{this.addText(this.canvas.width/2, this.canvas.height/2)}">文本</div>    
                     </div>
                     <div class="menu-component-block">
-                        <div class="menu-component" @dblclick="()=>{this.addImage(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addImage')">图片</div>
+                        <div class="menu-component" @dblclick="()=>{this.addImage(this.canvas.width/2, this.canvas.height/2)}" @mousedown="setComponentDragStartData($event, 'addImage')">图片</div>
                     </div>
                     <div class="menu-component-block">
                         <div class="menu-component background-image-btn" :class="{active: isBackgroundImageActive}" @click="toggleBackgroundImageActive">背景图片
@@ -142,7 +142,7 @@
                         </div>
                     </div>
                     <div class="menu-component-block">
-                        <div v-if="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" draggable="true" @dragstart="componentDragStartHandler($event, 'addItemList')">动态数据域</div>
+                        <div v-if="this.template.type == '1'" class="menu-component" @dblclick="()=>{this.addItemList(this.canvas.width/2, this.canvas.height/2)}" @mousedown="setComponentDragStartData($event, 'addItemList')">动态数据域</div>
                     </div>
                 </div>
                 <p class="prop-text">动态数据项</p>
@@ -154,7 +154,7 @@
                         </div>
                         <div class="el-tree-node__children" v-show="propData.isExpanded">
                             <div class="el-tree-node" v-for="sub_prop in propData.prop.subList">
-                                <div class="el-tree-node__content" style="padding-left: 16px;" @dblclick="handlePropClick(sub_prop)"  draggable="true" @dragstart="componentDragStartHandler($event, 'addProp', sub_prop)">
+                                <div class="el-tree-node__content" style="padding-left: 16px;" @dblclick="handlePropClick(sub_prop)" @mousedown="setComponentDragStartData($event, 'addProp', sub_prop)">
                                     <span class="el-tree-node__expand-icon is-leaf"></span>
                                     <span class="el-tree-node__label">{{ sub_prop.name }}</span>
                                 </div>
@@ -165,17 +165,21 @@
                 </div>
             </div>
             <div class="canvas-panel">
-                <div class="canvas-container" :style="canvasContainerStyle" @mousedown.stop.prevent="canvasMousedownHandler" @mousemove.stop.prevent="canvasMousemoveHandler" @mouseup.stop.prevent="canvasMouseupHandler">
+                <div class="canvas-container" :style="canvasContainerStyle">
                     <div class="zero">0</div>
                     <div class="top-ruler" :style="{backgroundSize: 0.2 * this.canvas.percentage + 'cm 100%'}"></div>
                     <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.2 * this.canvas.percentage + 'cm'}"></div>
-                    <div class="canvas" ref="canvas" :style="canvasStyle" @dragover.prevent="canvasDragoverHandler" @drop.prevent="canvasDropHandler">
+                    <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.prevent="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler">
                         <component v-for="component in canvas.components" :is="component.type" :isPreview="false" :parent="null" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
                         </component>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="text-preview" v-show="componentDragStartData.action == 'addText'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}">文本</div>
+        <div class="image-preview" v-show="componentDragStartData.action == 'addImage'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}"></div>
+        <div class="itemlist-preview" v-show="componentDragStartData.action == 'addItemList'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}"></div>
+        <div class="property-preview" v-show="componentDragStartData.action == 'addProp'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}">#{动态数据项}</div>
     </div>
 </template>
 
@@ -259,6 +263,13 @@ export default {
                     
                 ],
             },
+            componentDragStartData:{
+                _isDraging: false,
+                _action: null,
+                action: null,
+                top: 0,
+                left: 0,
+            }
         }
     },
     components:{
@@ -499,25 +510,31 @@ export default {
             let canvas = JSON.parse(canvas_str)
             return canvas
         },
-        //拖动组件时，带上拖动时的偏移位置
-        componentDragStartHandler(e, action, data){
-            e.dataTransfer.setData('data', JSON.stringify({action: action, offsetX: Math.round(e.offsetX/this.ppi*2.54*10), offsetY: Math.round(e.offsetY/this.ppi*2.54*10), data: data}))
-            e.dataTransfer.effectAllowed = 'move'
-            e.dataTransfer.setDragImage(e.target, e.offsetX, e.offsetY)
+        setComponentDragStartData(e, action, data){
+            this.componentDragStartData._isDraging = true
+            this.componentDragStartData._action = action
+            this.componentDragStartData.data = data
         },
-        //经过画布上时显示移动效果
-        canvasDragoverHandler(e){
-            e.dataTransfer.dropEffect = 'move'
+        clearSelection(){
+            if(window.getSelection){
+                window.getSelection().removeAllRanges(); //w3c
+            }else if(document.selection){
+                document.selection.empty();//IE
+            }
         },
-        //画布上落下时，根据要添加的元素和位置添加组件
-        canvasDropHandler(e){
-            let data = e.dataTransfer.getData('data') 
-            if(data){
-                data = JSON.parse(data)
-                let {offsetX, offsetY} = this._getPointerOffset(e)
-                let left = offsetX - data.offsetX
-                let top = offsetY - data.offsetY
-                switch(data.action){
+        editorMousemoveHandler(e){
+            if(this.componentDragStartData._isDraging){
+                this.componentDragStartData.action = this.componentDragStartData._action
+                this.componentDragStartData.top = e.clientY + 'px'
+                this.componentDragStartData.left = e.clientX + 'px'
+                this.clearSelection()
+            }
+        },
+        editorMouseupHandler(e){
+            if(this.componentDragStartData._isDraging){
+                let left = Math.round((e.clientX - this.$refs.canvas.getBoundingClientRect().left)/this.ppi*2.54*10)
+                let top = Math.round((e.clientY - this.$refs.canvas.getBoundingClientRect().top)/this.ppi*2.54*10)
+                switch(this.componentDragStartData.action){
                     case 'addText':
                         this.addText(left, top)
                         break
@@ -528,18 +545,23 @@ export default {
                         this.addItemList(left, top)
                         break
                     case 'addProp':
-                        this.handlePropClick(data.data, left, top)
+                        this.handlePropClick(this.componentDragStartData.data, left, top)
                 }
+                this.componentDragStartData._isDraging = false
+                this.componentDragStartData.action =  null
             }
         },
         //记录鼠标按下时的位置和选中的组件
         canvasMousedownHandler(e){
             if(e.which == 1){
-                let {offsetX, offsetY} = this._getPointerOffset(e)
-                this._startX = offsetX
-                this._startY = offsetY
+                this._startX = Math.round(e.clientX/this.ppi*2.54*10)
+                this._startY = Math.round(e.clientY/this.ppi*2.54*10)
+                let offsetX = Math.round((e.clientX - this.$refs.canvas.getBoundingClientRect().left)/this.ppi*2.54*10)
+                let offsetY = Math.round((e.clientY - this.$refs.canvas.getBoundingClientRect().top)/this.ppi*2.54*10)
                 if(e.target.className == 'resize'){
-                    this._resizingComponent = this._getComponentByPos({offsetX: offsetX - e.offsetX, offsetY: offsetY - e.offsetY}, true)
+                    offsetX -= 3
+                    offsetY -= 3
+                    this._resizingComponent = this._getComponentByPos({offsetX, offsetY}, true)
                 } else {
                     this._dragingComponent = this._getComponentByPos({offsetX, offsetY}, true)
                 }
@@ -547,60 +569,60 @@ export default {
         },
         //拖动鼠标时，如果有选中的组件，则拖动组件
         canvasMousemoveHandler(e){
-            if(this._dragingComponent && e.which == 1){
-                this._isDraging = true
-                let {offsetX, offsetY} = this._getPointerOffset(e)
-                this._endX = offsetX
-                this._endY = offsetY
+            if(e.which == 1 && (this._dragingComponent || this._resizingComponent)){
+                this._endX = Math.round(e.clientX/this.ppi*2.54*10)
+                this._endY = Math.round(e.clientY/this.ppi*2.54*10)
                 let dx = this._endX - this._startX
                 let dy = this._endY - this._startY
-                this.moveComponent(this._dragingComponent, {left: dx, top: dy})
-                this._startX = this._endX
-                this._startY = this._endY
-            }
-            if(this._resizingComponent && e.which ==1){
-                this._isResizing = true
-                let {offsetX, offsetY} = this._getPointerOffset(e)
-                this._endX = offsetX
-                this._endY = offsetY
-                this._resizingComponent.data.width += this._endX - this._startX
-                this._resizingComponent.data.height += this._endY - this._startY
+                if(this._dragingComponent){
+                    this._isDraging = true
+                    this.moveComponent(this._dragingComponent, {left: dx, top: dy})
+                }
+                if(this._resizingComponent){
+                    this._isResizing = true
+                    this._resizingComponent.data.width += dx
+                    this._resizingComponent.data.height += dy
+                }
                 this._startX = this._endX
                 this._startY = this._endY
             }
         },
         //松开鼠标时，如果在拖动，则停止拖动，否则显示选中的组件信息，或者取消所有组件的选中状态
         canvasMouseupHandler(e){
-            if(e.which == 1){
-                let {offsetX, offsetY} = this._getPointerOffset(e)
+            if(e.which == 1 && (this._isDraging || this._isResizing)){
+                this._endX = Math.round(e.clientX/this.ppi*2.54*10)
+                this._endY = Math.round(e.clientY/this.ppi*2.54*10)
+                let dx = this._endX - this._startX
+                let dy = this._endY - this._startY
                 if(this._isDraging){
-                    this._endX = offsetX
-                    this._endY = offsetY
-                    this.moveComponent(this._dragingComponent, {left: this._endX - this._startX, top: this._endY - this._startY})
+                    this.moveComponent(this._dragingComponent, {left: dx, top: dy})
                     this.showItemSetting(this._dragingComponent)
                     this.record()
-                } else {
-                    if(this._isResizing){
-                        this._endX = offsetX
-                        this._endY = offsetY
-                        this._resizingComponent.data.width += this._endX - this._startX
-                        this._resizingComponent.data.height += this._endY - this._startY
-                        this.showItemSetting(this._resizingComponent)
-                        this.record()
-                    } else {
-                        let clickingComponent = this._getComponentByPos({offsetX, offsetY}, false)
-                        if(clickingComponent){
-                            this.activeComponent(clickingComponent, !(e.ctrlKey || e.metaKey))
-                        } else {
-                            this.resetComponentsActiveState()
-                        }
-                    }
                 }
-                this._isDraging = false
-                this._isResizing = false
-                this._dragingComponent = null
-                this._resizingComponent = null
+                if(this._isResizing){
+                    this._resizingComponent.data.width += dx
+                    this._resizingComponent.data.height += dy
+                    this.showItemSetting(this._resizingComponent)
+                    this.record()
+                }
+            } else {
+                let offsetX = Math.round((e.clientX - this.$refs.canvas.getBoundingClientRect().left)/this.ppi*2.54*10)
+                let offsetY = Math.round((e.clientY - this.$refs.canvas.getBoundingClientRect().top)/this.ppi*2.54*10)
+                if(e.target.className == 'resize'){
+                    offsetX -= 3
+                    offsetY -= 3
+                }
+                let clickingComponent = this._getComponentByPos({offsetX, offsetY}, false)
+                if(clickingComponent){
+                    this.activeComponent(clickingComponent, !(e.ctrlKey || e.metaKey))
+                } else {
+                    this.resetComponentsActiveState()
+                }
             }
+            this._isDraging = false
+            this._isResizing = false
+            this._dragingComponent = null
+            this._resizingComponent = null
         },
         //根据点击事件，获取相对于canvas的点击位置
         _getPointerOffset(e){
@@ -1332,6 +1354,7 @@ export default {
 .template-editor {
     color: #333;
     @include F(14);
+    cursor: default;
     .menu-bar {
         overflow: hidden;
         background-color: #fff;
@@ -1484,6 +1507,7 @@ export default {
                     width: 50%;
                     .menu-component {
                         display: block;
+                        user-select: none;
                         box-sizing: border-box;
                         margin-top: 20px;
                         width: 70px;
@@ -1495,7 +1519,7 @@ export default {
                         border-radius: 4px;
                         background: #fff;
                         color: #333;
-                        cursor: pointer;
+                        cursor: default;
                     }
                     &:nth-child(odd){
                         .menu-component {
@@ -1635,6 +1659,31 @@ export default {
             background-color: #fff;
             z-index: 100;
         }
+    }
+    .text-preview, .image-preview, .property-preview, .itemlist-preview {
+        position: fixed;
+        opacity: .7;
+    }
+    .text-preview, .property-preview {
+        border: 1px dashed #4ec0ff;
+        padding: 4px;
+        background-color: rgba(78, 192, 255, .15);
+        line-height: 1;
+    }
+    .image-preview {
+        display: block;
+        width: 85px;
+        height: 68px;
+        background-image: url(~assets/images/image-sample.png);
+        background-size: '100% 100%';
+    }
+    .itemlist-preview {
+        width: 120px;
+        height: 60px;
+        border: 1px dashed #4ec0ff;
+        margin-left: -1px;
+        margin-top: -1px;
+        background-color: rgba(10, 191, 171, .2);
     }
 }
 </style>
