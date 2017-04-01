@@ -58,6 +58,8 @@ a {
     }
 }
 .el-select-dropdown {
+    min-width: 110px;
+    transform-origin: center top 0px;
     .el-select-dropdown__wrap {
         .el-select-dropdown__list {
             .el-select-dropdown__item {

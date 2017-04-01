@@ -1,7 +1,7 @@
 <template>
 <div class="image-component" :style="componentStyle" @dblclick="openFileUploadDialog">
     <img :src="data.src || '/static/images/image-sample.png'">
-    <input ref="imageInput" type="file" class="image-input" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="changeURL">
+    <input ref="imageInput" type="file" class="image-input" accept="image/*" @change="changeURL">
     <div class="resize"></div>
 </div>
 </template>
@@ -38,6 +38,7 @@ export default {
                 height: h + 'mm',
                 transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                 transformOrigin: '0 0',
+                zIndex: this.data.zIndex
             }
         },
     },
@@ -48,15 +49,20 @@ export default {
             }
         },
         changeURL(e){
-            let file = e.target.files[0]
-            if(file){
-                readImageAsDataURL(file, (error, base64URL, imageInfo) => {
-                    if(error){
-                        alert(error)
-                    } else {
-                        this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false})
-                    }
-                })
+            if(e.target.files){
+                let file = e.target.files[0]
+                if(file){
+                    readImageAsDataURL(file, (error, base64URL, imageInfo) => {
+                        if(error){
+                            alert(error)
+                        } else {
+                            this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false})
+                        }
+                    })
+                }
+            } else {
+                let src = e.target.value
+                this.$emit('changeComponentData', {data: {src: src}, shouldUpdate: false})
             }
         },
     }

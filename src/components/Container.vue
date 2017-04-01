@@ -59,6 +59,7 @@ export default {
                 height: h + 'mm',
                 transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                 transformOrigin: '0 0',
+                zIndex: this.data.zIndex
             }
         },
     },

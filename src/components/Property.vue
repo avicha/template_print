@@ -54,6 +54,7 @@ export default {
                     height: h + 'mm',
                     transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                     transformOrigin: '0 0',
+                    zIndex: this.data.zIndex
                 }    
             } else {
                 return {
@@ -61,6 +62,7 @@ export default {
                     left: left + 'mm',
                     transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                     transformOrigin: '0 0',
+                    zIndex: this.data.zIndex
                 }    
             }
         },
@@ -133,7 +135,7 @@ export default {
             },
             deep: true
         },
-        value(newVal,oldVal){
+        value(){
             window.setTimeout(() => {
                 this.computeSize()
             }, this.isPreview ? 300 : 0)
@@ -207,7 +209,7 @@ export default {
         } else {
             window.setTimeout(() => {
                 this.computeSize()
-            }, 300)
+            }, this.isPreview ? 300 : 0)
         }
     }
 }

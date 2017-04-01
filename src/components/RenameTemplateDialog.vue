@@ -1,6 +1,6 @@
 <template>
     <el-dialog class="rename-template-dialog" title="重命名" v-model="isShown" @close="reset" :close-on-click-modal="false" size="tiny">
-        <el-form ref="form" :model="form" :rules="rules" @submit.native.prevent>
+        <el-form ref="form" :model="form" :rules="rules" @submit.native.prevent="renameTemplate">
             <el-form-item label="名称" prop="templateName">
                 <el-input ref="templateName" v-model.trim="form.templateName" :maxlength="20" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}"></el-input>
             </el-form-item>
@@ -55,7 +55,7 @@ export default {
                                 }
                             }
                         }
-                    }, trigger: 'change'},
+                    }, trigger: 'blur'},
                 ],
             }
         }

@@ -1,6 +1,6 @@
 <template>
     <el-dialog class="copy-template-dialog" title="复制模板" v-model="isShown" @close="reset" :close-on-click-modal="false" size="tiny">
-        <el-form ref="form" :rules="rules" :model="form" @submit.native.prevent>
+        <el-form ref="form" :rules="rules" :model="form" @submit.native.prevent="copyTemplate">
             <el-form-item label="名称" prop="templateName">
                 <el-input ref="templateName" v-model.trim="form.templateName" :maxlength="20" :autofocus="true" :icon="form.templateName? 'empty':''" :on-icon-click="()=>{form.templateName=''}"></el-input>
             </el-form-item>
@@ -60,7 +60,7 @@ export default {
                                 }
                             }
                         }
-                    }, trigger: 'change'},
+                    }, trigger: 'blur'},
                 ],
             }
         }

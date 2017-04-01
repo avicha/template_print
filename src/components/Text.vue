@@ -50,6 +50,7 @@ export default {
                 left: left + 'mm',
                 transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
                 transformOrigin: '0 0',
+                zIndex: this.data.zIndex,
             }
         },
         rawContent(){
@@ -78,7 +79,7 @@ export default {
     mounted(){
         setTimeout(() => {
             this.computeSize()
-        }, 300)
+        }, this.isPreview ? 300 : 0)
     }
 }
 </script>

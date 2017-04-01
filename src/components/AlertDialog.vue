@@ -1,5 +1,5 @@
 <template>
-    <el-dialog class="alert-dialog" :title="title" v-model="isShown" :close-on-click-modal="false" size="tiny">
+    <el-dialog class="alert-dialog" :title="title" v-model="isShown" @close="reset" :close-on-click-modal="false" size="tiny">
         <p class="dialog-content">{{ content }}</p>
         <div slot="footer" class="dialog-footer">
             <el-button class="confirm" @click="close">确 定</el-button>
@@ -27,7 +27,16 @@ export default {
         },
         show(){
             this.isShown = true
-        }
+            window.addEventListener('keydown', this.keydownHandler)
+        },
+        keydownHandler(e){
+            if(e.keyCode == 13){
+                this.close()
+            }
+        },
+        reset(){
+            window.removeEventListener('keydown', this.keydownHandler)
+        },
     },
 }
 </script>

@@ -28,6 +28,7 @@ export default {
                 left: left + 'mm',
                 width: this.data.width + 'mm',
                 height: this.data.height + 'mm',
+                zIndex: this.data.zIndex
             }
         },
         items(){

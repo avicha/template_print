@@ -6,24 +6,16 @@
         <div class="setting-body">
             <el-form label-width="80px" label-position="left">
                 <el-form-item label="宽">
-                    <el-input v-model.number="data.width" @input="widthInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.width" @change="(value)=>{this.data.width = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="高">
-                    <el-input v-model.number="data.height" @input="heightInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.height" @change="(value)=>{this.data.height = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="横轴">
-                    <el-input v-model.number="data.left" @input="leftInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.left" @change="(value)=>{this.data.left = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="竖轴">
-                    <el-input v-model.number="data.top" @input="topInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.top" @change="(value)=>{this.data.top = value}"></LengthInput>
                 </el-form-item>
             </el-form>
         </div>
@@ -31,12 +23,16 @@
 </template>
 <script>
 import Vue from 'vue'
-import {Input, Form, FormItem} from 'element-ui'
-Vue.use(Input)
+import {Form, FormItem} from 'element-ui'
+import LengthInput from './LengthInput'
+
 Vue.use(Form)
 Vue.use(FormItem)
 
 export default {
+    components: {
+        LengthInput
+    },
     data(){
         return {
             ready: false,
@@ -56,60 +52,6 @@ export default {
                 }
             },
             deep: true
-        }
-    },
-    methods:{
-        widthInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.width = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.width = 9999
-                    })
-                }
-            }
-        },
-        heightInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.height = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.height = 9999
-                    })
-                }
-            }
-        },
-        leftInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.left = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.left = 9999  
-                    })
-                }
-            }
-        },
-        topInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.top = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.top = 9999
-                    })
-                }
-            }
         }
     },
     mounted(){
@@ -157,8 +99,8 @@ export default {
             .el-form-item__content {
                 line-height: 26px;
                 .el-input {
-                    width: 110px;
                     .el-input__inner {
+                        width: 66px;
                         height: 26px;
                     }
                 }

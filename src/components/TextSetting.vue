@@ -26,14 +26,10 @@
                     <label class="el-label">文本颜色</label><input type="text" class="color" v-model="data.color"><el-color-picker v-model="data.color"></el-color-picker>
                 </div>
                 <el-form-item label="横轴">
-                    <el-input v-model.number="data.left" @input="leftInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.left" @change="(value)=>{this.data.left = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="竖轴">
-                    <el-input v-model.number="data.top" @input="topInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.top" @change="(value)=>{this.data.top = value}"></LengthInput>
                 </el-form-item>
             </el-form>
         </div>
@@ -41,8 +37,9 @@
 </template>
 <script>
 import Vue from 'vue'
-import {Input, Form, FormItem, Select, Option, InputNumber, ColorPicker} from 'element-ui'
-Vue.use(Input)
+import {Form, FormItem, Select, Option, InputNumber, ColorPicker} from 'element-ui'
+import LengthInput from './LengthInput'
+
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Select)
@@ -51,6 +48,9 @@ Vue.use(InputNumber)
 Vue.use(ColorPicker)
 
 export default {
+    components: {
+        LengthInput
+    },
     data(){
         return {
             ready: false,
@@ -92,32 +92,6 @@ export default {
                 this.data.fontSize = /[1-9]\d*/.test(value)? value.match(/[1-9]\d*/)[0] : ''
             }
         },
-        leftInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.left = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.left = 9999  
-                    })
-                }
-            }
-        },
-        topInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.top = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.top = 9999
-                    })
-                }
-            }
-        }
     },
     mounted(){
         this.$on('set_data', data => {
@@ -222,9 +196,14 @@ export default {
             }
             .el-form-item__content {
                 line-height: 26px;
-                .el-select, .el-input {
+                >.el-select, >.el-input {
                     .el-input__inner {
                         height: 26px;
+                    }
+                }
+                >.el-input {
+                    .el-input__inner {
+                        width: 66px;
                     }
                 }
             }

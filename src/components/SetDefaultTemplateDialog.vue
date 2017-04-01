@@ -1,5 +1,5 @@
 <template>
-    <el-dialog class="set-default-template-dialog" title="设置默认" v-model="isShown" :close-on-click-modal="false" size="tiny">
+    <el-dialog class="set-default-template-dialog" title="设置默认" v-model="isShown" @close="reset" :close-on-click-modal="false" size="tiny">
         <p class="dialog-content">确认要设为默认吗？</p>
         <div slot="footer" class="dialog-footer">
             <el-button class="cancel" @click="close">取 消</el-button>
@@ -30,6 +30,15 @@ export default {
         },
         show(){
             this.isShown = true
+            window.addEventListener('keydown', this.keydownHandler)
+        },
+        keydownHandler(e){
+            if(e.keyCode == 13){
+                this.setDefaultTemplate()
+            }
+        },
+        reset(){
+            window.removeEventListener('keydown', this.keydownHandler)
         },
         setDefaultTemplate(){
             this.$emit('set_default_template', this.templateId)

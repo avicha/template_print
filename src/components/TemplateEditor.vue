@@ -120,7 +120,7 @@
             <div class="right-panel">
                 <TextSettingComponent ref="textSettingComponent" v-show="setting.isTextComponent" @changeComponentSetting="changeComponentSetting"></TextSettingComponent>
                 <ImageSettingComponent ref="imageSettingComponent" v-show="setting.isImageComponent" @changeComponentSetting="changeComponentSetting"></ImageSettingComponent>
-                <ContainerSettingComponent ref="containerSettingComponent" v-show="setting.isContainerComponent" @changeComponentSetting="changeComponentSetting"></ContainerSettingComponent>
+                <ContainerSettingComponent ref="containerSettingComponent" v-show="setting.isContainerComponent" @moveComponentTo="(pos)=>{this.moveComponentTo(this.activeComponents[0], pos)}"></ContainerSettingComponent>
                 <PropertySettingComponent ref="propertySettingComponent" v-show="setting.isPropertyComponent" @changeComponentSetting="changeComponentSetting"></PropertySettingComponent>
                 <ItemListSettingComponent ref="itemListSettingComponent" v-show="setting.isItemListComponent" @changeComponentSetting="changeComponentSetting"></ItemListSettingComponent>
             </div>
@@ -136,7 +136,7 @@
                     <div class="menu-component-block">
                         <div class="menu-component background-image-btn" :class="{active: isBackgroundImageActive}" @click="toggleBackgroundImageActive">背景图片
                             <ul class="background-image-menu-list">
-                                <li class="change-background-image">替换<input ref="backgroundImageInput" class="background-image-input" type="file" accept="image/jpeg,image/jpg,image/png,image/gif;" @change="changeBackgroundImage"/></li>
+                                <li class="change-background-image">替换<input ref="backgroundImageInput" class="background-image-input" type="file" accept="image/*" @change="changeBackgroundImage"/></li>
                                 <li class="remove-background-image" @click="removeBackgroundImage">删除</li>
                             </ul>
                         </div>
@@ -429,8 +429,14 @@ export default {
                         component.data.children = component.data.children.map(child => {
                             //容器下的组件也进行复制，并改变组件的id
                             child.data.id = Math.round(Date.now() + Math.random() * 100)
+                            if(child.type == 'PropertyComponent'){
+                                child.data.alignNumber += 5
+                            }
                             return child
                         })
+                    }
+                    if(component.type == 'PropertyComponent'){
+                        component.data.alignNumber += 5
                     }
                     //把组件移到右下方5mm
                     this.moveComponent(component, {left: 5, top: 5})
@@ -1615,10 +1621,12 @@ export default {
                     @include top-left;
                     @include F(14);
                     @include TC1;
+                    background-color: #f1f4f8;
                     width: 30px;
                     height: 30px;
                     line-height: 30px;
                     text-align: center;
+                    z-index: 100;
                 }
                 .left-ruler {
                     position: absolute;
@@ -1628,6 +1636,7 @@ export default {
                     width: 30px;
                     background-image: url(~assets/images/ruler-left.png);
                     background-repeat: no-repeat;
+                    z-index: 100;
                 }
                 .top-ruler {
                     position: absolute;
@@ -1637,11 +1646,13 @@ export default {
                     height: 30px;
                     background-image: url(~assets/images/ruler-top.png);
                     background-repeat: no-repeat;
+                    z-index: 100;
                 }
                 .canvas {
                     background-color: #fff;
                     box-shadow: 0 0 6px #d6d6d6;
                     position: relative;
+                    overflow: hidden;
                     .component {
                         position: absolute;
                         cursor: default;

@@ -73,11 +73,11 @@ export default {
                 templateName: [
                     {validator:(rule, value, callback)=>{
                         if(value === ''){
-                            this.$refs.templateName.$el.querySelector('input').focus()
+                            // this.$refs.templateName.$el.querySelector('input').focus()
                             callback(new Error('请输入' + this.templateType + '名称'))
                         } else {
                             if(value.length >20){
-                                this.$refs.templateName.$el.querySelector('input').focus()
+                                // this.$refs.templateName.$el.querySelector('input').focus()
                                 callback(new Error('名称长度不能超过20个字符'))
                             } else {
                                 let list = this.type == 1? this.qualityList:this.labelList
@@ -89,7 +89,7 @@ export default {
                                 }
                             }
                         }
-                    }, trigger: 'change'},
+                    }, trigger: 'blur'},
                 ],
                 shopId: [
                     {validator:(rule, value, callback)=>{
@@ -98,7 +98,7 @@ export default {
                         } else {
                             callback()
                         }
-                    }, trigger: 'change'},
+                    }, trigger: 'blur'},
                 ],
                 width: [
                     {validator:(rule, value, callback)=>{
@@ -111,7 +111,7 @@ export default {
                                 callback()    
                             }
                         }
-                    }, trigger: 'change'},
+                    }, trigger: 'blur'},
                 ],
                 height: [
                     {validator:(rule, value, callback)=>{
@@ -124,7 +124,7 @@ export default {
                                 callback()    
                             }
                         }
-                    }, trigger: 'change'},
+                    }, trigger: 'blur'},
                 ],
             }
         }
@@ -149,8 +149,15 @@ export default {
         },
         show(){
             this.isShown = true
+            window.addEventListener('keydown', this.keydownHandler)
+        },
+        keydownHandler(e){
+            if(e.keyCode == 13){
+                this.createTemplate()
+            }
         },
         reset(){
+            window.removeEventListener('keydown', this.keydownHandler)
             this.$refs.form.resetFields()
         },
         createTemplate(){

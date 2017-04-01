@@ -23,19 +23,13 @@
                     </el-select>
                 </div>
                 <el-form-item label="样本">
-                    <el-input class="sample-input" v-model="data.sample" placeholder="" size="small">
-                        <i class="icon font-style-icon" slot="append"  :class="{active: styleType == 'value'}" @click="toggleStyle('value')"></i>
-                    </el-input>
+                    <PropertyValueInput :currentStyleType="styleType" styleType="value" :value="data.sample" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.sample = value}"></PropertyValueInput>
                 </el-form-item>
                 <el-form-item label="前缀">
-                    <el-input class="prefix-input" v-model="data.prefix" placeholder="" size="small">
-                        <i class="icon font-style-icon" slot="append" :class="{active: styleType == 'prefix'}" @click="toggleStyle('prefix')"></i>
-                    </el-input>
+                    <PropertyValueInput :currentStyleType="styleType" styleType="prefix" :value="data.suffix" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.prefix = value}"></PropertyValueInput>
                 </el-form-item>
                 <el-form-item label="后缀">
-                    <el-input class="suffix-input" v-model="data.suffix" placeholder="" size="small">
-                        <i class="icon font-style-icon" slot="append" :class="{active: styleType == 'suffix'}" @click="toggleStyle('suffix')"></i>
-                    </el-input>
+                    <PropertyValueInput :currentStyleType="styleType" styleType="suffix" :value="data.suffix" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.suffix = value}"></PropertyValueInput>
                 </el-form-item>
             </el-form>
         </div>
@@ -55,7 +49,7 @@
                 </el-form-item>
                 <el-form-item label="字体大小">
                     <div class="fontSize">
-                        <i class="icon minus-icon" title="缩小" @click="minusFontSizeHandler"></i><input type="text" class="font-size-input" v-model="style.fontSize" @input="fontSizeInputHandler" /><i class="icon plus-icon" title="放大" @click="plusFontSizeHandler"></i>    
+                        <i class="icon minus-icon" title="减少" @click="minusFontSizeHandler"></i><input type="text" class="font-size-input" v-model="style.fontSize" @input="fontSizeInputHandler" /><i class="icon plus-icon" title="增加" @click="plusFontSizeHandler"></i>    
                     </div>
                 </el-form-item>
                 <div class="el-form-item">
@@ -64,16 +58,12 @@
             </el-form>
         </div>
         <div class="property-setting-body" v-if="data.propertyType != 4">
-            <el-form label-width="80px" label-position="left">
+            <el-form class="property-setting-form4" label-width="80px" label-position="left">
                 <el-form-item label="横轴">
-                    <el-input v-model.number="data.left" @input="leftInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.left" @change="(value)=>{this.data.left = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="竖轴">
-                    <el-input v-model.number="data.top" @input="topInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.top" @change="(value)=>{this.data.top = value}"></LengthInput>
                 </el-form-item>
                 <div class="text-align">
                     <i class="icon text-align-left-icon" :class="{active: data.textAlign == 'left'}" @click="data.textAlign = 'left'"></i>
@@ -90,28 +80,23 @@
         <div class="property-setting-body" v-if="data.propertyType == 4">
             <el-form class="property-setting-form4" ref="form" label-width="80px" :rules="rules" :model="data" label-position="left" @submit.native.prevent>
                 <el-form-item label="样本" prop="sample">
-                    <el-input class="sample-input" v-model.trim="data.sample" :maxlength="8" @input="sampleInputHandler" placeholder="" size="small">
-                    </el-input>
+                    <div class="el-form-item__content">
+                        <div class="sample-input el-input el-input--small">
+                            <input type="text" v-model="data.sample" @input="sampleInputHandler" placeholder="" maxlength="8" autocomplete="off" class="el-input__inner" />
+                        </div>
+                    </div>
                 </el-form-item>
                 <el-form-item label="宽">
-                    <el-input v-model.number="data.width" @input="widthInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.width" @change="(value)=>{this.data.width = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="高">
-                    <el-input v-model.number="data.height" @input="heightInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.height" @change="(value)=>{this.data.height = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="横轴">
-                    <el-input v-model.number="data.left" @input="leftInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.left" @change="(value)=>{this.data.left = value}"></LengthInput>
                 </el-form-item>
                 <el-form-item label="竖轴">
-                    <el-input v-model.number="data.top" @input="topInputHandler" placeholder="" size="small">
-                        <template slot="append">mm</template>
-                    </el-input>
+                    <LengthInput :length="data.top" @change="(value)=>{this.data.top = value}"></LengthInput>
                 </el-form-item>
             </el-form>
         </div>
@@ -119,8 +104,10 @@
 </template>
 <script>
 import Vue from 'vue'
-import {Input, Form, FormItem, Select, Option, InputNumber, ColorPicker} from 'element-ui'
-Vue.use(Input)
+import {Form, FormItem, Select, Option, InputNumber, ColorPicker} from 'element-ui'
+import LengthInput from './LengthInput'
+import PropertyValueInput from './PropertyValueInput'
+
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Select)
@@ -131,6 +118,10 @@ Vue.use(ColorPicker)
 import extend from 'lodash/extend'
 
 export default {
+    components: {
+        LengthInput,
+        PropertyValueInput
+    },
     data(){
         return {
             styleType: 'value',
@@ -177,7 +168,7 @@ export default {
             },
             rules:{
                 sample: [
-                    {min: 8, max: 8, message: '请输入8位数字', trigger: 'change'},
+                    {min: 8, max: 8, message: '请输入8位数字', trigger: 'blur'},
                 ],
             }
         }
@@ -217,65 +208,12 @@ export default {
                 this.style.fontSize = /[1-9]\d*/.test(value)? value.match(/[1-9]\d*/)[0] : ''
             }
         },
-        sampleInputHandler(value){
+        sampleInputHandler(e){
+            let value = e.target.value
             if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.sample = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
+                this.data.sample = /\d+/.test(value)? value.match(/\d+/)[0] : ''
             }
         },
-        widthInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.width = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.width = 9999
-                    })
-                }
-            }
-        },
-        heightInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.height = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.height = 9999
-                    })
-                }
-            }
-        },
-        leftInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.left = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.left = 9999  
-                    })
-                }
-            }
-        },
-        topInputHandler(value){
-            if(value && !/^\d+$/.test(value)){
-                Vue.nextTick(()=>{
-                    this.data.top = /\d+/.test(value)? value.match(/\d+/)[0] : ''
-                })
-            } else {
-                if(Number(value) > 9999){
-                    Vue.nextTick(()=>{
-                        this.data.top = 9999
-                    })
-                }
-            }
-        }
     },
     watch:{
         data:{
@@ -331,7 +269,10 @@ export default {
         .property-setting-text {
             margin-bottom: 10px;
         }
-        .prefix-input, .sample-input, .suffix-input {
+        .property-value-input {
+            .el-input__inner {
+                width: 130px;
+            }
             .el-input-group__append {
                 padding: 0;
             }
@@ -433,6 +374,16 @@ export default {
             .el-form-item {
                 height: 34px;
                 margin-bottom: 18px;
+                .el-input {
+                    .el-input__inner {
+                        width: 66px;
+                    }
+                }
+                .sample-input {
+                    .el-input__inner {
+                        width: 110px;
+                    }
+                }
             }
         }
         .el-form-item {
