@@ -9,6 +9,7 @@
 
 <script>
 import PropertyComponent from '../components/Property'
+import {getComponentTranslate} from '../services/utils'
 export default {
     props: ['isPreview', 'parent', 'data', 'templateData', 'page', 'changeComponentData'],
     components:{
@@ -28,6 +29,8 @@ export default {
                 left: left + 'mm',
                 width: this.data.width + 'mm',
                 height: this.data.height + 'mm',
+                transform: 'rotate(' + this.data.rotateDeg + 'deg) ' + getComponentTranslate(this.data),
+                transformOrigin: '0 0',
                 zIndex: this.data.zIndex
             }
         },

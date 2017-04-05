@@ -98,7 +98,7 @@
             </div>
             <div class="menu-item-group">
                 <div class="menu-item percentage" :class="{disabled: !menuItems.isPercentageAvailable}">
-                    <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model="canvas.percentage" @input="percentageInputHandler" @blur="percentageBlurHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
+                    <i class="icon minus-icon" title="缩小" @click="minusPercentageBtnHandler"></i><input type="text" class="percentage-input" v-model.number="canvas.percentage" @input="percentageInputHandler" @blur="percentageBlurHandler" /><i class="icon plus-icon" title="放大" @click="plusPercentageBtnHandler"></i><span class="percentage-text">%</span>
                 </div>
                 <div class="menu-item width" :class="{disabled: !menuItems.isWidthAvailable}">
                     <span>宽</span><input type="text" class="width-input" @input="widthInputHandler" @blur="validateComponentRange" v-model="canvas.width">
@@ -201,7 +201,7 @@ import PropertySettingComponent from '../components/PropertySetting'
 import ItemListSettingComponent from '../components/ItemListSetting'
 import * as types from '../store/mutation_types'
 
-import {readImageAsDataURL, getPPI, getOuterHeight, isInteractWithComponent} from '../services/utils'
+import {readImageAsDataURL, getPPI, getOuterHeight, isInteractWithComponent, getComponentBound} from '../services/utils'
 import extend from 'lodash/extend'
 import find from 'lodash/find'
 
@@ -473,7 +473,7 @@ export default {
             this.activeComponents.forEach(component => {
                 this.moveComponent(component, pos)
             })
-            if(this.setting.isTextComponent || this.setting.isImageComponent || this.setting.isPropertyComponent || this.setting.isItemListComponent){
+            if(this.setting.isTextComponent || this.setting.isImageComponent || this.setting.isPropertyComponent || this.setting.isItemListComponent || this.setting.isContainerComponent){
                 this.showItemSetting(this.activeComponents[0])
             }
             this.record()
@@ -643,65 +643,13 @@ export default {
             let items = []
             let components = isActive ? this.activeComponents : this.canvas.components
             components.forEach(component => {
-                let left = 0, top = 0, width = 0, height = 0
-                switch(component.data.rotateDeg){
-                    case 0:
-                        left = component.data.left
-                        top = component.data.top
-                        width = component.data.width
-                        height = component.data.height
-                        break
-                    case 90:
-                        left = component.data.left - component.data.height
-                        top = component.data.top
-                        width = component.data.height
-                        height = component.data.width
-                        break
-                    case 180:
-                        left = component.data.left - component.data.width
-                        top = component.data.top - component.data.height
-                        width = component.data.width
-                        height = component.data.height
-                        break
-                    case 270:
-                        left = component.data.left
-                        top = component.data.top - component.data.width
-                        width = component.data.height
-                        height = component.data.width
-                        break
-                }
-                if(offsetX > left && offsetX < left + width && offsetY > top && offsetY < top + height){
+                let {left, top, right, bottom} = getComponentBound(component.data)
+                if(offsetX > left && offsetX < right && offsetY > top && offsetY < bottom){
                     items.push(component)
                     if(component.type == 'ContainerComponent' && !isActive && component.active){
                         component.data.children.forEach(child => {
-                            let left = 0, top = 0, width = 0, height = 0
-                            switch(component.data.rotateDeg + child.data.rotateDeg){
-                                case 0:
-                                    left = child.data.left
-                                    top = child.data.top
-                                    width = child.data.width
-                                    height = child.data.height
-                                    break
-                                case 90:
-                                    left = child.data.left - child.data.height
-                                    top = child.data.top
-                                    width = child.data.height
-                                    height = child.data.width
-                                    break
-                                case 180:
-                                    left = child.data.left - child.data.width
-                                    top = child.data.top - child.data.height
-                                    width = child.data.width
-                                    height = child.data.height
-                                    break
-                                case 270:
-                                    left = child.data.left
-                                    top = child.data.top - child.data.width
-                                    width = child.data.height
-                                    height = child.data.width
-                                    break
-                            }
-                            if(offsetX > left && offsetX < left + width && offsetY > top && offsetY < top + height){
+                            let {left, top, right, bottom} = getComponentBound(child.data, component.data)
+                            if(offsetX > left && offsetX < right && offsetY > top && offsetY < bottom){
                                 items.push(child)
                             }
                         })   
@@ -927,38 +875,24 @@ export default {
         //组合组件，记录
         combineBtnHandler(){
             if(this.menuItems.isCombineAvailable){
-                let tops = [],lefts = [],rights = [], bottoms = [], children = []
+                let children = []
                 this.activeComponents.forEach(component => {
                     if(component.type == 'ContainerComponent'){
-                        component.data.children.forEach(child => {
-                            tops.push(child.data.top)
-                            lefts.push(child.data.left)
-                            rights.push(child.data.left + child.data.width)
-                            bottoms.push(child.data.top + child.data.height)
-                        })
                         children = children.concat(component.data.children)
                     } else {
-                        tops.push(component.data.top)
-                        lefts.push(component.data.left)
-                        rights.push(component.data.left + component.data.width)
-                        bottoms.push(component.data.top + component.data.height)
                         children.push(component)
                     }
                 })
-                let top = Math.min.apply(this, tops)
-                let left = Math.min.apply(this, lefts)
-                let right = Math.max.apply(this, rights)
-                let bottom = Math.max.apply(this, bottoms)
                 let container = {
                     type: 'ContainerComponent',
                     active: false,
                     data: {
                         id: Date.now(),
                         children: children,
-                        top: top,
-                        left: left,
-                        width: right - left,
-                        height: bottom - top,
+                        top: 0,
+                        left: 0,
+                        width: 0,
+                        height: 0,
                         rotateDeg: 0,
                         zIndex: 0
                     }
@@ -987,19 +921,6 @@ export default {
             if(this.menuItems.isRotateLeftAvailable){
                 let component = this.activeComponents[0]
                 component.data.rotateDeg = (component.data.rotateDeg + 270)%360
-                switch(component.data.rotateDeg){
-                    case 90:
-                        this.moveComponent(component, {top: -component.data.height, left: component.data.height - component.data.width})
-                        break
-                    case 180:
-                        this.moveComponent(component, {top: component.data.height - component.data.width, left: component.data.width})
-                        break
-                    case 270:
-                        this.moveComponent(component, {top: component.data.width})
-                        break
-                    case 0:
-                        this.moveComponent(component, {left: -component.data.height})
-                }
                 this.record()
             }
         },
@@ -1008,19 +929,6 @@ export default {
             if(this.menuItems.isRotateRightAvailable){
                 let component = this.activeComponents[0]
                 component.data.rotateDeg = (component.data.rotateDeg + 450)%360
-                switch(component.data.rotateDeg){
-                    case 90:
-                        this.moveComponent(component, {left: component.data.height})
-                        break
-                    case 180:
-                        this.moveComponent(component, {top: component.data.height, left: component.data.width - component.data.height})
-                        break
-                    case 270:
-                        this.moveComponent(component, {top: component.data.width - component.data.height, left: -component.data.width})
-                        break
-                    case 0:
-                        this.moveComponent(component, {top: -component.data.width})
-                }
                 this.record()
             }
         },
@@ -1038,8 +946,10 @@ export default {
                     this.canvas.percentage -= 10  
                     this.record()    
                 } else {
-                    this.canvas.percentage = 10  
-                    this.record()
+                    if(this.canvas.percentage != 10){
+                        this.canvas.percentage = 10  
+                        this.record()    
+                    }
                 }
             }
         },
@@ -1047,12 +957,14 @@ export default {
         percentageInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
-                this.canvas.percentage = /\d+/.test(value)? value.match(/\d+/)[0] : ''
+                this.canvas.percentage = /\d+/.test(value)? Number(value.match(/\d+/)[0]) : ''
             } else {
                 if(value){
                     value = Number(value)
                     if(value > 300){
                         this.canvas.percentage = 300
+                    } else {
+                        this.canvas.percentage = value    
                     }
                 }
             }
@@ -1083,8 +995,10 @@ export default {
                     this.canvas.percentage += 10
                     this.record()    
                 } else {
-                    this.canvas.percentage = 300 
-                    this.record()
+                    if(this.canvas.percentage != 100){
+                        this.canvas.percentage = 300 
+                        this.record()    
+                    }
                 }
             }
         },
@@ -1092,13 +1006,14 @@ export default {
         widthInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
-                this.canvas.width = /\d+/.test(value)? value.match(/\d+/)[0] : ''
+                this.canvas.width = /\d+/.test(value)? Number(value.match(/\d+/)[0]) : ''
             } else {
                 if(value){
-                    if(Number(value) > 9999){
+                    value = Number(value)
+                    if(value > 9999){
                         this.canvas.width = 9999
                     } else {
-                        this.canvas.width = Number(value)
+                        this.canvas.width = value
                     }
                     this.record()
                 }
@@ -1108,13 +1023,14 @@ export default {
         heightInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
-                this.canvas.height = /\d+/.test(value)? value.match(/\d+/)[0] : ''
+                this.canvas.height = /\d+/.test(value)? Number(value.match(/\d+/)[0]) : ''
             } else {
                 if(value){
-                    if(Number(value) > 9999){
+                    value = Number(value)
+                    if(value > 9999){
                         this.canvas.height = 9999
                     } else {
-                        this.canvas.height = Number(value)
+                        this.canvas.height = value
                     }
                     this.record()
                 }
@@ -1126,8 +1042,7 @@ export default {
             let h = this.canvas.height
             let isOutside = false
             this.allComponents.forEach(component => {
-                let right = component.data.left + component.data.width
-                let bottom = component.data.top + component.data.height
+                let {right, bottom} = getComponentBound(component.data)
                 if(w < right || h < bottom) {
                     isOutside = true
                 }
@@ -1392,7 +1307,7 @@ export default {
                 this.canvas.components.forEach(component => {
                     if(component.type == 'PropertyComponent'){
                         component.data.itemListId = null
-                        if(isInteractWithComponent(itemListComponent, component)) {
+                        if(isInteractWithComponent(itemListComponent.data, component.data)) {
                             children.push(component)
                             component.data.itemListId = itemListComponent.data.id
                             if(component.data.top != itemListComponent.data.top){
@@ -1404,7 +1319,7 @@ export default {
                             component.data.children.forEach(child => {
                                 if(child.type == 'PropertyComponent'){
                                     child.data.itemListId = null
-                                    if(isInteractWithComponent(itemListComponent, child)) {
+                                    if(isInteractWithComponent(itemListComponent.data, child.data)) {
                                         children.push(child)
                                         child.data.itemListId = itemListComponent.data.id
                                         let middle = itemListComponent.data.top + 0.5 * itemListComponent.data.height

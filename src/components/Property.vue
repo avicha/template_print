@@ -10,7 +10,7 @@
 
 <script>
 import Vue from 'vue'
-import {getOuterWidth, getOuterHeight, getPPI} from '../services/utils'
+import {getOuterWidth, getOuterHeight, getPPI, getComponentTranslate} from '../services/utils'
 import moment from 'moment'
 import JsBarcode from 'jsbarcode'
 
@@ -23,21 +23,15 @@ export default {
     props: ['isPreview', 'parent', 'data', 'templateData'],
     computed: {
         componentStyle(){
-            let w = this.data.width
-            let h = this.data.height
-            let top = this.data.top
-            let left = this.data.left
-            if(this.parent){
-                top -= this.parent.top
-                left -= this.parent.left
-            }
+            let top = this.parent ? this.data.top - this.parent.top : this.data.top
+            let left = this.parent ? this.data.left - this.parent.left : this.data.left
             if(this.data.propertyType == 4){
                 return {
                     top: top + 'mm',
                     left: left + 'mm',
-                    width: w + 'mm',
-                    height: h + 'mm',
-                    transform: 'rotate(' + this.data.rotateDeg + 'deg) ',
+                    width: this.data.width + 'mm',
+                    height: this.data.height + 'mm',
+                    transform: 'rotate(' + this.data.rotateDeg + 'deg) ' + getComponentTranslate(this.data),
                     transformOrigin: '0 0',
                     zIndex: this.data.zIndex
                 }    
@@ -45,7 +39,7 @@ export default {
                 return {
                     top: top + 'mm',
                     left: left + 'mm',
-                    transform: 'rotate(' + this.data.rotateDeg + 'deg) ',
+                    transform: 'rotate(' + this.data.rotateDeg + 'deg) ' + getComponentTranslate(this.data),
                     transformOrigin: '0 0',
                     zIndex: this.data.zIndex
                 }    

@@ -21,6 +21,59 @@ export const getInnerHeight = (dom) => {
 export const getOuterHeight = (dom) => {
     return window.parseInt(getComputedStyle(dom).height) + window.parseInt(getComputedStyle(dom).paddingTop) + window.parseInt(getComputedStyle(dom).paddingBottom) + window.parseInt(getComputedStyle(dom).borderTopWidth) + window.parseInt(getComputedStyle(dom).borderBottomWidth)
 }
+export const getComponentBound = (component, container) => {
+    let left = component.left,
+        top = component.top,
+        right = 0,
+        bottom = 0,
+        width = component.width,
+        height = component.height,
+        rotateDeg = (container ? container.rotateDeg : 0) + component.rotateDeg
+    if (rotateDeg == 90 || rotateDeg == 270) {
+        width = component.height
+        height = component.width
+    }
+    right = left + width
+    bottom = top + height
+    return {
+        left,
+        top,
+        right,
+        bottom,
+        width,
+        height,
+    }
+}
+export const getComponentTranslate = (component) => {
+    let translate = ''
+    switch (component.rotateDeg) {
+        case 90:
+            translate = 'translateY(-' + component.height + 'mm)'
+            break;
+        case 180:
+            translate = 'translate(-' + component.width + 'mm, -' + component.height + 'mm)'
+            break;
+        case 270:
+            translate = 'translateX(-' + component.width + 'mm)'
+            break;
+    }
+    return translate
+}
+export const isInteractWithComponent = (componentA, componentB) => {
+    let {
+        aLeft,
+        aTop,
+        aRight,
+        aBottom
+    } = getComponentBound(componentA)
+    let {
+        bLeft,
+        bTop,
+        bRight,
+        bBottom
+    } = getComponentBound(componentB)
+    return (aLeft < bRight) && (aRight > bLeft) && (aTop < bBottom) && (aBottom > bTop)
+}
 let ppi = 0
 export const getPPI = () => {
     if (!ppi) {
@@ -72,17 +125,6 @@ export const readImageAsDataURL = (file, callback) => {
             image.src = url
         }
     }
-}
-export const isInteractWithComponent = (componentA, componentB) => {
-    let aLeft = componentA.data.left
-    let aRight = componentA.data.left + componentA.data.width
-    let aTop = componentA.data.top
-    let aBottom = componentA.data.top + componentA.data.height
-    let bLeft = componentB.data.left
-    let bRight = componentB.data.left + componentB.data.width
-    let bTop = componentB.data.top
-    let bBottom = componentB.data.top + componentB.data.height
-    return (aLeft < bRight) && (aRight > bLeft) && (aTop < bBottom) && (aBottom > bTop)
 }
 export const createImageByTemplateCanvas = (canvas) => {
     let ppi = 96

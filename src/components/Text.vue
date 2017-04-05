@@ -6,7 +6,7 @@
 
 <script>
 import Vue from 'vue'
-import {getOuterWidth, getOuterHeight, getPPI} from '../services/utils'
+import {getOuterWidth, getOuterHeight, getPPI, getComponentTranslate} from '../services/utils'
 export default {
     data(){
         return {
@@ -16,14 +16,8 @@ export default {
     props: ['isPreview', 'parent', 'data'],
     computed: {
         componentStyle(){
-            let w = this.data.width
-            let h = this.data.height
-            let top = this.data.top
-            let left = this.data.left
-            if(this.parent){
-                top -= this.parent.top
-                left -= this.parent.left
-            }
+            let top = this.parent ? this.data.top - this.parent.top : this.data.top
+            let left = this.parent ? this.data.left - this.parent.left : this.data.left
             return {
                 fontWeight: this.data.isBold ? 'bold':'normal',
                 fontStyle: this.data.isItalic ? 'italic':'normal',
@@ -33,7 +27,7 @@ export default {
                 color: this.data.color,
                 top: top + 'mm',
                 left: left + 'mm',
-                transform: 'rotate(' + this.data.rotateDeg + 'deg)',
+                transform: 'rotate(' + this.data.rotateDeg + 'deg) ' + getComponentTranslate(this.data),
                 transformOrigin: '0 0',
                 zIndex: this.data.zIndex,
             }

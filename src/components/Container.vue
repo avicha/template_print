@@ -10,6 +10,8 @@ import TextComponent from '../components/Text'
 import ImageComponent from '../components/Image'
 import PropertyComponent from '../components/Property'
 import ItemListComponent from '../components/ItemList'
+import {getComponentBound, getComponentTranslate} from '../services/utils'
+
 export default {
     props: ['isPreview', 'data', 'templateData', 'changeComponentData'],
     computed: {
@@ -25,26 +27,27 @@ export default {
         componentStyle(){
             let tops = [],lefts = [],rights = [], bottoms = []
             this.data.children.forEach(component => {
-                tops.push(component.data.top)
-                lefts.push(component.data.left)
-                rights.push(component.data.left + component.data.width)
-                bottoms.push(component.data.top + component.data.height)
+                let {left, top, right, bottom} = getComponentBound(component.data, this.data)
+                tops.push(top)
+                lefts.push(left)
+                rights.push(right)
+                bottoms.push(bottom)
             })
             let top = Math.min.apply(this, tops)
             let left = Math.min.apply(this, lefts)
             let right = Math.max.apply(this, rights)
             let bottom = Math.max.apply(this, bottoms)
-            let w = right - left
-            let h = bottom - top
-            if(top != this.data.top || left != this.data.left || w != this.data.width || h != this.data.height){
-                this.$emit('changeComponentData', {data: {top, left, width: w, height: h}, shouldUpdate: false})    
+            let width = right - left
+            let height = bottom - top
+            if(top != this.data.top || left != this.data.left || width != this.data.width || height != this.data.height){
+                this.$emit('changeComponentData', {data: {top, left, width, height}, shouldUpdate: false})    
             }
             return {
                 top: top + 'mm',
                 left: left + 'mm',
-                width: w + 'mm',
-                height: h + 'mm',
-                transform: 'rotate(' + this.data.rotateDeg + 'deg)',
+                width: width + 'mm',
+                height: height + 'mm',
+                transform: 'rotate(' + this.data.rotateDeg + 'deg) ' + getComponentTranslate(this.data),
                 transformOrigin: '0 0',
                 zIndex: this.data.zIndex
             }

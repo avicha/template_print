@@ -89,7 +89,7 @@ export default {
         fontSizeInputHandler(e){
             let value = e.target.value
             if(value && !/^[1-9]\d*$/.test(value)){
-                this.data.fontSize = /[1-9]\d*/.test(value)? value.match(/[1-9]\d*/)[0] : ''
+                this.data.fontSize = /[1-9]\d*/.test(value)? Number(value.match(/[1-9]\d*/)[0]) : ''
             }
         },
     },

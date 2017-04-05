@@ -205,13 +205,13 @@ export default {
         fontSizeInputHandler(e){
             let value = e.target.value
             if(value && !/^[1-9]\d*$/.test(value)){
-                this.style.fontSize = /[1-9]\d*/.test(value)? value.match(/[1-9]\d*/)[0] : ''
+                this.style.fontSize = /[1-9]\d*/.test(value)? Number(value.match(/[1-9]\d*/)[0]) : ''
             }
         },
         sampleInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
-                this.data.sample = /\d+/.test(value)? value.match(/\d+/)[0] : ''
+                this.data.sample = /\d+/.test(value)? Number(value.match(/\d+/)[0]) : ''
             }
         },
     },

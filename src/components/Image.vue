@@ -7,21 +7,19 @@
 </template>
 
 <script>
-import {readImageAsDataURL} from '../services/utils'
+import {readImageAsDataURL, getComponentTranslate} from '../services/utils'
 export default {
     props: ['data', 'parent'],
     computed: {
         componentStyle(){
-            let w = this.data.width
-            let h = this.data.height
             let top = this.parent ? this.data.top - this.parent.top : this.data.top
             let left = this.parent ? this.data.left - this.parent.left : this.data.left
             return {
                 top: top + 'mm',
                 left: left + 'mm',
-                width: w + 'mm',
-                height: h + 'mm',
-                transform: 'rotate(' + this.data.rotateDeg + 'deg)',
+                width: this.data.width + 'mm',
+                height: this.data.height + 'mm',
+                transform: 'rotate(' + this.data.rotateDeg + 'deg) ' + getComponentTranslate(this.data),
                 transformOrigin: '0 0',
                 zIndex: this.data.zIndex
             }

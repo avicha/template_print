@@ -73,13 +73,14 @@ export default {
         numberInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
-                this.data.number = /\d+/.test(value)? value.match(/\d+/)[0] : ''
+                this.data.number = /\d+/.test(value)? Number(value.match(/\d+/)[0]) : ''
             } else {
                 if(value){
-                    if(Number(value) > 9999){
+                    value = Number(value)
+                    if(value > 9999){
                         this.data.number = 9999  
                     } else {
-                        this.data.number = Number(value)
+                        this.data.number = value
                     }
                 }
             }
