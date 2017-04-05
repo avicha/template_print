@@ -32,14 +32,19 @@ export default {
             }
         },
         items(){
+            //如果预览时，渲染商品列表，返回属性列表
             this.children = []
             let top = this.data.top
             let h = this.data.height
             let number = this.data.number
+            //分页商品列表
             let productList = this.templateData.productList.slice((this.page -1) * number, this.page * number)
+            //渲染的行数
             number = Math.min(number, productList.length)
             if(number){
+                //数据之间的间距
                 let gap = h/(number+1)
+                //每条数据克隆每个属性，定位属性的位置，传递productIndex来定位属性所属的product
                 productList.forEach((item, i) => {
                     let items = JSON.parse(JSON.stringify(this.data.children))
                     items.forEach(child => {
@@ -49,6 +54,7 @@ export default {
                     this.children = this.children.concat(items)
                 })    
             } else {
+                //还没加载数据就渲染属性的样本值，只有一行
                 this.data.children.forEach(child => {
                     let childClone = JSON.parse(JSON.stringify(child))
                     childClone.data.productIndex = 0

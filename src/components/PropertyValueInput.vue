@@ -28,10 +28,10 @@ export default {
     },
     mounted(){
         this.$refs.propertyValueInput.value = this.value
-        this.$refs.propertyValueInput.addEventListener('keyup', this.inputHandler)
+        this.$refs.propertyValueInput.addEventListener('keydown', this.inputHandler)
     },
     destroyed(){
-        this.$refs.propertyValueInput.removeEventListener('keyup', this.inputHandler)
+        this.$refs.propertyValueInput.removeEventListener('keydown', this.inputHandler)
     },
 }
 </script>

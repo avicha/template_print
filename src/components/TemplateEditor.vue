@@ -479,9 +479,11 @@ export default {
             this.record()
         })
         this.$on('mouseup', e => {
-            if(this._isDraging){
+            if(this._isDraging || this._isResizing){
                 this._isDraging = false
+                this._isResizing = false
                 this._dragingComponent = null
+                this._resizingComponent = null
             }
         })
     },
@@ -489,6 +491,7 @@ export default {
         window.removeEventListener('resize', this.setMenuBarHeight)
     },
     methods:{
+        //设置菜单栏的高度
         setMenuBarHeight(){
             this.menuBarHeight = getOuterHeight(this.$refs.menuBar)
         },
@@ -512,15 +515,18 @@ export default {
                 this.menuItems.isSaveAvailable = true  
             }
         },
+        //恢复画布
         restoreCanvas(canvas_str){
             let canvas = JSON.parse(canvas_str)
             return canvas
         },
+        //拖动组件到画布上之前，记录拖动什么组件，并显示预览的组件位置
         setComponentDragStartData(e, action, data){
             this.componentDragStartData._isDraging = true
             this.componentDragStartData._action = action
             this.componentDragStartData.data = data
         },
+        //拖动组件过程中，清除选中的文字效果
         clearSelection(){
             if(window.getSelection){
                 window.getSelection().removeAllRanges(); //w3c
@@ -528,6 +534,7 @@ export default {
                 document.selection.empty();//IE
             }
         },
+        //拖动组件过程，改变预览的组件位置，并清除选中文字的默认效果
         editorMousemoveHandler(e){
             if(this.componentDragStartData._isDraging){
                 this.componentDragStartData.action = this.componentDragStartData._action
@@ -536,6 +543,7 @@ export default {
                 this.clearSelection()
             }
         },
+        //鼠标松开的时候，如果在拖动组件，则放置组件在指针位置
         editorMouseupHandler(e){
             if(this.componentDragStartData._isDraging){
                 let left = Math.round((e.clientX - this.$refs.canvas.getBoundingClientRect().left)/this.ppi*2.54*10)
@@ -630,39 +638,70 @@ export default {
             this._dragingComponent = null
             this._resizingComponent = null
         },
-        //根据点击事件，获取相对于canvas的点击位置
-        _getPointerOffset(e){
-            let canvas = this.$refs.canvas
-            let p = e.target
-            let offsetX = e.offsetX
-            let offsetY = e.offsetY
-            if(p == canvas.parentNode){
-                offsetX -= canvas.offsetLeft
-                offsetY -= canvas.offsetTop
-            } else {
-                while(p!= canvas){
-                    offsetX += p.offsetLeft
-                    offsetY += p.offsetTop
-                    p = p.parentNode
-                }
-            }
-            offsetX = Math.round(offsetX/this.ppi*2.54*10)
-            offsetY = Math.round(offsetY/this.ppi*2.54*10)
-            return {
-                offsetX,
-                offsetY,
-            }
-        },
         //根据相对于canvas的位置，判断选中的组件
         _getComponentByPos({offsetX, offsetY}, isActive){
             let items = []
             let components = isActive ? this.activeComponents : this.canvas.components
             components.forEach(component => {
-                if(offsetX > component.data.left && offsetX < component.data.left + component.data.width && offsetY > component.data.top && offsetY < component.data.top + component.data.height){
+                let left = 0, top = 0, width = 0, height = 0
+                switch(component.data.rotateDeg){
+                    case 0:
+                        left = component.data.left
+                        top = component.data.top
+                        width = component.data.width
+                        height = component.data.height
+                        break
+                    case 90:
+                        left = component.data.left - component.data.height
+                        top = component.data.top
+                        width = component.data.height
+                        height = component.data.width
+                        break
+                    case 180:
+                        left = component.data.left - component.data.width
+                        top = component.data.top - component.data.height
+                        width = component.data.width
+                        height = component.data.height
+                        break
+                    case 270:
+                        left = component.data.left
+                        top = component.data.top - component.data.width
+                        width = component.data.height
+                        height = component.data.width
+                        break
+                }
+                if(offsetX > left && offsetX < left + width && offsetY > top && offsetY < top + height){
                     items.push(component)
                     if(component.type == 'ContainerComponent' && !isActive && component.active){
                         component.data.children.forEach(child => {
-                            if(offsetX > child.data.left && offsetX < child.data.left + child.data.width && offsetY > child.data.top && offsetY < child.data.top + child.data.height){
+                            let left = 0, top = 0, width = 0, height = 0
+                            switch(component.data.rotateDeg + child.data.rotateDeg){
+                                case 0:
+                                    left = child.data.left
+                                    top = child.data.top
+                                    width = child.data.width
+                                    height = child.data.height
+                                    break
+                                case 90:
+                                    left = child.data.left - child.data.height
+                                    top = child.data.top
+                                    width = child.data.height
+                                    height = child.data.width
+                                    break
+                                case 180:
+                                    left = child.data.left - child.data.width
+                                    top = child.data.top - child.data.height
+                                    width = child.data.width
+                                    height = child.data.height
+                                    break
+                                case 270:
+                                    left = child.data.left
+                                    top = child.data.top - child.data.width
+                                    width = child.data.height
+                                    height = child.data.width
+                                    break
+                            }
+                            if(offsetX > left && offsetX < left + width && offsetY > top && offsetY < top + height){
                                 items.push(child)
                             }
                         })   
@@ -948,6 +987,19 @@ export default {
             if(this.menuItems.isRotateLeftAvailable){
                 let component = this.activeComponents[0]
                 component.data.rotateDeg = (component.data.rotateDeg + 270)%360
+                switch(component.data.rotateDeg){
+                    case 90:
+                        this.moveComponent(component, {top: -component.data.height, left: component.data.height - component.data.width})
+                        break
+                    case 180:
+                        this.moveComponent(component, {top: component.data.height - component.data.width, left: component.data.width})
+                        break
+                    case 270:
+                        this.moveComponent(component, {top: component.data.width})
+                        break
+                    case 0:
+                        this.moveComponent(component, {left: -component.data.height})
+                }
                 this.record()
             }
         },
@@ -956,6 +1008,19 @@ export default {
             if(this.menuItems.isRotateRightAvailable){
                 let component = this.activeComponents[0]
                 component.data.rotateDeg = (component.data.rotateDeg + 450)%360
+                switch(component.data.rotateDeg){
+                    case 90:
+                        this.moveComponent(component, {left: component.data.height})
+                        break
+                    case 180:
+                        this.moveComponent(component, {top: component.data.height, left: component.data.width - component.data.height})
+                        break
+                    case 270:
+                        this.moveComponent(component, {top: component.data.width - component.data.height, left: -component.data.width})
+                        break
+                    case 0:
+                        this.moveComponent(component, {top: -component.data.width})
+                }
                 this.record()
             }
         },
@@ -978,6 +1043,7 @@ export default {
                 }
             }
         },
+        //输入比例时，验证画布比例
         percentageInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
@@ -991,6 +1057,7 @@ export default {
                 }
             }
         },
+        //输入比例后，验证画布比例
         percentageBlurHandler(e){
             let value = e.target.value
             if(value){
@@ -1021,6 +1088,7 @@ export default {
                 }
             }
         },
+        //输入宽度时，验证画布宽度
         widthInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
@@ -1036,6 +1104,7 @@ export default {
                 }
             }
         },
+        //输入高度时，验证画布高度
         heightInputHandler(e){
             let value = e.target.value
             if(value && !/^\d+$/.test(value)){
@@ -1051,6 +1120,7 @@ export default {
                 }
             }
         },
+        //验证组件是否超出画布范围
         validateComponentRange(){
             let w = this.canvas.width
             let h = this.canvas.height

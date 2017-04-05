@@ -33,6 +33,7 @@ export default {
             this.isShown = true
             window.addEventListener('keydown', this.keydownHandler)
         },
+        //按下回车删除模板
         keydownHandler(e){
             if(e.keyCode == 13){
                 this.deleteTemplate()

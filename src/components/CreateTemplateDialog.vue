@@ -42,15 +42,13 @@
 
 <script>
 import Vue from 'vue'
-import {Dialog, Form, FormItem, Input, Select, Option, Row, Col, Button} from 'element-ui'
+import {Dialog, Form, FormItem, Input, Select, Option, Button} from 'element-ui'
 Vue.use(Dialog)
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
 Vue.use(Select)
 Vue.use(Option)
-Vue.use(Row)
-Vue.use(Col)
 Vue.use(Button)
 
 import extend from 'lodash/extend'
@@ -73,11 +71,9 @@ export default {
                 templateName: [
                     {validator:(rule, value, callback)=>{
                         if(value === ''){
-                            // this.$refs.templateName.$el.querySelector('input').focus()
                             callback(new Error('请输入' + this.templateType + '名称'))
                         } else {
                             if(value.length >20){
-                                // this.$refs.templateName.$el.querySelector('input').focus()
                                 callback(new Error('名称长度不能超过20个字符'))
                             } else {
                                 let list = this.type == 1? this.qualityList:this.labelList
@@ -151,6 +147,7 @@ export default {
             this.isShown = true
             window.addEventListener('keydown', this.keydownHandler)
         },
+        //按回车创建模板
         keydownHandler(e){
             if(e.keyCode == 13){
                 this.createTemplate()
@@ -177,12 +174,14 @@ export default {
                 }
             })
         },
+        //改变选择尺寸时，修改尺寸
         changeTemplateSize(value){
             if(value){
                 this.form.width = this.currentTemplateSize.split('x')[0] || ''
                 this.form.height = this.currentTemplateSize.split('x')[1] || ''
             }
         },
+        //自己输入尺寸时修改自定义尺寸
         customTemplateSize(){
             this.currentTemplateSize = ''
         },

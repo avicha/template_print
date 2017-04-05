@@ -42,7 +42,6 @@ export default {
             rules:{
                 templateName: [
                     {validator:(rule, value, callback)=>{
-                        value = value.trim()
                         if(value === ''){
                             this.$refs.templateName.$el.querySelector('input').focus()
                             callback(new Error('请输入' + this.templateType + '名称'))

@@ -9,34 +9,19 @@
 <script>
 import {readImageAsDataURL} from '../services/utils'
 export default {
-    props: ['data', 'parent', 'templateData'],
+    props: ['data', 'parent'],
     computed: {
         componentStyle(){
             let w = this.data.width
             let h = this.data.height
             let top = this.parent ? this.data.top - this.parent.top : this.data.top
             let left = this.parent ? this.data.left - this.parent.left : this.data.left
-            let rotateDeg = (this.data.rotateDeg + 360)%360
-            let translate = ''
-            switch(rotateDeg){
-                case 90:
-                    translate = 'translateY(-' + h +'mm)'
-                    break;
-                case 180:
-                    translate = 'translate(-' + w +'mm, -' + h + 'mm)'
-                    break;
-                case 270:
-                    translate = 'translateX(-' + w +'mm)'
-                    break;
-                default:
-                    translate = 'translate(0, 0)'
-            }
             return {
                 top: top + 'mm',
                 left: left + 'mm',
                 width: w + 'mm',
                 height: h + 'mm',
-                transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
+                transform: 'rotate(' + this.data.rotateDeg + 'deg)',
                 transformOrigin: '0 0',
                 zIndex: this.data.zIndex
             }
@@ -70,7 +55,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../assets/scss/mixin.scss";
 .image-component {
     position: relative;
     img {
@@ -79,7 +63,6 @@ export default {
         height: 100%;
     }
     .image-input {
-        @include full;
         display: none;
     }
     .resize {

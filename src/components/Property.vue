@@ -31,28 +31,13 @@ export default {
                 top -= this.parent.top
                 left -= this.parent.left
             }
-            let rotateDeg = (this.data.rotateDeg + 360)%360
-            let translate = ''
-            switch(rotateDeg){
-                case 90:
-                    translate = 'translateY(-' + h +'mm)'
-                    break;
-                case 180:
-                    translate = 'translate(-' + w +'mm, -' + h + 'mm)'
-                    break;
-                case 270:
-                    translate = 'translateX(-' + w +'mm)'
-                    break;
-                default:
-                    translate = 'translate(0, 0)'
-            }
             if(this.data.propertyType == 4){
                 return {
                     top: top + 'mm',
                     left: left + 'mm',
                     width: w + 'mm',
                     height: h + 'mm',
-                    transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
+                    transform: 'rotate(' + this.data.rotateDeg + 'deg) ',
                     transformOrigin: '0 0',
                     zIndex: this.data.zIndex
                 }    
@@ -60,7 +45,7 @@ export default {
                 return {
                     top: top + 'mm',
                     left: left + 'mm',
-                    transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
+                    transform: 'rotate(' + this.data.rotateDeg + 'deg) ',
                     transformOrigin: '0 0',
                     zIndex: this.data.zIndex
                 }    

@@ -14,12 +14,14 @@ export default {
     props: ['isPreview', 'data', 'templateData', 'changeComponentData'],
     computed: {
         components(){
+            //预览时，不渲染商品列表的属性值，由商品列表自己渲染
             if(!this.isPreview){
                 return this.data.children
             } else {
                 return this.data.children.filter(child => !(child.type == 'PropertyComponent' && child.data.itemListId))
             }
         },
+        //渲染容器的样式，根据子组件的边界来确定容器的位置和大小，不一致则调整过来
         componentStyle(){
             let tops = [],lefts = [],rights = [], bottoms = []
             this.data.children.forEach(component => {
@@ -34,21 +36,6 @@ export default {
             let bottom = Math.max.apply(this, bottoms)
             let w = right - left
             let h = bottom - top
-            let rotateDeg = (this.data.rotateDeg + 360)%360
-            let translate = ''
-            switch(rotateDeg){
-                case 90:
-                    translate = 'translateY(-' + h +'mm)'
-                    break;
-                case 180:
-                    translate = 'translate(-' + w +'mm, -' + h + 'mm)'
-                    break;
-                case 270:
-                    translate = 'translateX(-' + w +'mm)'
-                    break;
-                default:
-                    translate = 'translate(0, 0)'
-            }
             if(top != this.data.top || left != this.data.left || w != this.data.width || h != this.data.height){
                 this.$emit('changeComponentData', {data: {top, left, width: w, height: h}, shouldUpdate: false})    
             }
@@ -57,7 +44,7 @@ export default {
                 left: left + 'mm',
                 width: w + 'mm',
                 height: h + 'mm',
-                transform: 'rotate(' + rotateDeg + 'deg) ' + translate,
+                transform: 'rotate(' + this.data.rotateDeg + 'deg)',
                 transformOrigin: '0 0',
                 zIndex: this.data.zIndex
             }

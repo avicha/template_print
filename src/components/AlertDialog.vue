@@ -29,6 +29,7 @@ export default {
             this.isShown = true
             window.addEventListener('keydown', this.keydownHandler)
         },
+        //回车默认按确定按钮
         keydownHandler(e){
             if(e.keyCode == 13){
                 this.close()
