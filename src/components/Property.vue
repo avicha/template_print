@@ -173,7 +173,9 @@ export default {
                 }
                 if(w != this.data.width || h != this.data.height || l != this.data.left){
                     console.log(this.data, this.data.width, this.data.height, this.data.left, w , h, l)
-                    this.$emit('changeComponentData', {data: {width: w, height: h, left: l}, shouldUpdate: true})
+                    if(!(isNaN(w) || isNaN(h) || isNaN(l))){
+                        this.$emit('changeComponentData', {data: {width: w, height: h, left: l}, shouldUpdate: true})    
+                    }
                 }
             }
         }

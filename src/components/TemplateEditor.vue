@@ -201,7 +201,7 @@ import PropertySettingComponent from '../components/PropertySetting'
 import ItemListSettingComponent from '../components/ItemListSetting'
 import * as types from '../store/mutation_types'
 
-import {readImageAsDataURL, getPPI, getOuterHeight, isInteractWithComponent, getComponentBound} from '../services/utils'
+import {getAppSign, uploadFile, transformFileURL, getPPI, getOuterHeight, isInteractWithComponent, getComponentBound} from '../services/utils'
 import extend from 'lodash/extend'
 import find from 'lodash/find'
 
@@ -308,7 +308,7 @@ export default {
             return {
                 width: this.canvas.width + 'mm',
                 height: this.canvas.height + 'mm',
-                backgroundImage: this.canvas.backgroundImage && ('url(' + this.canvas.backgroundImage + ')'),
+                backgroundImage: this.canvas.backgroundImage && ('url(' + transformFileURL(this.canvas.backgroundImage) + ')'),
                 backgroundSize: '100% 100%',
                 backgroundRepeat: 'no-repeat',
                 transform: 'rotate(' + rotateDeg + 'deg)' + translate + ' scale(' + this.canvas.percentage/100 + ')',
@@ -1087,25 +1087,23 @@ export default {
         },
         //改变背景图片时，预览图片文件的base64编码为canvas的背景图片，记录
         changeBackgroundImage(e){
-            if(e.target.files){
-                let file = e.target.files[0]
-                if(file){
-                    readImageAsDataURL(file, (error, base64URL) => {
+            let file = e.target.files[0]
+            let filename = Date.now() + '_' + encodeURIComponent(file.name)
+            getAppSign({filename: filename, postFile: '/printTemplate/'}, (error, sign) => {
+                if(error){
+                    alert(error)
+                } else {
+                    uploadFile({file, sign, insertOnly: 0, filename}, (error, res) => {
                         if(error){
                             alert(error)
                         } else {
-                            this.canvas.backgroundImage = base64URL
+                            this.canvas.backgroundImage = res.resource_path
                             this.isBackgroundImageActive = false
                             this.record()
                         }
                     })
                 }
-            } else {
-                let src = e.target.value
-                this.canvas.backgroundImage = src
-                this.isBackgroundImageActive = false
-                this.record()
-            }
+            })
         },
         //删除背景图片
         removeBackgroundImage(e){

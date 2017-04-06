@@ -26,13 +26,14 @@ export default {
     name: 'LabelTemplateComponent',
     data(){
         return {
-            active: false
+            active: false,
+            url: '',
         }
     },
     computed:{
         picStyle() {
             return {
-                backgroundImage: 'url(' + createImageByTemplateCanvas(JSON.parse(this.labelTemplate.content)) + ')',
+                backgroundImage: 'url(' + this.url + ')',
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center center',
@@ -40,6 +41,15 @@ export default {
         }
     },
     props: ['labelTemplate', 'openRenameTemplateDialog', 'openCopyTemplateDialog', 'openSetDefaultDialog', 'previewTemplate', 'openDeleteTemplateDialog'],
+    mounted(){
+        createImageByTemplateCanvas(JSON.parse(this.labelTemplate.content), (error, dataURL) => {
+            if(error){
+                alert(error)
+            } else {
+                this.url = dataURL
+            }
+        })
+    }
 }
 </script>
 

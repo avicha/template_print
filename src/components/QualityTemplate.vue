@@ -27,13 +27,14 @@ export default {
     name: 'QualityTemplateComponent',
     data(){
         return {
-            active: false
+            active: false,
+            url: '',
         }
     },
     computed:{
         picStyle() {
             return {
-                backgroundImage: 'url(' + createImageByTemplateCanvas(JSON.parse(this.qualityTemplate.content)) + ')',
+                backgroundImage: 'url(' + this.url + ')',
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center center',
@@ -41,6 +42,15 @@ export default {
         }
     },
     props: ['qualityTemplate', 'openRenameTemplateDialog', 'openCopyTemplateDialog', 'openSetDefaultDialog', 'previewTemplate', 'openDeleteTemplateDialog'],
+    mounted(){
+        createImageByTemplateCanvas(JSON.parse(this.qualityTemplate.content), (error, dataURL) => {
+            if(error){
+                alert(error)
+            } else {
+                this.url = dataURL
+            }
+        })
+    }
 }
 </script>
 

@@ -1,13 +1,13 @@
 <template>
 <div class="image-component" :style="componentStyle" @dblclick="openFileUploadDialog">
-    <img :src="data.src || '/static/images/image-sample.png'">
+    <img :src="src">
     <input ref="imageInput" type="file" class="image-input" accept="image/*" @change="changeURL">
     <div class="resize"></div>
 </div>
 </template>
 
 <script>
-import {readImageAsDataURL, getComponentTranslate, getAppSign, uploadFile} from '../services/utils'
+import {readImageAsDataURL, getComponentTranslate, getAppSign, uploadFile, transformFileURL} from '../services/utils'
 export default {
     props: ['data', 'parent'],
     computed: {
@@ -24,6 +24,13 @@ export default {
                 zIndex: this.data.zIndex
             }
         },
+        src(){
+            if(this.data.src){
+                return transformFileURL(this.data.src)
+            } else {
+                return '/static/images/image-sample.png'
+            }
+        }
     },
     methods:{
         openFileUploadDialog(){
@@ -32,29 +39,36 @@ export default {
             }
         },
         changeURL(e){
-            // getAppSign((error, sign) => {
-            //     if(error){
-            //         alert(error)
-            //     } else {
-            //         console.log(sign)
-            //         uploadFile(e.target, sign)
-            //     }
-            // })
-            if(e.target.files){
-                let file = e.target.files[0]
-                if(file){
-                    readImageAsDataURL(file, (error, base64URL, imageInfo) => {
+            let file = e.target.files[0]
+            let filename = Date.now() + '_' + encodeURIComponent(file.name)
+            getAppSign({filename: filename, postFile: '/printTemplate/'}, (error, sign) => {
+                if(error){
+                    alert(error)
+                } else {
+                    uploadFile({file, sign, insertOnly: 0, filename}, (error, res) => {
                         if(error){
                             alert(error)
                         } else {
-                            this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false, record: true})
+                            this.$emit('changeComponentData', {data: {src: res.resource_path}, shouldUpdate: false, record: true})
                         }
                     })
                 }
-            } else {
-                let src = e.target.value
-                this.$emit('changeComponentData', {data: {src: src}, shouldUpdate: false, record: true})
-            }
+            })
+            // if(e.target.files){
+            //     let file = e.target.files[0]
+            //     if(file){
+            //         readImageAsDataURL(file, (error, base64URL, imageInfo) => {
+            //             if(error){
+            //                 alert(error)
+            //             } else {
+            //                 this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false, record: true})
+            //             }
+            //         })
+            //     }
+            // } else {
+            //     let src = e.target.value
+            //     this.$emit('changeComponentData', {data: {src: src}, shouldUpdate: false, record: true})
+            // }
         },
     }
 }

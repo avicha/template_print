@@ -35,6 +35,14 @@ module.exports = {
                 pathRewrite: {
                     '^/yunzhubao': '/yunzhubao'
                 }
+            },
+            '/file': {
+                target: 'https://gz.file.myqcloud.com',
+                secure: false,
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/file': '/file'
+                }
             }
         },
         // CSS Sourcemaps off by default because relative paths are "buggy"

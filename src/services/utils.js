@@ -78,7 +78,7 @@ export const getPPI = () => {
     }
     return ppi
 }
-export const getAppSign = (callback) => {
+export const getAppSign = (params, callback) => {
     let serverHost = process.env.NODE_ENV == 'development' ? '/yunzhubao' : 'https://www.jzmsoft.com:8082/yunzhubao'
     let version = 'v1'
     let namespace = 'apply'
@@ -87,7 +87,7 @@ export const getAppSign = (callback) => {
         credentials: 'include',
         mode: 'cors',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
             unit: {
@@ -97,7 +97,8 @@ export const getAppSign = (callback) => {
                 ip: "",
                 userId: "e2a11336cc81471883ef2d652829c729",
                 tokenId: "e2a11336cc81471883ef2d652829c729"
-            }
+            },
+            data: params
         })
     }).then(res => res.json()).then(res => {
         if (res.state != 200) {
@@ -107,22 +108,44 @@ export const getAppSign = (callback) => {
         }
     });
 }
-export const uploadFile = (file, sign, insertOnly = 0) => {
+export const uploadFile = ({
+    file,
+    sign,
+    insertOnly,
+    filename
+}, callback) => {
     let region = 'gz'
     let appid = '1252389350'
     let bucket_name = 'jzm'
-    let dir_name = '%2FprintTemplate'
-    let url = '//' + region + '.file.myqcloud.com/files/v2/' + appid + '/' + bucket_name + '/' + dir_name + '?sign=' + sign
+    let dir_name = '%2FprintTemplate%2F'
+    let url = '/files/v2/' + appid + '/' + bucket_name + '/' + dir_name + '/' + filename
     let formData = new FormData()
     formData.append('op', 'upload')
     formData.append('fileContent', file)
     formData.append('insertOnly', insertOnly)
     fetch(url, {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+            'Authorization': sign
+        }
     }).then(res => res.json()).then(json => {
-        console.log(json)
+        if (json.code) {
+            callback(json.message)
+        } else {
+            callback(null, json.data)
+        }
     })
+}
+export const transformFileURL = (url) => {
+    if (/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/.test(url)) {
+        let appid = url.match(/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[1]
+        let bucket = url.match(/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[2]
+        let filename = url.match(/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[3]
+        return 'http://' + bucket + '-' + appid + '.cosgz.myqcloud.com' + '/' + filename
+    } else {
+        return url
+    }
 }
 export const readImageAsDataURL = (file, callback) => {
     if (!window.FileReader && !(window.URL && window.URL.createObjectURL)) {
@@ -162,8 +185,10 @@ export const readImageAsDataURL = (file, callback) => {
         }
     }
 }
-export const createImageByTemplateCanvas = (canvas) => {
+export const createImageByTemplateCanvas = (canvas, callback) => {
     let ppi = 96
+    let sum = 0
+    let loaded = 0
     let canvasDom = document.createElement('canvas')
     let canvasW = canvas.width / 25.4 * ppi
     let canvasH = canvas.height / 25.4 * ppi
@@ -172,84 +197,109 @@ export const createImageByTemplateCanvas = (canvas) => {
     let ctx = canvasDom.getContext('2d')
     ctx.fillStyle = '#fff'
     ctx.fillRect(0, 0, canvasW, canvasH)
-    if (canvas.backgroundImage) {
-        let image = new Image()
-        image.src = canvas.backgroundImage
-        ctx.drawImage(image, 0, 0, canvasW, canvasH)
+
+    let cbf = () => {
+        if (loaded == sum) {
+            let dataURL = canvasDom.toDataURL('image/png')
+            callback(null, dataURL)
+        }
     }
-    let items = []
-    canvas.components.forEach(component => {
-        if (component.type == 'ContainerComponent') {
-            items = items.concat(component.data.children)
-        } else {
-            items.push(component)
-        }
-    })
-    items.forEach(component => {
-        let left = component.data.left / 25.4 * ppi
-        let top = component.data.top / 25.4 * ppi
-        let width = component.data.width / 25.4 * ppi
-        let height = component.data.height / 25.4 * ppi
-        let rotateDeg = (component.data.rotateDeg + 360) % 360
-        let offsetLeft = 0,
-            offsetTop = 0
-        switch (rotateDeg) {
-            case 90:
-                offsetLeft = left + height
-                offsetTop = top
-                break;
-            case 180:
-                offsetLeft = left + width
-                offsetTop = top + height
-                break;
-            case 270:
-                offsetLeft = left
-                offsetTop = top + width
-                break;
-            default:
-                offsetLeft = left
-                offsetTop = top
-        }
-        ctx.save()
-        ctx.translate(offsetLeft, offsetTop)
-        ctx.rotate(Math.PI * rotateDeg / 180)
-        let fontStyle, fontWeight, fontSize, fontFamily, image
-        switch (component.type) {
-            case 'TextComponent':
-                fontStyle = component.data.isItalic ? 'italic' : 'normal'
-                fontWeight = component.data.isBold ? 'bold' : 'normal'
-                fontSize = component.data.fontSize + 'px'
-                fontFamily = component.data.fontFamily
-                ctx.textAlign = 'left'
-                ctx.font = [fontStyle, fontWeight, fontSize, fontFamily].join(' ')
-                ctx.fillStyle = component.data.color
-                ctx.fillText(component.data.content, 5, height - 5)
-                break
-            case 'ImageComponent':
-                image = new Image()
-                image.src = component.data.src || '/static/images/image-sample.png'
-                ctx.drawImage(image, 0, 0, width, height)
-                break
-            case 'PropertyComponent':
-                if (component.data.propertyType == 4) {
-                    image = new Image()
-                    image.src = '/static/images/barcode-sample.png'
-                    ctx.drawImage(image, 0, 0, width, height)
-                } else {
-                    fontStyle = component.data.valueStyle.isItalic ? 'italic' : 'normal'
-                    fontWeight = component.data.valueStyle.isBold ? 'bold' : 'normal'
-                    fontSize = component.data.valueStyle.fontSize + 'px'
-                    fontFamily = component.data.valueStyle.fontFamily
+    let draw = () => {
+        let items = []
+        canvas.components.forEach(component => {
+            if (component.type == 'ContainerComponent') {
+                items = items.concat(component.data.children)
+            } else {
+                items.push(component)
+            }
+        })
+        items.forEach(component => {
+            let left = component.data.left / 25.4 * ppi
+            let top = component.data.top / 25.4 * ppi
+            let width = component.data.width / 25.4 * ppi
+            let height = component.data.height / 25.4 * ppi
+            let rotateDeg = (component.data.rotateDeg + 360) % 360
+            let offsetLeft = 0,
+                offsetTop = 0
+            switch (rotateDeg) {
+                case 90:
+                    offsetLeft = left + height
+                    offsetTop = top
+                    break;
+                case 180:
+                    offsetLeft = left + width
+                    offsetTop = top + height
+                    break;
+                case 270:
+                    offsetLeft = left
+                    offsetTop = top + width
+                    break;
+                default:
+                    offsetLeft = left
+                    offsetTop = top
+            }
+            ctx.save()
+            ctx.translate(offsetLeft, offsetTop)
+            ctx.rotate(Math.PI * rotateDeg / 180)
+            let fontStyle, fontWeight, fontSize, fontFamily, image
+            switch (component.type) {
+                case 'TextComponent':
+                    fontStyle = component.data.isItalic ? 'italic' : 'normal'
+                    fontWeight = component.data.isBold ? 'bold' : 'normal'
+                    fontSize = component.data.fontSize + 'px'
+                    fontFamily = component.data.fontFamily
                     ctx.textAlign = 'left'
                     ctx.font = [fontStyle, fontWeight, fontSize, fontFamily].join(' ')
-                    ctx.fillStyle = component.data.valueStyle.color
-                    ctx.fillText(component.data.prefix + (component.data.sample || '#{' + component.data.propertyCode + '}') + component.data.suffix, 5, height - 5)
-                }
-                break
+                    ctx.fillStyle = component.data.color
+                    ctx.fillText(component.data.content, 5, height - 5)
+                    break
+                case 'ImageComponent':
+                    image = new Image()
+                    image.crossOrigin = 'anonymous'
+                    sum++
+                    image.onload = () => {
+                        ctx.save()
+                        ctx.translate(offsetLeft, offsetTop)
+                        ctx.rotate(Math.PI * rotateDeg / 180)
+                        ctx.drawImage(image, 0, 0, width, height)
+                        ctx.translate(-offsetLeft, -offsetTop)
+                        ctx.restore()
+                        loaded++
+                        cbf()
+                    }
+                    image.src = transformFileURL(component.data.src)
+                    break
+                case 'PropertyComponent':
+                    if (component.data.propertyType == 4) {
+                        image = new Image()
+                        image.src = '/static/images/barcode-sample.png'
+                        ctx.drawImage(image, 0, 0, width, height)
+                    } else {
+                        fontStyle = component.data.valueStyle.isItalic ? 'italic' : 'normal'
+                        fontWeight = component.data.valueStyle.isBold ? 'bold' : 'normal'
+                        fontSize = component.data.valueStyle.fontSize + 'px'
+                        fontFamily = component.data.valueStyle.fontFamily
+                        ctx.textAlign = 'left'
+                        ctx.font = [fontStyle, fontWeight, fontSize, fontFamily].join(' ')
+                        ctx.fillStyle = component.data.valueStyle.color
+                        ctx.fillText(component.data.prefix + (component.data.sample || '#{' + component.data.propertyCode + '}') + component.data.suffix, 5, height - 5)
+                    }
+                    break
+            }
+            ctx.translate(-offsetLeft, -offsetTop)
+            ctx.restore()
+        })
+        cbf()
+    }
+    if (canvas.backgroundImage) {
+        let backgroundImage = new Image()
+        backgroundImage.crossOrigin = 'anonymous'
+        backgroundImage.onload = () => {
+            ctx.drawImage(backgroundImage, 0, 0, canvasW, canvasH)
+            draw()
         }
-        ctx.translate(-offsetLeft, -offsetTop)
-        ctx.restore()
-    })
-    let dataURL = canvasDom.toDataURL('image/png')
-    return dataURL
+        backgroundImage.src = transformFileURL(canvas.backgroundImage)
+    } else {
+        draw()
+    }
 }
