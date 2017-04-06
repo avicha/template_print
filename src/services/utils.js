@@ -108,35 +108,7 @@ export const getAppSign = (params, callback) => {
         }
     });
 }
-export const uploadFile = ({
-    file,
-    sign,
-    insertOnly,
-    filename
-}, callback) => {
-    let region = 'gz'
-    let appid = '1252389350'
-    let bucket_name = 'jzm'
-    let dir_name = '%2FprintTemplate%2F'
-    let url = '/files/v2/' + appid + '/' + bucket_name + '/' + dir_name + '/' + filename
-    let formData = new FormData()
-    formData.append('op', 'upload')
-    formData.append('fileContent', file)
-    formData.append('insertOnly', insertOnly)
-    fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'Authorization': sign
-        }
-    }).then(res => res.json()).then(json => {
-        if (json.code) {
-            callback(json.message)
-        } else {
-            callback(null, json.data)
-        }
-    })
-}
+
 export const transformFileURL = (url) => {
     if (/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/.test(url)) {
         let appid = url.match(/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[1]

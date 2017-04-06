@@ -136,8 +136,8 @@
                     <div class="menu-component-block">
                         <div class="menu-component background-image-btn" :class="{active: isBackgroundImageActive}" @click="toggleBackgroundImageActive">背景图片
                             <ul class="background-image-menu-list">
-                                <li class="change-background-image">替换<input ref="backgroundImageInput" class="background-image-input" type="file" accept="image/*" @change="changeBackgroundImage"/></li>
-                                <li class="remove-background-image" @click="removeBackgroundImage">删除</li>
+                                <li class="change-background-image" @click.stop="changeBackgroundImage">替换</li>
+                                <li class="remove-background-image" @click.stop="removeBackgroundImage">删除</li>
                             </ul>
                         </div>
                     </div>
@@ -180,6 +180,7 @@
         <div class="image-preview" v-show="componentDragStartData.action == 'addImage'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}"></div>
         <div class="itemlist-preview" v-show="componentDragStartData.action == 'addItemList'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}"></div>
         <div class="property-preview" v-show="componentDragStartData.action == 'addProp'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}">#{动态数据项}</div>
+        <FileUploadForm ref="fileUploadForm" @uploadSuccess="uploadSuccess" @uploadFail="uploadFail"></FileUploadForm>
     </div>
 </template>
 
@@ -199,6 +200,7 @@ import ImageSettingComponent from '../components/ImageSetting'
 import ContainerSettingComponent from '../components/ContainerSetting'
 import PropertySettingComponent from '../components/PropertySetting'
 import ItemListSettingComponent from '../components/ItemListSetting'
+import FileUploadForm from './FileUploadForm'
 import * as types from '../store/mutation_types'
 
 import {getAppSign, uploadFile, transformFileURL, getPPI, getOuterHeight, isInteractWithComponent, getComponentBound} from '../services/utils'
@@ -283,6 +285,7 @@ export default {
         ContainerSettingComponent,
         PropertySettingComponent,
         ItemListSettingComponent,
+        FileUploadForm,
     },
     computed: {
         canvasContainerStyle(){
@@ -1081,34 +1084,27 @@ export default {
                 } else {
                     //这时候菜单还未弹出，那么弹出菜单，同时阻止弹出图片选择框
                     this.isBackgroundImageActive = !this.isBackgroundImageActive
-                    e.preventDefault()
                 }
+            } else {
+                this.$refs.fileUploadForm.$emit('upload')
             }
         },
+        uploadSuccess(response){
+            this.canvas.backgroundImage = response.resource_path
+            this.isBackgroundImageActive = false
+            this.record()
+        },
+        uploadFail(error){
+            alert(error)
+        },
         //改变背景图片时，预览图片文件的base64编码为canvas的背景图片，记录
-        changeBackgroundImage(e){
-            let file = e.target.files[0]
-            let filename = Date.now() + '_' + encodeURIComponent(file.name)
-            getAppSign({filename: filename, postFile: '/printTemplate/'}, (error, sign) => {
-                if(error){
-                    alert(error)
-                } else {
-                    uploadFile({file, sign, insertOnly: 0, filename}, (error, res) => {
-                        if(error){
-                            alert(error)
-                        } else {
-                            this.canvas.backgroundImage = res.resource_path
-                            this.isBackgroundImageActive = false
-                            this.record()
-                        }
-                    })
-                }
-            })
+        changeBackgroundImage(){
+            this.$refs.fileUploadForm.$emit('upload')
         },
         //删除背景图片
         removeBackgroundImage(e){
             this.canvas.backgroundImage = ''
-            this.$refs.backgroundImageInput.value = ''
+            this.$refs.fileUploadForm.$emit('reset')
             this.isBackgroundImageActive = false
             this.record()
         },
@@ -1545,8 +1541,10 @@ export default {
                     @include F(12);
                     .background-image-menu-list {
                         background-color: $C2;
-                        opacity: 0;
+                        display: none;
                         @include top;
+                        top: 30px;
+                        @include BD1;
                         .change-background-image, .remove-background-image {
                             list-style: none;
                             text-align: center;
@@ -1556,16 +1554,11 @@ export default {
                         .change-background-image {
                             @include TC1;
                             position: relative;
-                            .background-image-input {
-                                opacity: 0;
-                                @include full;
-                            }
                             &:hover {
                                 @include TC4;
                             }
                         }
                         .remove-background-image {
-                            display: none;
                             @include TC1;
                             &:hover {
                                 @include TC5;
@@ -1574,12 +1567,7 @@ export default {
                     }
                     &.active {
                         .background-image-menu-list {
-                            @include BD1;
-                            opacity: 1;
-                            top: 30px;
-                            .remove-background-image {
-                                display: block;
-                            }
+                            display: block;
                         }
                     }
                 }

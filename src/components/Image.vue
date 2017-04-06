@@ -1,15 +1,19 @@
 <template>
 <div class="image-component" :style="componentStyle" @dblclick="openFileUploadDialog">
     <img :src="src">
-    <input ref="imageInput" type="file" class="image-input" accept="image/*" @change="changeURL">
     <div class="resize"></div>
+    <FileUploadForm ref="fileUploadForm" @uploadSuccess="uploadSuccess" @uploadFail="uploadFail"></FileUploadForm>
 </div>
 </template>
 
 <script>
-import {readImageAsDataURL, getComponentTranslate, getAppSign, uploadFile, transformFileURL} from '../services/utils'
+import FileUploadForm from './FileUploadForm'
+import {getComponentTranslate, transformFileURL} from '../services/utils'
 export default {
     props: ['data', 'parent'],
+    components:{
+        FileUploadForm
+    },
     computed: {
         componentStyle(){
             let top = this.parent ? this.data.top - this.parent.top : this.data.top
@@ -35,40 +39,14 @@ export default {
     methods:{
         openFileUploadDialog(){
             if(!this.isPreview){
-                this.$refs.imageInput.click()
+                this.$refs.fileUploadForm.$emit('upload')
             }
         },
-        changeURL(e){
-            let file = e.target.files[0]
-            let filename = Date.now() + '_' + encodeURIComponent(file.name)
-            getAppSign({filename: filename, postFile: '/printTemplate/'}, (error, sign) => {
-                if(error){
-                    alert(error)
-                } else {
-                    uploadFile({file, sign, insertOnly: 0, filename}, (error, res) => {
-                        if(error){
-                            alert(error)
-                        } else {
-                            this.$emit('changeComponentData', {data: {src: res.resource_path}, shouldUpdate: false, record: true})
-                        }
-                    })
-                }
-            })
-            // if(e.target.files){
-            //     let file = e.target.files[0]
-            //     if(file){
-            //         readImageAsDataURL(file, (error, base64URL, imageInfo) => {
-            //             if(error){
-            //                 alert(error)
-            //             } else {
-            //                 this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false, record: true})
-            //             }
-            //         })
-            //     }
-            // } else {
-            //     let src = e.target.value
-            //     this.$emit('changeComponentData', {data: {src: src}, shouldUpdate: false, record: true})
-            // }
+        uploadSuccess(response){
+            this.$emit('changeComponentData', {data: {src: response.resource_path}, shouldUpdate: false, record: true})
+        },
+        uploadFail(error){
+            alert(error)
         },
     }
 }
