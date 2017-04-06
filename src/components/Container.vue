@@ -1,6 +1,6 @@
 <template>
 <div class="container-component" :style="componentStyle">
-    <component v-for="component in components" :is="component.type" :isPreview="isPreview" :parent="data" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)">
+    <component v-for="component in components" :is="component.type" :isPreview="isPreview" :parent="data" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
     </component>
 </div>
 </template>

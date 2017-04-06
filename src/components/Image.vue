@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import {readImageAsDataURL, getComponentTranslate} from '../services/utils'
+import {readImageAsDataURL, getComponentTranslate, getAppSign, uploadFile} from '../services/utils'
 export default {
     props: ['data', 'parent'],
     computed: {
@@ -32,6 +32,14 @@ export default {
             }
         },
         changeURL(e){
+            // getAppSign((error, sign) => {
+            //     if(error){
+            //         alert(error)
+            //     } else {
+            //         console.log(sign)
+            //         uploadFile(e.target, sign)
+            //     }
+            // })
             if(e.target.files){
                 let file = e.target.files[0]
                 if(file){
@@ -39,13 +47,13 @@ export default {
                         if(error){
                             alert(error)
                         } else {
-                            this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false})
+                            this.$emit('changeComponentData', {data: {src: base64URL}, shouldUpdate: false, record: true})
                         }
                     })
                 }
             } else {
                 let src = e.target.value
-                this.$emit('changeComponentData', {data: {src: src}, shouldUpdate: false})
+                this.$emit('changeComponentData', {data: {src: src}, shouldUpdate: false, record: true})
             }
         },
     }

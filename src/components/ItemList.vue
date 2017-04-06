@@ -51,7 +51,7 @@ export default {
                 productList.forEach((item, i) => {
                     let items = JSON.parse(JSON.stringify(this.data.children))
                     items.forEach(child => {
-                        child.data.productIndex = (this.page -1) * number + i
+                        child.data.productIndex = (this.page -1) * this.data.number + i
                         child.data.top = top + (i+1) * gap - 0.5 * child.data.height
                     })
                     this.children = this.children.concat(items)

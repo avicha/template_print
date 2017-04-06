@@ -58,14 +58,16 @@ export default {
                         width: maxW + 'px',
                         height: maxW/canvasRate + 'px',
                         paddingTop: paddingTop + 'px',
-                        paddingLeft: paddingLeft + 'px'
+                        paddingBottom: paddingTop + 'px',
+                        paddingLeft: paddingLeft + 'px',
                     }
                 } else {
                     return {
                         width: maxH * canvasRate + 'px',
                         height: maxH + 'px',
                         paddingTop: paddingTop + 'px',
-                        paddingLeft: paddingLeft + 'px'
+                        paddingLeft: paddingLeft + 'px',
+                        paddingRight: paddingLeft + 'px',
                     }
                 }
             }

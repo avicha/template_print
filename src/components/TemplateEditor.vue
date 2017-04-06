@@ -120,7 +120,7 @@
             <div class="right-panel">
                 <TextSettingComponent ref="textSettingComponent" v-show="setting.isTextComponent" @changeComponentSetting="changeComponentSetting"></TextSettingComponent>
                 <ImageSettingComponent ref="imageSettingComponent" v-show="setting.isImageComponent" @changeComponentSetting="changeComponentSetting"></ImageSettingComponent>
-                <ContainerSettingComponent ref="containerSettingComponent" v-show="setting.isContainerComponent" @moveComponentTo="(pos)=>{this.moveComponentTo(this.activeComponents[0], pos)}"></ContainerSettingComponent>
+                <ContainerSettingComponent ref="containerSettingComponent" v-show="setting.isContainerComponent" @moveComponentTo="(pos)=>{this.moveComponentTo(this.activeComponents[0], pos);this.record()}"></ContainerSettingComponent>
                 <PropertySettingComponent ref="propertySettingComponent" v-show="setting.isPropertyComponent" @changeComponentSetting="changeComponentSetting"></PropertySettingComponent>
                 <ItemListSettingComponent ref="itemListSettingComponent" v-show="setting.isItemListComponent" @changeComponentSetting="changeComponentSetting"></ItemListSettingComponent>
             </div>
@@ -505,15 +505,17 @@ export default {
         },
          //记录canvas数据，因为canvas是深度克隆出来的，所以容器的children需要改变指针
         record(){
-            this.updateItemListId()
-            let canvas = JSON.stringify(this.canvas)
-            this.stack[++this.stackIndex] = canvas
-            if(this.stack[this.stackIndex + 1]){
-                this.stack.splice(this.stackIndex + 1, this.stack.length)
-            }
-            if(this.ready){
-                this.menuItems.isSaveAvailable = true  
-            }
+            Vue.nextTick(() => {
+                this.updateItemListId()
+                let canvas = JSON.stringify(this.canvas)
+                this.stack[++this.stackIndex] = canvas
+                if(this.stack[this.stackIndex + 1]){
+                    this.stack.splice(this.stackIndex + 1, this.stack.length)
+                }
+                if(this.ready){
+                    this.menuItems.isSaveAvailable = true  
+                }
+            })
         },
         //恢复画布
         restoreCanvas(canvas_str){
@@ -1085,17 +1087,24 @@ export default {
         },
         //改变背景图片时，预览图片文件的base64编码为canvas的背景图片，记录
         changeBackgroundImage(e){
-            let file = e.target.files[0]
-            if(file){
-                readImageAsDataURL(file, (error, base64URL) => {
-                    if(error){
-                        alert(error)
-                    } else {
-                        this.canvas.backgroundImage = base64URL
-                        this.isBackgroundImageActive = false
-                        this.record()
-                    }
-                })
+            if(e.target.files){
+                let file = e.target.files[0]
+                if(file){
+                    readImageAsDataURL(file, (error, base64URL) => {
+                        if(error){
+                            alert(error)
+                        } else {
+                            this.canvas.backgroundImage = base64URL
+                            this.isBackgroundImageActive = false
+                            this.record()
+                        }
+                    })
+                }
+            } else {
+                let src = e.target.value
+                this.canvas.backgroundImage = src
+                this.isBackgroundImageActive = false
+                this.record()
             }
         },
         //删除背景图片
@@ -1272,10 +1281,13 @@ export default {
             this.record()
         },
         //改变组件的数据
-        changeComponentData(component, {data, shouldUpdate}){
+        changeComponentData(component, {data, shouldUpdate, record}){
             extend(component.data, data)
             if(shouldUpdate){
                 this.showItemSetting(component)
+            }
+            if(record){
+                this.record()
             }
         },
         //重置组件为未选中状态
