@@ -26,7 +26,7 @@
                     <PropertyValueInput :currentStyleType="styleType" styleType="value" :value="data.sample" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.sample = value}"></PropertyValueInput>
                 </el-form-item>
                 <el-form-item label="前缀">
-                    <PropertyValueInput :currentStyleType="styleType" styleType="prefix" :value="data.suffix" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.prefix = value}"></PropertyValueInput>
+                    <PropertyValueInput :currentStyleType="styleType" styleType="prefix" :value="data.prefix" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.prefix = value}"></PropertyValueInput>
                 </el-form-item>
                 <el-form-item label="后缀">
                     <PropertyValueInput :currentStyleType="styleType" styleType="suffix" :value="data.suffix" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.suffix = value}"></PropertyValueInput>

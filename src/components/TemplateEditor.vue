@@ -136,7 +136,7 @@
                     <div class="menu-component-block">
                         <div class="menu-component background-image-btn" :class="{active: isBackgroundImageActive}" @click="toggleBackgroundImageActive">背景图片
                             <ul class="background-image-menu-list">
-                                <li class="change-background-image" @click.stop="changeBackgroundImage">替换</li>
+                                <li class="change-background-image">替换<FileUploadForm ref="fileUploadForm" @uploadSuccess="uploadSuccess" @uploadFail="uploadFail"></FileUploadForm></li>
                                 <li class="remove-background-image" @click.stop="removeBackgroundImage">删除</li>
                             </ul>
                         </div>
@@ -169,7 +169,7 @@
                     <div class="zero">0</div>
                     <div class="top-ruler" :style="{backgroundSize: 0.2 * this.canvas.percentage + 'cm 100%'}"></div>
                     <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.2 * this.canvas.percentage + 'cm'}"></div>
-                    <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown.prevent="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler">
+                    <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler">
                         <component v-for="component in canvas.components" :is="component.type" :isPreview="false" :parent="null" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
                         </component>
                     </div>
@@ -180,7 +180,6 @@
         <div class="image-preview" v-show="componentDragStartData.action == 'addImage'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}"></div>
         <div class="itemlist-preview" v-show="componentDragStartData.action == 'addItemList'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}"></div>
         <div class="property-preview" v-show="componentDragStartData.action == 'addProp'" :style="{top: componentDragStartData.top, left: componentDragStartData.left}">#{动态数据项}</div>
-        <FileUploadForm ref="fileUploadForm" @uploadSuccess="uploadSuccess" @uploadFail="uploadFail"></FileUploadForm>
     </div>
 </template>
 
@@ -1084,9 +1083,8 @@ export default {
                 } else {
                     //这时候菜单还未弹出，那么弹出菜单，同时阻止弹出图片选择框
                     this.isBackgroundImageActive = !this.isBackgroundImageActive
+                    e.preventDefault()
                 }
-            } else {
-                this.$refs.fileUploadForm.$emit('upload')
             }
         },
         uploadSuccess(response){
@@ -1096,10 +1094,6 @@ export default {
         },
         uploadFail(error){
             alert(error)
-        },
-        //改变背景图片时，预览图片文件的base64编码为canvas的背景图片，记录
-        changeBackgroundImage(){
-            this.$refs.fileUploadForm.$emit('upload')
         },
         //删除背景图片
         removeBackgroundImage(e){
@@ -1541,9 +1535,9 @@ export default {
                     @include F(12);
                     .background-image-menu-list {
                         background-color: $C2;
-                        display: none;
+                        opacity: 0;
+                        filter: alpha(opacity=0);
                         @include top;
-                        top: 30px;
                         @include BD1;
                         .change-background-image, .remove-background-image {
                             list-style: none;
@@ -1559,6 +1553,7 @@ export default {
                             }
                         }
                         .remove-background-image {
+                            display: none;
                             @include TC1;
                             &:hover {
                                 @include TC5;
@@ -1567,7 +1562,11 @@ export default {
                     }
                     &.active {
                         .background-image-menu-list {
-                            display: block;
+                            top: 30px;
+                            opacity: 1;
+                            .remove-background-image { 
+                                display: block;
+                            }
                         }
                     }
                 }

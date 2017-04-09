@@ -4,6 +4,9 @@
             <span class="setting-span1">基本元件：</span><span class="setting-span2">图片</span>
         </div>
         <div class="setting-body">
+            <div class="upload-btn">
+                上传图片<FileUploadForm ref="fileUploadForm" @uploadSuccess="uploadSuccess" @uploadFail="uploadFail"></FileUploadForm>
+            </div>
             <el-form label-width="80px" label-position="left">
                 <el-form-item label="宽">
                     <LengthInput :length="data.width" @change="(value)=>{this.data.width = value}"></LengthInput>
@@ -23,15 +26,18 @@
 </template>
 <script>
 import Vue from 'vue'
-import {Form, FormItem} from 'element-ui'
+import {Form, FormItem, Button} from 'element-ui'
 import LengthInput from './LengthInput'
+import FileUploadForm from './FileUploadForm'
 
 Vue.use(Form)
 Vue.use(FormItem)
+Vue.use(Button)
 
 export default {
     components: {
-        LengthInput
+        LengthInput,
+        FileUploadForm,
     },
     data(){
         return {
@@ -40,7 +46,8 @@ export default {
                 width: 0,
                 height: 0,
                 left: 0,
-                top: 0
+                top: 0,
+                src: '',
             }
         }
     },
@@ -53,6 +60,14 @@ export default {
             },
             deep: true
         }
+    },
+    methods: {
+        uploadSuccess(response){
+            this.data.src = response.resource_path
+        },
+        uploadFail(error){
+            alert(error)
+        },
     },
     mounted(){
         this.$on('set_data', data => {
@@ -73,6 +88,8 @@ export default {
 
 <style lang="scss">
 @import "../assets/scss/mixin.scss";
+@import "../assets/scss/fonts.scss";
+@import "../assets/scss/colors.scss";
 .image-setting {
     .setting-title {
         padding: 0 20px;
@@ -110,6 +127,17 @@ export default {
                 font-size: 14px;
                 padding: 6px 24px 6px 0;
             }
+        }
+        .upload-btn {
+            width: 190px;
+            position: relative;
+            padding: 7px 10px;
+            text-align: center;
+            box-sizing: border-box;
+            background-color: $C1;
+            @include TC6;
+            border-color: $C1;
+            margin-bottom: 14px;
         }
     }
 }

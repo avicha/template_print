@@ -43,6 +43,27 @@ module.exports = {
                 pathRewrite: {
                     '^/file': '/file'
                 }
+            },
+            '/image': {
+                target: 'http://www.example.org',
+                changeOrigin: true,
+                router: function(req) {
+                    var path = req.path
+                    if (/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/.test(path)) {
+                        var appid = path.match(/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[1]
+                        var bucket = path.match(/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[2]
+                        var filename = path.match(/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[3]
+                        return 'http://' + bucket + '-' + appid + '.cosgz.myqcloud.com'
+                    }
+                },
+                pathRewrite: function(path, request) {
+                    if (/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/.test(path)) {
+                        var appid = path.match(/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[1]
+                        var bucket = path.match(/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[2]
+                        var filename = path.match(/^\/image\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[3]
+                        return '/' + filename
+                    }
+                }
             }
         },
         // CSS Sourcemaps off by default because relative paths are "buggy"

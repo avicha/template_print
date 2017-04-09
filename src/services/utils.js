@@ -106,7 +106,7 @@ export const getAppSign = (params, callback) => {
         } else {
             callback(null, res.data.signStr)
         }
-    });
+    })
 }
 
 export const transformFileURL = (url) => {
@@ -114,7 +114,11 @@ export const transformFileURL = (url) => {
         let appid = url.match(/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[1]
         let bucket = url.match(/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[2]
         let filename = url.match(/^\/([^\/]+?)\/([^\/]+?)\/(.+)$/)[3]
-        return 'http://' + bucket + '-' + appid + '.cosgz.myqcloud.com' + '/' + filename
+        if (/IE/.test(window.navigator.userAgent)) {
+            return '/image' + url
+        } else {
+            return 'http://' + bucket + '-' + appid + '.cosgz.myqcloud.com' + '/' + filename
+        }
     } else {
         return url
     }

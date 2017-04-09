@@ -1,11 +1,11 @@
 <template>
-<div style="display: none;">
+<div class="file-upload-form-container">
     <form ref="form" :action="url" method="post" enctype="multipart/form-data" :target="iframeName" >
         <input type="hidden" name="op" value="upload">
-        <input ref="imageInput" name="fileContent" type="file" accept="image/*" @change="changeURL">
+        <input ref="imageInput" size="0" name="fileContent" type="file" accept="image/gif,image/jpeg,image/png" @change="changeURL">
         <input type="hidden" name="insertOnly" value="0">
     </form>
-    <iframe src="javascript:false;" :name="iframeName" @load="iframeLoaded"></iframe>
+    <iframe ref="iframe" src="javascript:false;" :name="iframeName"></iframe>
 </div>
 </template>
 
@@ -41,7 +41,7 @@ export default {
                     if(error){
                         alert(error)
                     } else {
-                        this.url = url + '?sign=' + sign
+                        this.url = url + '?sign=' + encodeURIComponent(sign)
                         Vue.nextTick(() => {
                             this.$refs.form.submit()    
                         })
@@ -53,6 +53,7 @@ export default {
             let iframe  = e.target
             let doc = (iframe.contentWindow && iframe.contentWindow.document)  || iframe.contentDocument.document
             let json = doc.body.innerHTML
+            console.log(json)
             if (json && /{.*}/.test(json)) {
                 json = JSON.parse(json.match(/{.*}/)[0])
                 if(json.code){
@@ -66,12 +67,40 @@ export default {
         }
     },
     mounted(){
-        this.$on('upload', ()=>{
-            this.$refs.imageInput.click()
-        })
         this.$on('reset', ()=>{
             this.$refs.imageInput.value = ''
         })
+        if(/IE/.test(window.navigator.userAgent)){
+            this.$refs.iframe.onreadystatechange = e => {
+                console.log(e.target.readyState)
+                if(e.target.readyState == 'complete' || e.target.readyState == 'interactive'){
+                    this.iframeLoaded(e)
+                }
+            }
+        } else {
+            this.$refs.iframe.onload = this.iframeLoaded
+        }
     }
 }
 </script>
+
+<style lang="scss">
+@import "../assets/scss/mixin.scss";
+.file-upload-form-container {
+    z-index: 100;
+    form {
+        @include full;
+        overflow: hidden;
+        input[type="file"] {
+            font-size: 100px;
+            @include full;
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+    }
+    
+    iframe {
+        display: none;
+    }
+}
+</style>

@@ -13,7 +13,7 @@ import ImageComponent from '../components/Image'
 import PropertyComponent from '../components/Property'
 import ItemListComponent from '../components/ItemList'
 import ContainerComponent from '../components/Container'
-import {getPPI} from '../services/utils'
+import {getPPI, transformFileURL} from '../services/utils'
 import extend from 'lodash/extend'
 
 export default {
@@ -98,26 +98,14 @@ export default {
             } else {
                 percentage = maxH/h
             }
-            if(this.isPrintCanvas){
-                return {
-                    width: this.canvas.width + 'mm',
-                    height: this.canvas.height + 'mm',
-                    backgroundImage: this.canvas.backgroundImage && ('url(' + this.canvas.backgroundImage + ')'),
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    transform: 'rotate(' + rotateDeg + 'deg)' + translate,
-                    transformOrigin: '0 0',
-                }
-            } else {
-                return {
-                    width: this.canvas.width + 'mm',
-                    height: this.canvas.height + 'mm',
-                    backgroundImage: this.canvas.backgroundImage && ('url(' + this.canvas.backgroundImage + ')'),
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    transform: 'rotate(' + rotateDeg + 'deg)' + translate + ' scale(' + percentage + ')',
-                    transformOrigin: '0 0',
-                }
+            return {
+                width: this.canvas.width + 'mm',
+                height: this.canvas.height + 'mm',
+                backgroundImage: this.canvas.backgroundImage && ('url(' + transformFileURL(this.canvas.backgroundImage) + ')'),
+                backgroundSize: '100% 100%',
+                backgroundRepeat: 'no-repeat',
+                transform: 'rotate(' + rotateDeg + 'deg)' + translate + (this.isPrintCanvas ? '' : ' scale(' + percentage + ')'),
+                transformOrigin: '0 0',
             }
         },
     },

@@ -1,19 +1,20 @@
 <template>
-<div class="image-component" :style="componentStyle" @dblclick="openFileUploadDialog">
+<div class="image-component" :style="componentStyle">
     <img :src="src">
     <div class="resize"></div>
-    <FileUploadForm ref="fileUploadForm" @uploadSuccess="uploadSuccess" @uploadFail="uploadFail"></FileUploadForm>
 </div>
 </template>
 
 <script>
-import FileUploadForm from './FileUploadForm'
+
 import {getComponentTranslate, transformFileURL} from '../services/utils'
 export default {
-    props: ['data', 'parent'],
-    components:{
-        FileUploadForm
+    data(){
+        return {
+            isShown: false,
+        }
     },
+    props: ['data', 'parent'],
     computed: {
         componentStyle(){
             let top = this.parent ? this.data.top - this.parent.top : this.data.top
@@ -36,29 +37,15 @@ export default {
             }
         }
     },
-    methods:{
-        openFileUploadDialog(){
-            if(!this.isPreview){
-                this.$refs.fileUploadForm.$emit('upload')
-            }
-        },
-        uploadSuccess(response){
-            this.$emit('changeComponentData', {data: {src: response.resource_path}, shouldUpdate: false, record: true})
-        },
-        uploadFail(error){
-            alert(error)
-        },
-    }
 }
 </script>
 
 <style lang="scss">
+@import "../assets/scss/mixin.scss";
 .image-component {
     position: relative;
     img {
-        display: block;
-        width: 100%;
-        height: 100%;
+        @include full;
     }
     .image-input {
         display: none;
@@ -67,6 +54,7 @@ export default {
         display: none;
         position: absolute;
         opacity: 0;
+        filter: alpha(opacity=0);
         width: 20px;
         height: 20px;
         top: 100%;

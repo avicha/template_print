@@ -215,6 +215,7 @@ export default {
         display: none;
         position: absolute;
         opacity: 0;
+        filter: alpha(opacity=0);
         width: 20px;
         height: 20px;
         top: 100%;
