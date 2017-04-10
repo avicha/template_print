@@ -1,6 +1,6 @@
 <template>
 <div class="image-component" :style="componentStyle">
-    <img :src="src">
+    <img :src="src" @dragstart.prevent>
     <div class="resize"></div>
 </div>
 </template>

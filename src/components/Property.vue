@@ -1,6 +1,6 @@
 <template>
 <div class="property-component barcode" :style="componentStyle" v-if="data.propertyType == 4">
-    <img ref="barcode" id="barcode" src="/static/images/barcode-sample.png">
+    <img ref="barcode" id="barcode" src="/static/images/barcode-sample.png" @dragstart.prevent>
     <div class="resize" v-if="!isPreview"></div>
 </div>
 <div class="property-component string" :style="componentStyle" v-else>

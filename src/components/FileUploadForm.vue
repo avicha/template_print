@@ -27,8 +27,8 @@ export default {
                 let bucket_name = 'jzm'
                 let dir_name = '%2FprintTemplate%2F'
                 let filename = /[\/\\][^\/\\]*?$/.test(this.$refs.imageInput.value) ? this.$refs.imageInput.value.match(/[\/\\]([^\/\\]*?)$/)[1] : this.$refs.imageInput.value
-                filename = Date.now() + '_' + encodeURIComponent(filename)
-                let url = '/files/v2/' + appid + '/' + bucket_name + '/' + dir_name + '/' + filename
+                filename = Date.now() + '_' + filename
+                let url = '/files/v2/' + appid + '/' + bucket_name + '/' + dir_name + '/' + encodeURIComponent(filename)
                 return {url, filename}
             } else {
                 return {url: '', filename: ''}
