@@ -182,6 +182,10 @@ const actions = {
     }
 }
 const mutations = {
+    [types.EMPTY_TEMPLATE_LIST](state) {
+        state.qualityList = []
+        state.labelList = []
+    },
     [types.RECEIVE_QUALITY_LIST](state, qualityList) {
         state.qualityList = qualityList
     },

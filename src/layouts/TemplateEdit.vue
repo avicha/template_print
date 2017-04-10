@@ -5,7 +5,7 @@
                 <router-link class="breadcrumb-item" :to="{ name: 'Index' }" exact>返回上一级</router-link>
                 <span class="breadcrumb-item">工作</span>
                 <span class="breadcrumb-item">打印模板</span>
-                <span class="breadcrumb-item">新建质保单</span>
+                <span class="breadcrumb-item">编辑{{ templateType }}</span>
             </div>
             <div class="template-edit-content">
                 <TemplateEditor ref="templateEditor" :propList="propList" :template="template" :templateData="templateData" @openBackConfirmDialog="openBackConfirmDialog" @openDeleteConfirmDialog="openDeleteConfirmDialog" @openComponentRangeOutsideAlertDialog="openComponentRangeOutsideAlertDialog" @preview="previewTemplate" @loadQualityTemplateData="loadQualityTemplateData" @openLoadLabelTemplateDataDialog="openLoadLabelTemplateDataDialog"></TemplateEditor>    
@@ -69,6 +69,9 @@ export default {
                 //否则返回页数，没有数据则打印1页
                 return Math.ceil(this.templateData.productList.length/number) || 1
             }
+        },
+        templateType(){
+            return this.template.type == 1 ? '质保单':'标签'
         },
         //返回state的属性列表和模板详情到编辑器
         ...mapState({

@@ -30,8 +30,7 @@
                             :openCopyTemplateDialog="openCopyTemplateDialog"
                             :openSetDefaultDialog="openSetDefaultDialog"
                             :previewTemplate="previewTemplate"
-                            :openDeleteTemplateDialog="openDeleteTemplateDialog"
-                            :key="qualityTemplate.templateId">
+                            :openDeleteTemplateDialog="openDeleteTemplateDialog">
                             </QualityTemplate>
                         </el-col>
                     </el-row>
@@ -46,8 +45,7 @@
                                 :openCopyTemplateDialog="openCopyTemplateDialog"
                                 :openSetDefaultDialog="openSetDefaultDialog"
                                 :previewTemplate="previewTemplate"
-                                :openDeleteTemplateDialog="openDeleteTemplateDialog"
-                                :key="labelTemplate.templateId">
+                                :openDeleteTemplateDialog="openDeleteTemplateDialog">
                             </LabelTemplate>
                         </el-col>
                     </el-row>
@@ -292,6 +290,7 @@ export default {
         }
     },
     mounted(){
+        this.$store.commit(types.EMPTY_TEMPLATE_LIST)
         this.$store.dispatch('getTemplateList')
     }
 }
