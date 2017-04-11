@@ -10,7 +10,7 @@
                 <div class="operation-dropdown-container">
                     <div class="operation-dropdown-menu-list">
                         <el-button class="el-dropdown-link" type="primary">
-                            <i class="icon icon-create"></i>+新建
+                            <i class="icon icon-create"></i><span class="create-text">新建</span>
                         </el-button>
                         <ul class="dropdown">
                             <li class="dropdown-item" @click="showCreateTemplateDialog(1)">新建质保单</li>
@@ -23,7 +23,7 @@
                         <span>质保单</span>
                     </p>
                     <el-row class="quality-list" justify="space-between" :gutter="20">
-                        <el-col :span="4" v-for="qualityTemplate in qualityList">
+                        <el-col :span="4" v-for="qualityTemplate in qualityList" :key="qualityTemplate.content">
                             <QualityTemplate 
                             :qualityTemplate="qualityTemplate"
                             :openRenameTemplateDialog="openRenameTemplateDialog"
@@ -38,7 +38,7 @@
                         <span>标签</span>
                     </p>
                     <el-row class="label-list" justify="space-between" :gutter="20">
-                        <el-col :span="4" v-for="labelTemplate in labelList">
+                        <el-col :span="4" v-for="labelTemplate in labelList" :key="labelTemplate.content">
                             <LabelTemplate 
                                 :labelTemplate="labelTemplate"
                                 :openRenameTemplateDialog="openRenameTemplateDialog"
@@ -290,7 +290,6 @@ export default {
         }
     },
     mounted(){
-        this.$store.commit(types.EMPTY_TEMPLATE_LIST)
         this.$store.dispatch('getTemplateList')
     }
 }
@@ -317,6 +316,13 @@ export default {
                         background-color: $C1;
                         border-color: $C1;
                         width: 100px;
+                        .icon-create {
+                            margin-right: 10px;
+                        }
+                        .create-text {
+                            line-height: 16px;
+                            vertical-align: middle;
+                        }
                     }
                     .dropdown {
                         display: none;

@@ -31,6 +31,7 @@
                 <el-form-item label="后缀">
                     <PropertyValueInput :currentStyleType="styleType" styleType="suffix" :value="data.suffix" @changeStyleType="toggleStyle($event)" @change="(value)=>{this.data.suffix = value}"></PropertyValueInput>
                 </el-form-item>
+                <el-checkbox v-model="data.isNullPrint">空值打印</el-checkbox>
             </el-form>
         </div>
         <div class="property-setting-body" v-if="data.propertyType != 4">
@@ -104,7 +105,7 @@
 </template>
 <script>
 import Vue from 'vue'
-import {Form, FormItem, Select, Option, InputNumber, ColorPicker} from 'element-ui'
+import {Form, FormItem, Select, Option, InputNumber, ColorPicker, Checkbox} from 'element-ui'
 import LengthInput from './LengthInput'
 import PropertyValueInput from './PropertyValueInput'
 
@@ -114,6 +115,7 @@ Vue.use(Select)
 Vue.use(Option)
 Vue.use(InputNumber)
 Vue.use(ColorPicker)
+Vue.use(Checkbox)
 
 import extend from 'lodash/extend'
 
@@ -130,6 +132,7 @@ export default {
                 propertyCode: '',
                 propertyName: '',
                 propertyType: 0,
+                isNullPrint: false,
                 toFixed: 0,
                 dateFormat: 'YYYY-MM-DD H:m:s',
                 prefix: '',

@@ -1,9 +1,9 @@
 <template>
-<div class="property-component barcode" :style="componentStyle" v-if="data.propertyType == 4">
+<div class="property-component barcode" v-show="isShown" :style="componentStyle" v-if="data.propertyType == 4">
     <img ref="barcode" id="barcode" src="/static/images/barcode-sample.png" @dragstart.prevent>
     <div class="resize" v-if="!isPreview"></div>
 </div>
-<div class="property-component string" :style="componentStyle" v-else>
+<div class="property-component string" v-show="isShown" :style="componentStyle" v-else>
     <span :style="prefixStyle">{{ data.prefix }}</span><span :style="valueStyle">{{ value }}</span><span :style="suffixStyle">{{ data.suffix }}</span>
 </div>
 </template>
@@ -18,10 +18,14 @@ export default {
     data(){
         return {
             ppi: getPPI(),
+            isNull: false,
         }
     },
     props: ['isPreview', 'parent', 'data', 'templateData'],
     computed: {
+        isShown(){
+            return !this.isPreview || this.data.isNullPrint || !this.isNull
+        },
         componentStyle(){
             let top = this.parent ? this.data.top - this.parent.top : this.data.top
             let left = this.parent ? this.data.left - this.parent.left : this.data.left
@@ -82,17 +86,20 @@ export default {
             let code = this.data.propertyCode
             let product = this.templateData.productList[this.data.productIndex || 0]
             let value = null
-            if(this.data.itemListId){
-                value = product && product[code]
+            if(product){
+                if(this.data.itemListId){
+                    value = product && product[code]
+                } else {
+                    value = this.templateData[code]
+                }
             } else {
-                value = this.templateData[code]
-            }
-            if(value == null){
                 if(this.data.sample){
                     value = this.data.sample
+                    this.isNull = false
                 } else {
+                    this.isNull = true
                     return '#{' + code + '}'
-                }    
+                }
             }
             if(this.data.propertyType == 1 || this.data.propertyType == 3){
                 return Number(value).toFixed(this.data.toFixed)    
@@ -156,7 +163,7 @@ export default {
             }
         },
         computeSize(){
-            if(this.data.propertyType != 4){
+            if(this.data.propertyType != 4 && this.isShown){
                 let w = Math.round(getOuterWidth(this.$el)/this.ppi*2.54*10)
                 let h = Math.round(getOuterHeight(this.$el)/this.ppi*2.54*10)
                 let l, alignNumber = this.data.alignNumber

@@ -167,8 +167,8 @@
             <div class="canvas-panel">
                 <div class="canvas-container" :style="canvasContainerStyle">
                     <div class="zero">0</div>
-                    <div class="top-ruler" :style="{backgroundSize: 0.2 * this.canvas.percentage + 'cm 100%'}"></div>
-                    <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.2 * this.canvas.percentage + 'cm'}"></div>
+                    <div class="top-ruler" :style="{backgroundSize: 0.61 * this.canvas.percentage + 'cm 100%'}"></div>
+                    <div class="left-ruler" :style="{backgroundSize: '100% ' + 0.61 * this.canvas.percentage + 'cm'}"></div>
                     <div class="canvas" ref="canvas" :style="canvasStyle" @mousedown="canvasMousedownHandler" @mousemove.prevent="canvasMousemoveHandler" @mouseup.prevent="canvasMouseupHandler">
                         <component v-for="component in canvas.components" :is="component.type" :isPreview="false" :parent="null" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
                         </component>
@@ -1158,6 +1158,7 @@ export default {
                     propertyCode: data.code,
                     propertyName: data.name,
                     propertyType: Number(data.codeType),
+                    isNullPrint: false,
                     toFixed: data.codeType == 1? 2: (data.codeType == 3? 3: 0),
                     dateFormat: 'YYYY-MM-DD HH:mm:ss',
                     prefix: '',
