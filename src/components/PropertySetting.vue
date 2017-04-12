@@ -260,7 +260,7 @@ export default {
             margin-right: 10px;
         }
         .property-setting-span2 {
-            color: #0abfab;
+            @include TC4;
         }
     }
     .property-setting-body {
@@ -370,6 +370,25 @@ export default {
                             height: 34px;
                         }
                     }
+                }
+            }
+            .el-checkbox {
+                margin-left: 10px;
+                .el-checkbox__input {
+                    &.is-checked {
+                        .el-checkbox__inner {
+                            background-color: $C1;
+                            border-color: $C1;
+                        }    
+                    }
+                    &.is-focus, &:hover {
+                        .el-checkbox__inner {
+                            border-color: #bfcbd9;    
+                        }
+                    }
+                }
+                .el-checkbox__label {
+                    padding-left: 10px;
                 }
             }
         }

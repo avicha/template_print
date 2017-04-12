@@ -179,7 +179,7 @@ export default class PrintAPI {
     }
 
     static getPrintQualityData(filter) {
-        return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getPrintQualityData2', {
+        return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getPrintQualityData', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -199,7 +199,7 @@ export default class PrintAPI {
     }
 
     static getPrintLabelData(filter) {
-        return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getPrintLabelData2', {
+        return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getPrintLabelData', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -13,6 +13,7 @@ import Vue from 'vue'
 import {getOuterWidth, getOuterHeight, getPPI, getComponentTranslate} from '../services/utils'
 import moment from 'moment'
 import JsBarcode from 'jsbarcode'
+import find from 'lodash/find'
 
 export default {
     data(){
@@ -85,12 +86,20 @@ export default {
         value(){
             let code = this.data.propertyCode
             let product = this.templateData.productList[this.data.productIndex || 0]
-            let value = null
+            let value = null, mapcode = null
+            this.isNull = false
             if(product){
                 if(this.data.itemListId){
-                    value = product && product[code]
+                    mapcode = find(product.codeList, {key: code})
                 } else {
-                    value = this.templateData[code]
+                    mapcode = find(this.templateData.baseInfoList, {key: code})
+                    if(!mapcode){
+                        mapcode = find(product.codeList, {key: code})
+                    }
+                }
+                if(mapcode){
+                    value = mapcode.value
+                    this.isNull = mapcode.isNull
                 }
             } else {
                 if(this.data.sample){
