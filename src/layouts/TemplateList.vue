@@ -171,8 +171,8 @@ export default {
             })
             this.$refs.copyTemplateDialog.show()
         },
-        openSetDefaultDialog(templateId){
-            this.$refs.setDefaultTemplateDialog.$emit('set_data', {templateId: templateId})
+        openSetDefaultDialog(type, templateId){
+            this.$refs.setDefaultTemplateDialog.$emit('set_data', {type, templateId})
             this.$refs.setDefaultTemplateDialog.show()
         },
         openDeleteTemplateDialog(type, templateId){
@@ -199,7 +199,7 @@ export default {
             this.$store.dispatch('createTemplate', templateData).then(json => {
                 if(json.state == 200){
                     this.$refs.copyTemplateDialog.close()
-                    this.$store.dispatch('getTemplateList')
+                    this.$store.dispatch('getTemplateList', {type: type, fieldType: 'full'})
                 }
             })
         },
@@ -207,7 +207,7 @@ export default {
             this.$store.dispatch('deleteTemplate', templateId).then(json => {
                 if(json.state == 200){
                     this.$refs.deleteTemplateDialog.close()
-                    this.$store.dispatch('getTemplateList')
+                    this.$store.dispatch('getTemplateList', {type: type, fieldType: 'full'})
                 }
             })
         },
@@ -215,15 +215,15 @@ export default {
             this.$store.dispatch('updateTemplate', templateData).then(json => {
                 if(json.state == 200){
                     this.$refs.renameTemplateDialog.close()
-                    this.$store.dispatch('getTemplateList')
+                    this.$store.dispatch('getTemplateList', {type: type, fieldType: 'full'})
                 }
             })
         },
-        setDefaultTemplate(templateId){
+        setDefaultTemplate(type, templateId){
             this.$store.dispatch('setDefaultTemplate', templateId).then(json => {
                 if(json.state == 200){
                     this.$refs.setDefaultTemplateDialog.close()
-                    this.$store.dispatch('getTemplateList')
+                    this.$store.dispatch('getTemplateList', {type: type, fieldType: 'full'})
                 }
             })
         },
@@ -290,7 +290,8 @@ export default {
         }
     },
     mounted(){
-        this.$store.dispatch('getTemplateList')
+        this.$store.dispatch('getTemplateList', {type: 1, fieldType: 'full'})
+        this.$store.dispatch('getTemplateList', {type: 2, fieldType: 'full'})
     }
 }
 </script>

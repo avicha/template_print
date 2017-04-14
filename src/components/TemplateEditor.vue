@@ -552,6 +552,8 @@ export default {
             if(this.componentDragStartData._isDraging){
                 let left = Math.round((e.clientX - this.$refs.canvas.getBoundingClientRect().left)/this.ppi*2.54*10)
                 let top = Math.round((e.clientY - this.$refs.canvas.getBoundingClientRect().top)/this.ppi*2.54*10)
+                left /= (this.canvas.percentage/100)
+                top /= (this.canvas.percentage/100)
                 switch(this.componentDragStartData.action){
                     case 'addText':
                         this.addText(left, top)
@@ -576,6 +578,8 @@ export default {
                 this._startY = Math.round(e.clientY/this.ppi*2.54*10)
                 let offsetX = Math.round((e.clientX - this.$refs.canvas.getBoundingClientRect().left)/this.ppi*2.54*10)
                 let offsetY = Math.round((e.clientY - this.$refs.canvas.getBoundingClientRect().top)/this.ppi*2.54*10)
+                offsetX /= (this.canvas.percentage/100)
+                offsetY /= (this.canvas.percentage/100)
                 if(e.target.className == 'resize'){
                     offsetX -= 3
                     offsetY -= 3
@@ -592,6 +596,8 @@ export default {
                 this._endY = Math.round(e.clientY/this.ppi*2.54*10)
                 let dx = this._endX - this._startX
                 let dy = this._endY - this._startY
+                dx /= (this.canvas.percentage/100)
+                dy /= (this.canvas.percentage/100)
                 if(this._dragingComponent){
                     this._isDraging = true
                     this.moveComponent(this._dragingComponent, {left: dx, top: dy})
@@ -612,6 +618,8 @@ export default {
                 this._endY = Math.round(e.clientY/this.ppi*2.54*10)
                 let dx = this._endX - this._startX
                 let dy = this._endY - this._startY
+                dx /= (this.canvas.percentage/100)
+                dy /= (this.canvas.percentage/100)
                 if(this._isDraging){
                     this.moveComponent(this._dragingComponent, {left: dx, top: dy})
                     this.showItemSetting(this._dragingComponent)
@@ -626,6 +634,8 @@ export default {
             } else {
                 let offsetX = Math.round((e.clientX - this.$refs.canvas.getBoundingClientRect().left)/this.ppi*2.54*10)
                 let offsetY = Math.round((e.clientY - this.$refs.canvas.getBoundingClientRect().top)/this.ppi*2.54*10)
+                offsetX /= (this.canvas.percentage/100)
+                offsetY /= (this.canvas.percentage/100)
                 if(e.target.className == 'resize'){
                     offsetX -= 3
                     offsetY -= 3

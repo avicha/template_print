@@ -20,28 +20,27 @@ export default {
         }
     },
     methods:{
-        getParams(){
+        getFilename(){
             if(this.$refs.imageInput.value){
-                let region = 'gz'
-                let appid = '1252389350'
-                let bucket_name = 'jzm'
-                let dir_name = '%2FprintTemplate%2F'
                 let filename = /[\/\\][^\/\\]*?$/.test(this.$refs.imageInput.value) ? this.$refs.imageInput.value.match(/[\/\\]([^\/\\]*?)$/)[1] : this.$refs.imageInput.value
-                filename = Date.now() + '_' + filename
-                let url = '/files/v2/' + appid + '/' + bucket_name + '/' + dir_name + '/' + encodeURIComponent(filename)
-                return {url, filename}
+                return filename
             } else {
-                return {url: '', filename: ''}
+                return ''
             }
         },
         changeURL(e){
-            let {url, filename} = this.getParams()
+            let filename = this.getFilename()
             if(filename){
-                getAppSign({filename: filename, postFile: '/printTemplate/'}, (error, sign) => {
+                getAppSign({type: 3}, (error, {sign, dir_name}) => {
                     if(error){
                         alert(error)
                     } else {
-                        this.url = url + '?sign=' + encodeURIComponent(sign)
+                        let region = 'gz'
+                        let appid = '1252389350'
+                        let bucket_name = 'jzm'
+                        dir_name = encodeURIComponent(dir_name)
+                        filename = Date.now() + '_' + filename
+                        this.url = '/files/v2/' + appid + '/' + bucket_name + '/' + dir_name + '/' + encodeURIComponent(filename) + '?sign=' + encodeURIComponent(sign)
                         Vue.nextTick(() => {
                             this.$refs.form.submit()    
                         })
@@ -72,7 +71,6 @@ export default {
         })
         if(/IE/.test(window.navigator.userAgent)){
             this.$refs.iframe.onreadystatechange = e => {
-                console.log(e.target.readyState)
                 if(e.target.readyState == 'complete' || e.target.readyState == 'interactive'){
                     this.iframeLoaded(e)
                 }

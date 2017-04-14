@@ -1,6 +1,6 @@
 <template>
 <div class="container-component" :style="componentStyle">
-    <component v-for="component in components" :is="component.type" :isPreview="isPreview" :parent="data" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
+    <component v-for="component in components" :is="component.type" :isPreview="isPreview" :parent="data" class="component" :class="{active: component.active}" :data="component.data" :templateData="templateData" :page="page" @changeComponentData="changeComponentData(component, $event)" :changeComponentData="changeComponentData">
     </component>
 </div>
 </template>
@@ -13,7 +13,7 @@ import ItemListComponent from '../components/ItemList'
 import {getComponentBound, getComponentTranslate} from '../services/utils'
 
 export default {
-    props: ['isPreview', 'data', 'templateData', 'changeComponentData'],
+    props: ['isPreview', 'data', 'templateData', 'page', 'changeComponentData'],
     computed: {
         components(){
             //预览时，不渲染商品列表的属性值，由商品列表自己渲染

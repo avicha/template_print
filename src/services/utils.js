@@ -104,7 +104,10 @@ export const getAppSign = (params, callback) => {
         if (res.state != 200) {
             callback(res.msg)
         } else {
-            callback(null, res.data.signStr)
+            callback(null, {
+                sign: res.data.signStr,
+                dir_name: res.data.url
+            })
         }
     })
 }

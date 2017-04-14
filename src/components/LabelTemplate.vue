@@ -9,7 +9,7 @@
                 <ul class="operation-list">
                     <li class="operation" @click="openRenameTemplateDialog(2, labelTemplate)">重命名</li>
                     <li class="operation" @click="openCopyTemplateDialog(2, labelTemplate)">复制</li>
-                    <li class="operation" @click="openSetDefaultDialog(labelTemplate.templateId)">设置默认</li>
+                    <li class="operation" @click="openSetDefaultDialog(2, labelTemplate.templateId)">设置默认</li>
                     <li class="operation" @click="previewTemplate(2, labelTemplate)">预览</li>
                     <li class="operation delete-operation" @click="openDeleteTemplateDialog(2, labelTemplate.templateId)">删除</li>
                 </ul>

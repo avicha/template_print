@@ -21,6 +21,7 @@ export default {
     data() {
         return {
             isShown: false,
+            type: null,
             templateId: null,
         }
     },
@@ -41,7 +42,7 @@ export default {
             window.removeEventListener('keydown', this.keydownHandler)
         },
         setDefaultTemplate(){
-            this.$emit('set_default_template', this.templateId)
+            this.$emit('set_default_template', this.type, this.templateId)
         }
     },
     mounted(){

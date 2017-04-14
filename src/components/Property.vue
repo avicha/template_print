@@ -22,7 +22,7 @@ export default {
             isNull: false,
         }
     },
-    props: ['isPreview', 'parent', 'data', 'templateData'],
+    props: ['isPreview', 'parent', 'data', 'page', 'templateData'],
     computed: {
         isShown(){
             return !this.isPreview || this.data.isNullPrint || !this.isNull
@@ -85,7 +85,7 @@ export default {
         },
         value(){
             let code = this.data.propertyCode
-            let product = this.templateData.productList[this.data.productIndex || 0]
+            let product = this.templateData.productList[this.data.productIndex == undefined ? this.page-1: this.data.productIndex]
             let value = null, mapcode = null
             this.isNull = false
             if(product){
@@ -99,7 +99,7 @@ export default {
                 }
                 if(mapcode){
                     value = mapcode.value
-                    this.isNull = mapcode.isNull
+                    this.isNull = mapcode.isNull != 0
                 }
             } else {
                 if(this.data.sample){

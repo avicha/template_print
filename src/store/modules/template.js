@@ -32,13 +32,17 @@ const getters = {}
 const actions = {
     getTemplateList({
         commit
-    }) {
-        return printAPI.getTemplateList().then(json => {
+    }, filter) {
+        return printAPI.getTemplateList(filter).then(json => {
             if (json.state != 200) {
                 commit(types.RECEIVE_ERROR, json)
             } else {
-                commit(types.RECEIVE_QUALITY_LIST, json.data.qualityList)
-                commit(types.RECEIVE_LABEL_LIST, json.data.labelList)
+                if (json.data.qualityList) {
+                    commit(types.RECEIVE_QUALITY_LIST, json.data.qualityList)
+                }
+                if (json.data.labelList) {
+                    commit(types.RECEIVE_LABEL_LIST, json.data.labelList)
+                }
             }
             return json
         }).catch(e => {
@@ -170,6 +174,20 @@ const actions = {
         commit
     }, filter) {
         return printAPI.getPrintLabelData(filter).then(json => {
+            if (json.state != 200) {
+                commit(types.RECEIVE_ERROR, json)
+            }
+            return json
+        }).catch(e => {
+            commit(types.RECEIVE_ERROR, {
+                msg: e.message
+            })
+        })
+    },
+    getPrintLabelByOrder({
+        commit
+    }, filter) {
+        return printAPI.getPrintLabelByOrder(filter).then(json => {
             if (json.state != 200) {
                 commit(types.RECEIVE_ERROR, json)
             }

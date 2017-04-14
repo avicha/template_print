@@ -7,7 +7,7 @@ export default class PrintAPI {
 
     static namespace = 'print'
 
-    static getTemplateList() {
+    static getTemplateList(filter) {
         return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getTemplateList', {
             method: 'POST',
             credentials: 'include',
@@ -16,6 +16,7 @@ export default class PrintAPI {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                data: filter,
                 unit: {
                     companyId: "396c6aeee0f34523a9454cec7bcebfff",
                     channel: 3,
@@ -200,6 +201,26 @@ export default class PrintAPI {
 
     static getPrintLabelData(filter) {
         return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getPrintLabelData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                unit: {
+                    companyId: "396c6aeee0f34523a9454cec7bcebfff",
+                    channel: 3,
+                    os: "",
+                    ip: "",
+                    userId: "e2a11336cc81471883ef2d652829c729",
+                    tokenId: "e2a11336cc81471883ef2d652829c729"
+                },
+                data: filter
+            })
+        }).then(res => res.json());
+    }
+
+    static getPrintLabelByOrder(filter) {
+        return fetch(this.serverHost + '/' + this.version + '/' + this.namespace + '/getPrintLabelByOrder', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
